@@ -25,7 +25,7 @@ aros-platform/
 ├── packages/core/       # Thin wrapper around @mib007/core
 ├── apps/web/            # Main AROS web UI (Vite + React)
 ├── aros-ai/             # AROS AI agent — the platform driver
-├── plugins/shre/        # Optional Shre identity/vault plugin
+├── plugins/auth/        # Auth plugin (ArosProvider + ShreProvider)
 ├── whitelabel/          # Brand themes, configs, schema
 ├── marketplace/         # MIB007 node marketplace client
 ├── updater/             # Core update mechanism
@@ -57,7 +57,7 @@ AROS AI becomes whatever the customer names her. Set `agent.name` in the whitela
 Shre is an optional backend plugin providing identity, vault, and authentication services from the MIB007 ecosystem.
 
 - **Enabled** (default): AROS delegates auth and vault operations to a Shre endpoint
-- **Disabled**: AROS uses the built-in `LocalProvider` — fully standalone, no external dependencies
+- **Disabled**: AROS uses the built-in `ArosProvider` — fully standalone, no external dependencies
 
 Toggle in `aros.config.json`:
 
@@ -69,7 +69,7 @@ Toggle in `aros.config.json`:
 }
 ```
 
-See [plugins/shre/README.md](./plugins/shre/README.md) for details.
+See [plugins/auth/README.md](./plugins/auth/README.md) for details.
 
 ## Marketplace
 
