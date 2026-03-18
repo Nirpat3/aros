@@ -10,6 +10,10 @@ dist/
 .env.local
 .env.*.local
 
+# BYOM — user API keys (never commit)
+models.config.json
+*.config.local.json
+
 # IDE
 .vscode/
 .idea/
