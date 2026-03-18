@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0",
+  "releasedAt": "2026-03-18T00:00:00Z",
+  "channel": "stable",
+  "minArosVersion": "0.1.0",
+  "packages": {
+    "core": {
+      "package": "@mib007/core",
+      "version": "1.0.0",
+      "breaking": false,
+      "changelog": [
+        { "type": "feat", "scope": "core", "message": "Initial release — MIB007 core engine" },
+        { "type": "feat", "scope": "marketplace", "message": "Node registry + installer" },
+        { "type": "feat", "scope": "registry", "message": "Package publishing + versioning" }
+      ]
+    },
+    "ui": {
+      "package": "@mib007/ui",
+      "version": "1.0.0",
+      "breaking": false,
+      "changelog": [
+        { "type": "feat", "scope": "ui", "message": "Initial AROS UI shell (Vite + React)" },
+        { "type": "feat", "scope": "dashboard", "message": "Base dashboard + sidebar" },
+        { "type": "feat", "scope": "chat", "message": "AROS AI chat interface" }
+      ],
+      "whitelabelNote": "Base UI — safe to apply or customize."
+    }
+  },
+  "signature": "sha256:placeholder-sign-on-real-release"
+}

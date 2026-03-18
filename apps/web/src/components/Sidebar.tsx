@@ -1,4 +1,5 @@
 import { useWhitelabel } from '../whitelabel/WhitelabelProvider';
+import { UpdateBadge } from './updates';
 
 export function Sidebar() {
   const { config } = useWhitelabel();
@@ -13,6 +14,10 @@ export function Sidebar() {
         <a href="/" className="aros-nav-item active">Dashboard</a>
         {config.features?.marketplace && <a href="/marketplace" className="aros-nav-item">Marketplace</a>}
         {config.features?.analytics && <a href="/analytics" className="aros-nav-item">Analytics</a>}
+        <a href="/updates" className="aros-nav-item">
+          Updates
+          <UpdateBadge coreAvailable={false} uiAvailable={false} />
+        </a>
         {config.features?.settings && <a href="/settings" className="aros-nav-item">Settings</a>}
       </nav>
     </aside>
