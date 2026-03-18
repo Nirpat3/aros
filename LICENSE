@@ -1,0 +1,27 @@
+Business Source License 1.1
+
+Licensor:             Nirlab Inc
+Licensed Work:        AROS — Agentic Retail Operating System
+                      The Licensed Work is (c) 2024 Nirlab Inc
+Change Date:          Four years from the release date of each version
+Change License:       Apache License, Version 2.0
+
+Use Limitation:       The Licensed Work may not be used for production purposes by any entity that:
+                      (a) has more than one user of the Licensed Work, OR
+                      (b) uses the Licensed Work for commercial purposes with multiple users or clients
+
+                      without purchasing an enterprise license from Nirlab Inc.
+
+                      Single-user, non-commercial use is permitted at no charge.
+
+                      For enterprise licensing: https://nirlab.com/aros/enterprise
+
+Additional Use Grant: You may make use of the Licensed Work, provided your use does not include
+                      offering the Licensed Work to third parties on a hosted or embedded basis
+                      as a commercial product.
+
+---
+
+THE LICENSED WORK IS PROVIDED "AS IS". NIRLAB INC HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, AND NONINFRINGEMENT.

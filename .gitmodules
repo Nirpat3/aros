@@ -1,0 +1,3 @@
+[submodule "rapidrms-ops"]
+	path = rapidrms-ops
+	url = https://github.com/Nirpat3/rapidrms-ops.git
