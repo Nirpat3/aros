@@ -7,6 +7,7 @@
   "core": {
     "source": "mib007",
     "version": "1.0.0",
+    "uiVersion": "1.0.0",
     "autoUpdate": true,
     "updateFeed": "https://registry.mib007.io/releases",
     "channel": "stable"
@@ -48,5 +49,21 @@
       "model": "",
       "endpoint": ""
     }
+  },
+  "updates": {
+    "core": {
+      "policy": "notify",
+      "channel": "stable",
+      "autoApplyPatch": true,
+      "autoApplyMinor": false,
+      "requireManualMajor": true
+    },
+    "ui": {
+      "policy": "notify",
+      "ignoreIfWhitelabeled": true,
+      "previewBeforeApply": true
+    },
+    "checkIntervalMinutes": 30,
+    "webhookOnUpdate": ""
   }
 }
