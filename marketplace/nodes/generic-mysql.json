@@ -1,0 +1,56 @@
+{
+  "id": "com.nirlab.generic-mysql",
+  "name": "MySQL Connector",
+  "version": "1.0.0",
+  "description": "Connect AROS to any MySQL or MariaDB database. Run queries, sync tables, and make your data available for agent context. Works with self-hosted MySQL, PlanetScale, ClearDB, and more.",
+  "category": "database",
+  "author": "Nirlab Inc",
+  "registry": "https://registry.mib007.io",
+  "packageName": "@aros/connector-mysql",
+  "capabilities": [
+    "data-fetch",
+    "local-sync",
+    "agent-context",
+    "parameterized-queries"
+  ],
+  "pricing": {
+    "model": "free"
+  },
+  "requiredPlatformVersion": "0.2.0",
+  "publishedAt": "2026-03-18T00:00:00Z",
+  "updatedAt": "2026-03-18T00:00:00Z",
+  "configSchema": {
+    "host": {
+      "type": "string",
+      "required": true,
+      "label": "Host"
+    },
+    "port": {
+      "type": "number",
+      "required": true,
+      "label": "Port",
+      "default": 3306
+    },
+    "database": {
+      "type": "string",
+      "required": true,
+      "label": "Database Name"
+    },
+    "username": {
+      "type": "string",
+      "required": true,
+      "label": "Username"
+    },
+    "password": {
+      "type": "string",
+      "required": true,
+      "label": "Password",
+      "secret": true
+    },
+    "ssl": {
+      "type": "boolean",
+      "default": false,
+      "label": "Use SSL"
+    }
+  }
+}

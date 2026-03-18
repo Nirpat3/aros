@@ -1,0 +1,66 @@
+{
+  "id": "com.nirlab.aws-db",
+  "name": "AWS RDS / Aurora Connector",
+  "version": "1.0.0",
+  "description": "Connect AROS to AWS RDS or Aurora databases (MySQL, PostgreSQL, Aurora-MySQL, Aurora-PostgreSQL). Fetch analytics data and create a local agent-accessible dataset.",
+  "category": "database",
+  "author": "Nirlab Inc",
+  "registry": "https://registry.mib007.io",
+  "packageName": "@aros/connector-aws-db",
+  "capabilities": [
+    "data-fetch",
+    "local-sync",
+    "agent-context",
+    "conexxus-compatible"
+  ],
+  "pricing": {
+    "model": "free"
+  },
+  "requiredPlatformVersion": "0.2.0",
+  "publishedAt": "2026-03-18T00:00:00Z",
+  "updatedAt": "2026-03-18T00:00:00Z",
+  "configSchema": {
+    "engine": {
+      "type": "select",
+      "options": ["mysql", "postgres", "aurora-mysql", "aurora-postgres"],
+      "required": true,
+      "label": "Database Engine"
+    },
+    "host": {
+      "type": "string",
+      "required": true,
+      "label": "RDS Endpoint"
+    },
+    "port": {
+      "type": "number",
+      "required": true,
+      "label": "Port (3306 for MySQL, 5432 for Postgres)"
+    },
+    "database": {
+      "type": "string",
+      "required": true,
+      "label": "Database Name"
+    },
+    "username": {
+      "type": "string",
+      "required": true,
+      "label": "Username"
+    },
+    "password": {
+      "type": "string",
+      "required": true,
+      "label": "Password",
+      "secret": true
+    },
+    "ssl": {
+      "type": "boolean",
+      "default": true,
+      "label": "Use SSL (recommended for RDS)"
+    },
+    "region": {
+      "type": "string",
+      "required": false,
+      "label": "AWS Region (e.g. us-east-1)"
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "id": "com.nirlab.azure-sql",
+  "name": "Azure SQL Connector",
+  "version": "1.0.0",
+  "description": "Connect AROS to Azure SQL Database. Fetch analytics and reporting data, sync to local agent-accessible store. Supports table download and parameterized queries.",
+  "category": "database",
+  "author": "Nirlab Inc",
+  "registry": "https://registry.mib007.io",
+  "packageName": "@aros/connector-azure-sql",
+  "capabilities": [
+    "data-fetch",
+    "local-sync",
+    "agent-context",
+    "parameterized-queries"
+  ],
+  "pricing": {
+    "model": "free"
+  },
+  "requiredPlatformVersion": "0.2.0",
+  "publishedAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-03-18T00:00:00Z",
+  "configSchema": {
+    "server": {
+      "type": "string",
+      "required": true,
+      "label": "Azure SQL Server (e.g. myserver.database.windows.net)"
+    },
+    "database": {
+      "type": "string",
+      "required": true,
+      "label": "Database Name"
+    },
+    "username": {
+      "type": "string",
+      "required": true,
+      "label": "Username"
+    },
+    "password": {
+      "type": "string",
+      "required": true,
+      "label": "Password",
+      "secret": true
+    },
+    "port": {
+      "type": "number",
+      "required": false,
+      "label": "Port",
+      "default": 1433
+    }
+  }
+}

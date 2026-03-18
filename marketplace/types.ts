@@ -18,6 +18,7 @@ export interface Node {
 
 export type NodeCategory =
   | 'pos'
+  | 'pos-connector'
   | 'inventory'
   | 'analytics'
   | 'loyalty'
@@ -26,6 +27,7 @@ export type NodeCategory =
   | 'shipping'
   | 'crm'
   | 'reporting'
+  | 'database'
   | 'integration'
   | 'utility';
 

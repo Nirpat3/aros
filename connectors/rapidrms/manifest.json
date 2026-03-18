@@ -1,0 +1,51 @@
+{
+  "id": "com.nirlab.rapidrms",
+  "name": "RapidRMS POS Connector",
+  "version": "1.0.0",
+  "description": "Connect AROS to RapidRMS retail management API. Sync sales, inventory, and analytics data. Supports Conexxus standards.",
+  "category": "pos",
+  "author": "Nirlab Inc",
+  "registry": "https://registry.mib007.io",
+  "packageName": "@aros/connector-rapidrms",
+  "capabilities": [
+    "sales-sync",
+    "inventory-sync",
+    "cashier-data",
+    "department-data",
+    "conexxus-compatible"
+  ],
+  "pricing": {
+    "model": "free"
+  },
+  "requiredPlatformVersion": "0.2.0",
+  "configSchema": {
+    "clientId": {
+      "type": "string",
+      "required": true,
+      "label": "RapidRMS Client ID"
+    },
+    "email": {
+      "type": "string",
+      "required": true,
+      "label": "Login Email",
+      "secret": false
+    },
+    "password": {
+      "type": "string",
+      "required": true,
+      "label": "Password",
+      "secret": true
+    },
+    "storeDbName": {
+      "type": "string",
+      "required": true,
+      "label": "Store DB Name (e.g. RapidRMS2)"
+    },
+    "syncIntervalMs": {
+      "type": "number",
+      "required": false,
+      "label": "Sync interval (ms)",
+      "default": 900000
+    }
+  }
+}
