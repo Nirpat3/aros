@@ -46,12 +46,13 @@ export function enforceBootGuard(): BootGuardResult {
     console.error('\n' + '='.repeat(70));
     console.error('  AROS LICENSE ERROR');
     console.error('='.repeat(70));
-    console.error('  No license key found.');
+    console.error('  AROS requires a valid license key.');
     console.error('');
     console.error('  Set AROS_LICENSE_KEY environment variable or place your');
     console.error('  license key in ~/.aros/license.key');
     console.error('');
-    console.error('  Obtain a license at: https://nirlab.ai/aros/license');
+    console.error('  Obtain a license at: [URL_PLACEHOLDER]');
+    console.error('  Contact: [CONTACT_PLACEHOLDER]');
     console.error('='.repeat(70) + '\n');
     process.exit(1);
   }
@@ -66,7 +67,8 @@ export function enforceBootGuard(): BootGuardResult {
     console.error(`  ${result.error || 'Invalid license key'}`);
     console.error('');
     console.error('  AROS requires a valid license key.');
-    console.error('  Obtain one at: https://nirlab.ai/aros/license');
+    console.error('  Obtain a license at: [URL_PLACEHOLDER]');
+    console.error('  Contact: [CONTACT_PLACEHOLDER]');
     if (result.code) {
       console.error(`  Error code: ${result.code}`);
     }

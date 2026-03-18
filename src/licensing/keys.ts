@@ -9,10 +9,7 @@
 
 // Production NirLab public key (PEM format)
 // TODO: Replace with actual production public key before first release
-export const NIRLAB_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEPlaceholderKeyReplaceBeforeShip
-PlaceholderKeyReplaceBeforeShipPlaceholderKeyReplace==
------END PUBLIC KEY-----`;
+export const NIRLAB_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAETuLjNabdA5I2fEpQVAfuX0EKa293\nJRMgVxWoZTKXMQgbtJnF7cwgCXUzvrdNjXK7z2FqSs4mkv7OO0LTIByLuw==\n-----END PUBLIC KEY-----`;
 
 /**
  * Test keypair for CI/testing — DO NOT use in production.
