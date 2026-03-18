@@ -1,0 +1,25 @@
+{
+  "name": "aros-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AROS — Agentic Retail Operating System",
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "clean": "turbo clean",
+    "update:core": "tsx updater/index.ts",
+    "marketplace:sync": "tsx marketplace/registry.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "turbo": "^2.3.0",
+    "typescript": "^5.5.0",
+    "tsx": "^4.19.0"
+  }
+}

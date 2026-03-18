@@ -1,0 +1,34 @@
+{
+  "platform": {
+    "name": "AROS",
+    "version": "0.1.0",
+    "description": "Agentic Retail Operating System"
+  },
+  "core": {
+    "source": "mib007",
+    "version": "1.0.0",
+    "autoUpdate": true,
+    "updateFeed": "https://registry.mib007.io/releases",
+    "channel": "stable"
+  },
+  "agent": {
+    "name": "AROS",
+    "model": "claude-opus-4-6",
+    "role": "platform-driver",
+    "description": "AROS AI is the platform driver — identity, control, and conversation unified."
+  },
+  "shre": {
+    "enabled": true,
+    "endpoint": "",
+    "fallback": "local",
+    "description": "Shre is an optional backend plugin. Set enabled:false for fully standalone deployment."
+  },
+  "whitelabel": {
+    "active": "default",
+    "customizable": true
+  },
+  "marketplace": {
+    "registryUrl": "https://registry.mib007.io/marketplace",
+    "autoSync": true
+  }
+}

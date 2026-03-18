@@ -1,0 +1,76 @@
+{
+  "brand": {
+    "name": "AROS",
+    "tagline": "Agentic Retail Operating System",
+    "domain": "app.aros.ai",
+    "supportEmail": "support@aros.ai",
+    "emailSender": {
+      "name": "AROS Platform",
+      "address": "noreply@aros.ai"
+    },
+    "copyright": "AROS Platform. All rights reserved."
+  },
+  "agent": {
+    "name": "AROS",
+    "avatar": "./logo.svg",
+    "greeting": "What do you need?",
+    "personality": "minimal"
+  },
+  "theme": {
+    "colors": {
+      "primary": "#0F172A",
+      "secondary": "#3B82F6",
+      "accent": "#10B981",
+      "background": "#FFFFFF",
+      "surface": "#F8FAFC",
+      "text": "#0F172A",
+      "textSecondary": "#64748B",
+      "border": "#E2E8F0",
+      "error": "#EF4444",
+      "warning": "#F59E0B",
+      "success": "#10B981"
+    },
+    "fonts": {
+      "heading": "Inter, system-ui, sans-serif",
+      "body": "Inter, system-ui, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "spacing": {
+      "unit": 4,
+      "density": "default"
+    },
+    "borderRadius": {
+      "small": "6px",
+      "medium": "8px",
+      "large": "12px"
+    },
+    "shadows": {
+      "small": "0 1px 2px rgba(0, 0, 0, 0.05)",
+      "medium": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+      "large": "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+    }
+  },
+  "logo": {
+    "primary": "./logo.svg",
+    "icon": "./logo.svg",
+    "darkMode": "./logo.svg"
+  },
+  "layout": {
+    "sidebar": "left",
+    "navigation": "sidebar",
+    "density": "default",
+    "showBreadcrumbs": true
+  },
+  "marketplace": {
+    "visibleCategories": [],
+    "hiddenNodes": [],
+    "featured": []
+  },
+  "features": {
+    "marketplace": true,
+    "updates": true,
+    "analytics": true,
+    "agentChat": true,
+    "settings": true
+  }
+}

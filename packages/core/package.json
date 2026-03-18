@@ -1,0 +1,11 @@
+{
+  "name": "@aros/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "dependencies": {
+    "@mib007/core": "1.0.0"
+  }
+}

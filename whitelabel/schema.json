@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AROS Whitelabel Configuration Schema",
+  "description": "Defines all customizable fields for whitelabel deployments of the AROS platform.",
+  "type": "object",
+  "properties": {
+    "brand": {
+      "type": "object",
+      "description": "Brand identity configuration",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Display name of the platform (e.g. 'AROS', 'RetailOS', 'StoreSuite')"
+        },
+        "tagline": {
+          "type": "string",
+          "description": "Short tagline shown in login screen and about pages"
+        },
+        "domain": {
+          "type": "string",
+          "description": "Primary domain for the deployment (e.g. 'app.aros.ai')"
+        },
+        "supportEmail": {
+          "type": "string",
+          "format": "email",
+          "description": "Support contact email displayed to operators"
+        },
+        "emailSender": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string", "description": "Sender name for outbound emails" },
+            "address": { "type": "string", "format": "email", "description": "Sender email address" }
+          },
+          "required": ["name", "address"]
+        },
+        "copyright": {
+          "type": "string",
+          "description": "Copyright notice shown in footer"
+        }
+      },
+      "required": ["name"]
+    },
+    "agent": {
+      "type": "object",
+      "description": "AI agent identity configuration",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Display name of the AI agent (e.g. 'AROS', 'Nova', 'Kai')"
+        },
+        "avatar": {
+          "type": "string",
+          "description": "Path or URL to agent avatar image"
+        },
+        "greeting": {
+          "type": "string",
+          "description": "Initial greeting message when operators open chat"
+        },
+        "personality": {
+          "type": "string",
+          "enum": ["professional", "friendly", "minimal", "custom"],
+          "description": "Personality preset — affects tone, verbosity, emoji usage"
+        }
+      },
+      "required": ["name"]
+    },
+    "theme": {
+      "type": "object",
+      "description": "Visual theme configuration",
+      "properties": {
+        "colors": {
+          "type": "object",
+          "properties": {
+            "primary": { "type": "string", "format": "color", "description": "Primary brand color" },
+            "secondary": { "type": "string", "format": "color", "description": "Secondary accent color" },
+            "accent": { "type": "string", "format": "color", "description": "Highlight/CTA color" },
+            "background": { "type": "string", "format": "color", "description": "Main background color" },
+            "surface": { "type": "string", "format": "color", "description": "Card/panel surface color" },
+            "text": { "type": "string", "format": "color", "description": "Primary text color" },
+            "textSecondary": { "type": "string", "format": "color", "description": "Secondary/muted text color" },
+            "border": { "type": "string", "format": "color", "description": "Default border color" },
+            "error": { "type": "string", "format": "color", "description": "Error state color" },
+            "warning": { "type": "string", "format": "color", "description": "Warning state color" },
+            "success": { "type": "string", "format": "color", "description": "Success state color" }
+          }
+        },
+        "fonts": {
+          "type": "object",
+          "properties": {
+            "heading": { "type": "string", "description": "Font family for headings" },
+            "body": { "type": "string", "description": "Font family for body text" },
+            "mono": { "type": "string", "description": "Font family for code/monospace" }
+          }
+        },
+        "spacing": {
+          "type": "object",
+          "properties": {
+            "unit": { "type": "number", "description": "Base spacing unit in pixels (default: 4)" },
+            "density": { "type": "string", "enum": ["compact", "default", "comfortable"], "description": "Overall spacing density" }
+          }
+        },
+        "borderRadius": {
+          "type": "object",
+          "properties": {
+            "small": { "type": "string", "description": "Small border radius (buttons, inputs)" },
+            "medium": { "type": "string", "description": "Medium border radius (cards, panels)" },
+            "large": { "type": "string", "description": "Large border radius (modals, drawers)" }
+          }
+        },
+        "shadows": {
+          "type": "object",
+          "properties": {
+            "small": { "type": "string", "description": "Subtle shadow for elevated elements" },
+            "medium": { "type": "string", "description": "Medium shadow for cards" },
+            "large": { "type": "string", "description": "Large shadow for modals/overlays" }
+          }
+        }
+      }
+    },
+    "logo": {
+      "type": "object",
+      "description": "Logo configuration",
+      "properties": {
+        "primary": { "type": "string", "description": "Path to primary logo (sidebar, header)" },
+        "icon": { "type": "string", "description": "Path to icon/favicon version" },
+        "darkMode": { "type": "string", "description": "Path to logo variant for dark backgrounds" }
+      },
+      "required": ["primary"]
+    },
+    "layout": {
+      "type": "object",
+      "description": "Layout preferences",
+      "properties": {
+        "sidebar": {
+          "type": "string",
+          "enum": ["left", "right"],
+          "description": "Sidebar position"
+        },
+        "navigation": {
+          "type": "string",
+          "enum": ["sidebar", "top", "hybrid"],
+          "description": "Primary navigation style"
+        },
+        "density": {
+          "type": "string",
+          "enum": ["compact", "default", "comfortable"],
+          "description": "UI density"
+        },
+        "showBreadcrumbs": {
+          "type": "boolean",
+          "description": "Show breadcrumb navigation"
+        }
+      }
+    },
+    "marketplace": {
+      "type": "object",
+      "description": "Marketplace visibility configuration",
+      "properties": {
+        "visibleCategories": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Which marketplace categories to show (empty = all)"
+        },
+        "hiddenNodes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Specific node IDs to hide from this deployment"
+        },
+        "featured": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Node IDs to feature prominently in marketplace"
+        }
+      }
+    },
+    "features": {
+      "type": "object",
+      "description": "Feature flags for the deployment",
+      "properties": {
+        "marketplace": { "type": "boolean", "description": "Show marketplace UI" },
+        "updates": { "type": "boolean", "description": "Show update management UI" },
+        "analytics": { "type": "boolean", "description": "Show analytics dashboard" },
+        "agentChat": { "type": "boolean", "description": "Show AI agent chat interface" },
+        "settings": { "type": "boolean", "description": "Show platform settings to operators" }
+      }
+    }
+  },
+  "required": ["brand", "agent", "theme"]
+}
