@@ -55,7 +55,7 @@ Capabilities:
 - **Marketplace management**: Browse, install, update, and remove Nodes
 - **Configuration**: Modify platform settings, toggle plugins, manage whitelabel
 - **Monitoring**: Surface health, usage metrics, and alerts to operators
-- **Identity**: When Shre is not present, AROS manages auth directly via LocalProvider
+- **Identity**: When Shre is not present, AROS manages auth directly via ArosProvider
 - **Updates**: Check, stage, apply, and roll back core updates from MIB007 registry
 - **Conversation**: Natural language interface for all of the above
 
@@ -68,7 +68,7 @@ Shre is MIB007's identity and vault layer. In AROS, it's an optional plugin:
 | Mode | Auth | Vault | Dependencies |
 |------|------|-------|-------------|
 | Shre enabled | ShreProvider → Shre endpoint | Shre vault | Requires Shre service running |
-| Shre disabled | LocalProvider → local JWT | Local encrypted storage | Zero external dependencies |
+| Shre disabled | ArosProvider → local JWT | Local encrypted storage | Zero external dependencies |
 
 The provider interface is identical in both modes. Application code never knows which provider is active.
 
@@ -153,4 +153,4 @@ AROS is designed for clean separation from MIB007:
 - JWT-based auth (Shre-issued or locally generated)
 - Marketplace packages verified via content-addressable hashes and registry signatures
 - Whitelabel configs are build-time only — no runtime config injection from untrusted sources
-- LocalProvider encrypts vault data at rest with AES-256-GCM
+- ArosProvider encrypts vault data at rest with AES-256-GCM

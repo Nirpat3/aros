@@ -30,5 +30,23 @@
   "marketplace": {
     "registryUrl": "https://registry.mib007.io/marketplace",
     "autoSync": true
+  },
+  "licensing": {
+    "tier": "free",
+    "maxUsers": 1,
+    "whitelabel": false,
+    "licenseKey": "",
+    "expiresAt": null
+  },
+  "models": {
+    "provider": "mib007",
+    "metered": true,
+    "byom": {
+      "enabled": false,
+      "provider": "",
+      "apiKey": "",
+      "model": "",
+      "endpoint": ""
+    }
   }
 }
