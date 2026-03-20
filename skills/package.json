@@ -1,0 +1,20 @@
+{
+  "name": "@aros/skills",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "AROS Phase 1 skill modules for retail store operations",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "date-fns": "^3.6.0",
+    "shre-sdk": "file:../../shre-sdk"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.11.0"
+  }
+}
