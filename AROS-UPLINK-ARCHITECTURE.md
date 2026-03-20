@@ -17,7 +17,7 @@ AROS runs inside a retailer's network. That network:
 
 1. **AROS always initiates** — outbound only, never inbound. No open ports on the store network.
 2. **Standard protocols only** — HTTPS (443), WSS (443). Nothing exotic.
-3. **Known-good domains** — Traffic goes to `api.shreai.com` or `sync.aros.app` — looks like any SaaS product.
+3. **Known-good domains** — Traffic goes to `api.AROS_DOMAIN` or `sync.AROS_DOMAIN` — looks like any SaaS product.
 4. **Small, frequent payloads** — Not bulk data dumps. Small JSON payloads that look like normal API calls.
 5. **Graceful degradation** — If uplink is blocked, AROS continues operating locally. It's not dependent on the mothership.
 6. **Customer consent** — Data sharing is opt-in, transparent, and clearly documented in EULA.
@@ -48,7 +48,7 @@ AROS runs inside a retailer's network. That network:
                               │
                               ▼
                     ┌──────────────────┐
-                    │  api.shreai.com  │  (or sync.aros.app)
+                    │  api.AROS_DOMAIN  │  (or sync.AROS_DOMAIN)
                     │  (Cloudflare)    │
                     └────────┬─────────┘
                              │
@@ -73,9 +73,9 @@ AROS runs inside a retailer's network. That network:
 
 ### Pattern 1: HTTPS REST Polling (Most Compatible)
 ```
-AROS → POST https://api.shreai.com/v1/uplink/heartbeat
-AROS → POST https://api.shreai.com/v1/uplink/metrics
-AROS → GET  https://api.shreai.com/v1/downlink/commands
+AROS → POST https://api.AROS_DOMAIN/v1/uplink/heartbeat
+AROS → POST https://api.AROS_DOMAIN/v1/uplink/metrics
+AROS → GET  https://api.AROS_DOMAIN/v1/downlink/commands
 ```
 - **Why it works:** Looks like any SaaS product phoning home. Same pattern as Slack, Zoom, Salesforce.
 - **Frequency:** Every 15 minutes (heartbeat), hourly (metrics), on-demand (commands).
@@ -211,7 +211,7 @@ Store POS → AROS Skills (local) → Skill Output → Uplink Agent
 ## Firewall Evasion — Detailed Strategies
 
 ### Strategy 1: Domain Reputation (Primary)
-- `api.shreai.com` registered on Cloudflare — Category: "Business/SaaS"
+- `api.AROS_DOMAIN` registered on Cloudflare — Category: "Business/SaaS"
 - SSL certificate from trusted CA (Let's Encrypt or Cloudflare)
 - Domain age > 6 months before deploying to enterprise customers
 - Listed in security vendor whitelists (submit to Palo Alto, Fortinet, Zscaler URL category)

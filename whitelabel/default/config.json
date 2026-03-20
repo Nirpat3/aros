@@ -2,11 +2,11 @@
   "brand": {
     "name": "AROS",
     "tagline": "Agentic Retail Operating System",
-    "domain": "app.aros.ai",
-    "supportEmail": "support@aros.ai",
+    "domain": "app.AROS_DOMAIN",
+    "supportEmail": "support@AROS_DOMAIN",
     "emailSender": {
       "name": "AROS Platform",
-      "address": "noreply@aros.ai"
+      "address": "noreply@AROS_DOMAIN"
     },
     "copyright": "AROS Platform. All rights reserved."
   },
