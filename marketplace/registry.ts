@@ -17,8 +17,12 @@ function loadConfig(): ArosConfig {
   return JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
 }
 
+// shre-marketplace service (plugin review + published registry)
+const SHRE_MARKETPLACE_URL = process.env.SHRE_MARKETPLACE_URL ?? 'http://localhost:5458';
+
 /**
- * Fetch available nodes from the MIB007 marketplace registry.
+ * Fetch available nodes from both the MIB007 registry and shre-marketplace.
+ * Results are merged and deduplicated by node ID.
  */
 export async function fetchNodes(options?: {
   category?: NodeCategory;
@@ -35,36 +39,51 @@ export async function fetchNodes(options?: {
   params.set('pageSize', String(options?.pageSize ?? 50));
   params.set('platformVersion', config.platform.version);
 
-  const url = `${config.marketplace.registryUrl}/nodes?${params}`;
-  console.log(`[marketplace] Fetching nodes: ${url}`);
+  // Fetch from both registries in parallel
+  const [mib007Result, marketplaceResult] = await Promise.allSettled([
+    fetchFromUrl(`${config.marketplace.registryUrl}/nodes?${params}`, config.platform.version),
+    fetchFromUrl(`${SHRE_MARKETPLACE_URL}/api/registry/nodes?${params}`, config.platform.version),
+  ]);
 
-  try {
-    const res = await fetch(url, {
-      headers: { 'User-Agent': `aros-platform/${config.platform.version}` },
-    });
+  const mib007Nodes = mib007Result.status === 'fulfilled' ? mib007Result.value.nodes : [];
+  const marketplaceNodes = marketplaceResult.status === 'fulfilled' ? marketplaceResult.value.nodes : [];
 
-    if (!res.ok) {
-      throw new Error(`Registry returned ${res.status}: ${await res.text()}`);
-    }
-
-    const data = (await res.json()) as RegistryResponse;
-
-    // Cache the result
-    writeFileSync(CACHE_PATH, JSON.stringify(data, null, 2), 'utf8');
-    console.log(`[marketplace] Fetched ${data.nodes.length} nodes (${data.total} total)`);
-
-    return data;
-  } catch (err) {
-    console.error('[marketplace] Failed to fetch from registry:', err);
-
-    // Fall back to cache if available
+  // If both failed, fall back to cache
+  if (mib007Nodes.length === 0 && marketplaceNodes.length === 0) {
     if (existsSync(CACHE_PATH)) {
-      console.log('[marketplace] Using cached data');
+      console.log('[marketplace] Both registries failed — using cached data');
       return JSON.parse(readFileSync(CACHE_PATH, 'utf8'));
     }
-
     return { nodes: [], total: 0, page: 1, pageSize: 50 };
   }
+
+  // Merge and deduplicate by ID (marketplace takes precedence)
+  const nodeMap = new Map<string, Node>();
+  for (const node of mib007Nodes) nodeMap.set(node.id, node);
+  for (const node of marketplaceNodes) nodeMap.set(node.id, node);
+  const nodes = [...nodeMap.values()];
+
+  const data: RegistryResponse = {
+    nodes,
+    total: nodes.length,
+    page: options?.page ?? 1,
+    pageSize: options?.pageSize ?? 50,
+  };
+
+  // Cache the merged result
+  writeFileSync(CACHE_PATH, JSON.stringify(data, null, 2), 'utf8');
+  console.log(`[marketplace] Fetched ${nodes.length} nodes (${mib007Nodes.length} MIB007 + ${marketplaceNodes.length} marketplace)`);
+
+  return data;
+}
+
+async function fetchFromUrl(url: string, platformVersion: string): Promise<RegistryResponse> {
+  console.log(`[marketplace] Fetching: ${url}`);
+  const res = await fetch(url, {
+    headers: { 'User-Agent': `aros-platform/${platformVersion}` },
+  });
+  if (!res.ok) throw new Error(`Registry returned ${res.status}`);
+  return (await res.json()) as RegistryResponse;
 }
 
 /**

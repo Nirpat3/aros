@@ -1,8 +1,10 @@
 import { useWhitelabel } from '../whitelabel/WhitelabelProvider';
 import { UpdateBadge } from './updates';
+import { useAuth } from '../admin/useAuth';
 
 export function Sidebar() {
   const { config } = useWhitelabel();
+  const { isAdmin } = useAuth();
 
   return (
     <aside className="aros-sidebar">
@@ -13,12 +15,14 @@ export function Sidebar() {
       <nav className="aros-nav">
         <a href="/" className="aros-nav-item active">Dashboard</a>
         {config.features?.marketplace && <a href="/marketplace" className="aros-nav-item">Marketplace</a>}
+        {config.features?.marketplace && <a href="/submit-plugin" className="aros-nav-item">Submit Plugin</a>}
         {config.features?.analytics && <a href="/analytics" className="aros-nav-item">Analytics</a>}
         <a href="/updates" className="aros-nav-item">
           Updates
           <UpdateBadge coreAvailable={false} uiAvailable={false} />
         </a>
         {config.features?.settings && <a href="/settings" className="aros-nav-item">Settings</a>}
+        {isAdmin && <a href="/admin" className="aros-nav-item">Admin</a>}
       </nav>
     </aside>
   );
