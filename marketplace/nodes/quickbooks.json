@@ -1,0 +1,59 @@
+{
+  "id": "com.nirlab.quickbooks",
+  "name": "QuickBooks Connector",
+  "version": "1.0.0",
+  "description": "Connect AROS to QuickBooks Online or Desktop. Sync chart of accounts, invoices, expenses, P&L, and balance sheet data for financial analytics and forecasting.",
+  "category": "bos",
+  "author": "Nirlab Inc",
+  "registry": "https://registry.mib007.io",
+  "packageName": "@aros/connector-quickbooks",
+  "capabilities": [
+    "financial-data",
+    "invoice-sync",
+    "expense-tracking",
+    "pnl-reporting",
+    "balance-sheet",
+    "multi-company"
+  ],
+  "pricing": { "model": "free" },
+  "requiredPlatformVersion": "0.2.0",
+  "publishedAt": "2026-03-20T00:00:00Z",
+  "updatedAt": "2026-03-20T00:00:00Z",
+  "status": "beta",
+  "storeDiscovery": false,
+  "configSchema": {
+    "authMethod": {
+      "type": "select",
+      "required": true,
+      "label": "QuickBooks Version",
+      "options": [
+        { "label": "QuickBooks Online (OAuth)", "value": "online" },
+        { "label": "QuickBooks Desktop (Web Connector)", "value": "desktop" }
+      ]
+    },
+    "clientId": {
+      "type": "string",
+      "required": true,
+      "label": "OAuth Client ID",
+      "description": "From Intuit Developer portal"
+    },
+    "clientSecret": {
+      "type": "string",
+      "required": true,
+      "label": "OAuth Client Secret",
+      "secret": true
+    },
+    "realmId": {
+      "type": "string",
+      "required": false,
+      "label": "Realm ID (Company ID)",
+      "description": "Found in your QuickBooks URL after login"
+    },
+    "syncIntervalMs": {
+      "type": "number",
+      "required": false,
+      "label": "Sync interval (ms)",
+      "default": 3600000
+    }
+  }
+}

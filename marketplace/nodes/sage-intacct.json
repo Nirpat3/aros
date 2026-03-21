@@ -1,0 +1,59 @@
+{
+  "id": "com.nirlab.sage-intacct",
+  "name": "Sage Intacct Connector",
+  "version": "1.0.0",
+  "description": "Connect AROS to Sage Intacct cloud ERP. Sync general ledger, accounts payable/receivable, purchasing, and multi-entity financial data for enterprise retail analytics.",
+  "category": "bos",
+  "author": "Nirlab Inc",
+  "registry": "https://registry.mib007.io",
+  "packageName": "@aros/connector-sage-intacct",
+  "capabilities": [
+    "general-ledger",
+    "accounts-payable",
+    "accounts-receivable",
+    "purchasing-data",
+    "multi-entity",
+    "financial-reporting"
+  ],
+  "pricing": { "model": "free" },
+  "requiredPlatformVersion": "0.2.0",
+  "publishedAt": "2026-03-20T00:00:00Z",
+  "updatedAt": "2026-03-20T00:00:00Z",
+  "status": "in-development",
+  "storeDiscovery": false,
+  "configSchema": {
+    "companyId": {
+      "type": "string",
+      "required": true,
+      "label": "Company ID"
+    },
+    "senderId": {
+      "type": "string",
+      "required": true,
+      "label": "Web Services Sender ID"
+    },
+    "senderPassword": {
+      "type": "string",
+      "required": true,
+      "label": "Sender Password",
+      "secret": true
+    },
+    "userId": {
+      "type": "string",
+      "required": true,
+      "label": "API User ID"
+    },
+    "userPassword": {
+      "type": "string",
+      "required": true,
+      "label": "API User Password",
+      "secret": true
+    },
+    "syncIntervalMs": {
+      "type": "number",
+      "required": false,
+      "label": "Sync interval (ms)",
+      "default": 3600000
+    }
+  }
+}

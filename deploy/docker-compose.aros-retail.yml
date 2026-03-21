@@ -1,0 +1,355 @@
+# AROS Retail Intelligence — Standalone Docker Compose
+# Single command: docker compose -f docker-compose.aros-retail.yml up -d
+#
+# Brings up a complete AROS Retail Intelligence instance with all
+# infrastructure, core services, and the AROS web frontend.
+
+version: "3.9"
+
+x-node-service: &node-defaults
+  restart: unless-stopped
+  networks:
+    - aros-retail-net
+  env_file:
+    - .env.aros-retail
+  environment:
+    REDIS_HOST: redis
+    REDIS_PORT: "6379"
+    REDIS_PASSWORD: ${REDIS_PASSWORD}
+    POSTGRES_HOST: postgres
+    POSTGRES_PORT: "5432"
+    POSTGRES_USER: ${POSTGRES_USER}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    POSTGRES_DB: ${POSTGRES_DB:-aros_retail}
+    QDRANT_HOST: qdrant
+    QDRANT_PORT: "6333"
+    OLLAMA_HOST: ollama
+    OLLAMA_PORT: "11434"
+    NODE_ENV: production
+    WHITELABEL: aros-retail-intelligence
+
+# ─── Infrastructure ──────────────────────────────────────────────────────────
+
+services:
+  # PostgreSQL — relational store for tasks, auth, fleet state, cost tracking
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT:-5433}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-rapidnir}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rapid@nir}
+      POSTGRES_DB: ${POSTGRES_DB:-aros_retail}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rapidnir}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aros-retail-net
+
+  # Redis — event bus, caching, session store, pub/sub for real-time updates
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "${REDIS_EXTERNAL_PORT:-6379}:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD:-shrepassword} --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-shrepassword}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aros-retail-net
+
+  # Qdrant — vector database for RAG, semantic search, agent memory
+  qdrant:
+    image: qdrant/qdrant:latest
+    restart: unless-stopped
+    ports:
+      - "${QDRANT_EXTERNAL_PORT:-6333}:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:6333/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aros-retail-net
+
+  # Ollama — local AI model server (fallback when no cloud API keys provided)
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    ports:
+      - "${OLLAMA_EXTERNAL_PORT:-11434}:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:11434/api/tags || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - aros-retail-net
+
+  # ─── Core Services ───────────────────────────────────────────────────────
+
+  # shre-router — AI routing gateway, model fallback, multi-key rotation, agent trust
+  shre-router:
+    <<: *node-defaults
+    build:
+      context: ../../
+      dockerfile: SHRE-PLATFORM/Dockerfile.node
+      args:
+        SERVICE_DIR: shre-router
+        PORT: "5497"
+    ports:
+      - "5497:5497"
+    environment:
+      PORT: "5497"
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ROUTER_ADMIN_TOKEN: ${ROUTER_ADMIN_TOKEN:-}
+      OLLAMA_BASE_URL: http://ollama:11434
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5497/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # shre-tasks — task management, assignment queue, quality gate
+  shre-tasks:
+    <<: *node-defaults
+    build:
+      context: ../../
+      dockerfile: SHRE-PLATFORM/Dockerfile.node
+      args:
+        SERVICE_DIR: shre-tasks
+        PORT: "5460"
+    ports:
+      - "5460:5460"
+    environment:
+      PORT: "5460"
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5460/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # shre-auth — authentication, RBAC, session management
+  shre-auth:
+    <<: *node-defaults
+    build:
+      context: ../../
+      dockerfile: SHRE-PLATFORM/Dockerfile.node
+      args:
+        SERVICE_DIR: shre-auth
+        PORT: "5455"
+    ports:
+      - "5455:5455"
+    environment:
+      PORT: "5455"
+      AUTH_SIGNING_KEY: ${AUTH_SIGNING_KEY:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5455/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # shre-meter — cost tracking, API usage metering, billing data
+  shre-meter:
+    <<: *node-defaults
+    build:
+      context: ../../
+      dockerfile: SHRE-PLATFORM/Dockerfile.node
+      args:
+        SERVICE_DIR: shre-meter
+        PORT: "5495"
+    ports:
+      - "5495:5495"
+    environment:
+      PORT: "5495"
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5495/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # shre-fleet — agent orchestration, task dispatch, execution lifecycle
+  shre-fleet:
+    <<: *node-defaults
+    build:
+      context: ../../
+      dockerfile: SHRE-PLATFORM/Dockerfile.node
+      args:
+        SERVICE_DIR: shre-fleet
+        PORT: "5498"
+    ports:
+      - "5498:5498"
+    environment:
+      PORT: "5498"
+    depends_on:
+      shre-tasks:
+        condition: service_healthy
+      shre-router:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5498/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # shre-scorer — quality evaluation, agent DNA scoring, task quality gate
+  shre-scorer:
+    <<: *node-defaults
+    build:
+      context: ../../
+      dockerfile: SHRE-PLATFORM/Dockerfile.node
+      args:
+        SERVICE_DIR: shre-scorer
+        PORT: "5491"
+    ports:
+      - "5491:5491"
+    environment:
+      PORT: "5491"
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5491/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # shre-api — public API gateway, auth + rate limiting + proxy
+  shre-api:
+    <<: *node-defaults
+    build:
+      context: ../../
+      dockerfile: SHRE-PLATFORM/Dockerfile.node
+      args:
+        SERVICE_DIR: shre-api
+        PORT: "5438"
+    ports:
+      - "5438:5438"
+    environment:
+      PORT: "5438"
+      DATABASE_URL: postgres://${POSTGRES_USER:-rapidnir}:${POSTGRES_PASSWORD:-rapid@nir}@postgres:5432/${POSTGRES_DB:-shre}
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5438/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ─── Frontend ────────────────────────────────────────────────────────────
+
+  # aros-web — AROS Retail Intelligence frontend (whitelabeled MIB007)
+  aros-web:
+    <<: *node-defaults
+    build:
+      context: ../../aros-platform
+      dockerfile: deploy/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      AROS_SECRET: ${AROS_SECRET:-changeme-in-production}
+      WHITELABEL: aros-retail-intelligence
+      SHRE_ROUTER_URL: http://shre-router:5497
+      SHRE_TASKS_URL: http://shre-tasks:5460
+      SHRE_AUTH_URL: http://shre-auth:5455
+      SHRE_FLEET_URL: http://shre-fleet:5498
+      SHRE_SCORER_URL: http://shre-scorer:5491
+      SHRE_METER_URL: http://shre-meter:5495
+      SHRE_API_URL: http://shre-api:5438
+    volumes:
+      - aros_data:/app/.aros-data
+      - ../../aros-platform/whitelabel/aros-retail-intelligence:/app/whitelabel/active:ro
+    depends_on:
+      shre-router:
+        condition: service_healthy
+      shre-tasks:
+        condition: service_healthy
+      shre-auth:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+# ─── Network ───────────────────────────────────────────────────────────────
+
+networks:
+  aros-retail-net:
+    driver: bridge
+
+# ─── Volumes ───────────────────────────────────────────────────────────────
+
+volumes:
+  postgres_data:
+    name: aros-retail-pgdata
+  redis_data:
+    name: aros-retail-redisdata
+  qdrant_data:
+    name: aros-retail-qdrantdata
+  ollama_models:
+    name: aros-retail-ollama
+  aros_data:
+    name: aros-retail-appdata

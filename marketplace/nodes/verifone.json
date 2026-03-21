@@ -1,0 +1,54 @@
+{
+  "id": "com.nirlab.verifone",
+  "name": "Verifone Commander Connector",
+  "version": "0.1.0",
+  "description": "Connect AROS to Verifone Commander POS. Sync fuel and c-store transactions, inventory, price book, and loyalty data. Supports Conexxus standards.",
+  "category": "pos",
+  "author": "Nirlab Inc",
+  "registry": "https://registry.mib007.io",
+  "packageName": "@aros/connector-verifone",
+  "capabilities": [
+    "sales-sync",
+    "inventory-sync",
+    "fuel-data",
+    "price-book",
+    "loyalty-data",
+    "conexxus-compatible"
+  ],
+  "pricing": { "model": "free" },
+  "requiredPlatformVersion": "0.2.0",
+  "publishedAt": "2026-03-20T00:00:00Z",
+  "updatedAt": "2026-03-20T00:00:00Z",
+  "status": "in-development",
+  "storeDiscovery": true,
+  "configSchema": {
+    "siteId": {
+      "type": "string",
+      "required": true,
+      "label": "Commander Site ID"
+    },
+    "apiEndpoint": {
+      "type": "string",
+      "required": true,
+      "label": "Commander API Endpoint",
+      "description": "URL of your Commander server (e.g. https://commander.yoursite.com/api)"
+    },
+    "username": {
+      "type": "string",
+      "required": true,
+      "label": "API Username"
+    },
+    "password": {
+      "type": "string",
+      "required": true,
+      "label": "API Password",
+      "secret": true
+    },
+    "syncIntervalMs": {
+      "type": "number",
+      "required": false,
+      "label": "Sync interval (ms)",
+      "default": 900000
+    }
+  }
+}

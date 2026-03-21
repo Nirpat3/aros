@@ -1,0 +1,55 @@
+{
+  "id": "com.nirlab.clover",
+  "name": "Clover POS Connector",
+  "version": "1.0.0",
+  "description": "Connect AROS to Clover POS. Sync orders, payments, inventory, and employee data across merchant locations.",
+  "category": "pos",
+  "author": "Nirlab Inc",
+  "registry": "https://registry.mib007.io",
+  "packageName": "@aros/connector-clover",
+  "capabilities": [
+    "sales-sync",
+    "inventory-sync",
+    "employee-data",
+    "order-data",
+    "multi-location",
+    "conexxus-compatible"
+  ],
+  "pricing": { "model": "free" },
+  "requiredPlatformVersion": "0.2.0",
+  "publishedAt": "2026-03-20T00:00:00Z",
+  "updatedAt": "2026-03-20T00:00:00Z",
+  "status": "beta",
+  "storeDiscovery": true,
+  "configSchema": {
+    "apiToken": {
+      "type": "string",
+      "required": true,
+      "label": "Clover API Token",
+      "secret": true,
+      "description": "OAuth token from Clover Developer portal"
+    },
+    "merchantId": {
+      "type": "string",
+      "required": true,
+      "label": "Merchant ID",
+      "description": "Your Clover merchant identifier"
+    },
+    "environment": {
+      "type": "select",
+      "required": true,
+      "label": "Environment",
+      "options": [
+        { "label": "Production (US/Canada)", "value": "production" },
+        { "label": "Sandbox", "value": "sandbox" },
+        { "label": "Europe", "value": "eu" }
+      ]
+    },
+    "syncIntervalMs": {
+      "type": "number",
+      "required": false,
+      "label": "Sync interval (ms)",
+      "default": 900000
+    }
+  }
+}

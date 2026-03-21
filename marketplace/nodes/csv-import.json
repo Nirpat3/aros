@@ -1,0 +1,57 @@
+{
+  "id": "com.nirlab.csv-import",
+  "name": "CSV / File Import",
+  "version": "1.0.0",
+  "description": "Import transaction data from CSV, Excel, or XML files. Map columns to the AROS canonical schema. Supports bulk historical import and scheduled file watching.",
+  "category": "pos",
+  "author": "Nirlab Inc",
+  "registry": "https://registry.mib007.io",
+  "packageName": "@aros/connector-csv",
+  "capabilities": [
+    "csv-import",
+    "excel-import",
+    "xml-import",
+    "file-watch",
+    "historical-import",
+    "conexxus-compatible"
+  ],
+  "pricing": { "model": "free" },
+  "requiredPlatformVersion": "0.2.0",
+  "publishedAt": "2026-03-20T00:00:00Z",
+  "updatedAt": "2026-03-20T00:00:00Z",
+  "status": "live",
+  "storeDiscovery": false,
+  "configSchema": {
+    "importPath": {
+      "type": "string",
+      "required": true,
+      "label": "Import Directory",
+      "placeholder": "/data/imports",
+      "description": "Directory to watch for new files"
+    },
+    "fileFormat": {
+      "type": "select",
+      "required": true,
+      "label": "File Format",
+      "options": [
+        { "label": "CSV (comma-separated)", "value": "csv" },
+        { "label": "TSV (tab-separated)", "value": "tsv" },
+        { "label": "Excel (.xlsx)", "value": "xlsx" },
+        { "label": "Conexxus XML", "value": "xml" }
+      ]
+    },
+    "hasHeader": {
+      "type": "boolean",
+      "required": false,
+      "label": "First row is header",
+      "default": true
+    },
+    "watchInterval": {
+      "type": "number",
+      "required": false,
+      "label": "Watch interval (seconds)",
+      "default": 300,
+      "description": "How often to check for new files (0 = manual only)"
+    }
+  }
+}

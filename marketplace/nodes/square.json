@@ -1,0 +1,48 @@
+{
+  "id": "com.nirlab.square",
+  "name": "Square POS Connector",
+  "version": "1.0.0",
+  "description": "Connect AROS to Square POS. Sync transactions, items, customers, and inventory across all locations via Square API.",
+  "category": "pos",
+  "author": "Nirlab Inc",
+  "registry": "https://registry.mib007.io",
+  "packageName": "@aros/connector-square",
+  "capabilities": [
+    "sales-sync",
+    "inventory-sync",
+    "customer-data",
+    "item-catalog",
+    "multi-location",
+    "conexxus-compatible"
+  ],
+  "pricing": { "model": "free" },
+  "requiredPlatformVersion": "0.2.0",
+  "publishedAt": "2026-03-20T00:00:00Z",
+  "updatedAt": "2026-03-20T00:00:00Z",
+  "status": "beta",
+  "storeDiscovery": true,
+  "configSchema": {
+    "accessToken": {
+      "type": "string",
+      "required": true,
+      "label": "Square Access Token",
+      "secret": true,
+      "description": "OAuth access token from Square Developer Dashboard"
+    },
+    "environment": {
+      "type": "select",
+      "required": true,
+      "label": "Environment",
+      "options": [
+        { "label": "Production", "value": "production" },
+        { "label": "Sandbox", "value": "sandbox" }
+      ]
+    },
+    "syncIntervalMs": {
+      "type": "number",
+      "required": false,
+      "label": "Sync interval (ms)",
+      "default": 900000
+    }
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "product": {
+    "id": "aros-retail-intelligence",
+    "name": "AROS Retail Intelligence",
+    "description": "AI-powered retail operations platform",
+    "version": "1.0.0"
+  },
+  "brand": {
+    "name": "AROS Retail Intelligence",
+    "tagline": "AI-powered retail operations platform",
+    "domain": "app.AROS_DOMAIN",
+    "supportEmail": "support@AROS_DOMAIN",
+    "emailSender": {
+      "name": "AROS Retail Intelligence",
+      "address": "noreply@AROS_DOMAIN"
+    },
+    "copyright": "AROS Retail Intelligence by Nirlab Inc. All rights reserved."
+  },
+  "agent": {
+    "name": "AROS",
+    "avatar": "./assets/aros-retail-logo.svg",
+    "greeting": "Welcome to AROS Retail Intelligence. How can I help optimize your operations?",
+    "personality": "professional"
+  },
+  "connectors": {
+    "default_pos": "rapidrms",
+    "available": ["rapidrms", "clover", "square", "verifone"],
+    "auto_sync": true,
+    "sync_interval_minutes": 15
+  },
+  "agents": {
+    "pre_activated": ["ellie", "ana", "sammy", "victor"],
+    "descriptions": {
+      "ellie": "Operations president — oversees all retail workflows and agent coordination",
+      "ana": "Analytics specialist — sales trends, inventory forecasting, customer insights",
+      "sammy": "Store operations — labor scheduling, compliance, daily checklists",
+      "victor": "Vendor & inventory — purchase orders, supplier management, stock optimization"
+    }
+  },
+  "analytics": {
+    "pre_configured_views": [
+      "sales-dashboard",
+      "inventory-alerts",
+      "labor-optimization",
+      "customer-insights"
+    ],
+    "default_view": "sales-dashboard",
+    "refresh_interval_seconds": 300
+  },
+  "features": {
+    "pos-sync": true,
+    "ai-chat": true,
+    "task-automation": true,
+    "cost-tracking": true,
+    "fleet-dispatch": true,
+    "marketplace": true,
+    "updates": true,
+    "analytics": true,
+    "agentChat": true,
+    "settings": true
+  },
+  "licensing": {
+    "default_tier": "standard",
+    "tiers": {
+      "starter": {
+        "max_users": 3,
+        "max_stores": 1,
+        "agents": ["ellie"],
+        "features": ["pos-sync", "ai-chat"]
+      },
+      "standard": {
+        "max_users": 10,
+        "max_stores": 5,
+        "agents": ["ellie", "ana", "sammy", "victor"],
+        "features": ["pos-sync", "ai-chat", "task-automation", "cost-tracking", "fleet-dispatch"]
+      },
+      "enterprise": {
+        "max_users": -1,
+        "max_stores": -1,
+        "agents": ["ellie", "ana", "sammy", "victor"],
+        "features": ["pos-sync", "ai-chat", "task-automation", "cost-tracking", "fleet-dispatch"],
+        "custom_connectors": true,
+        "sla": "99.9%"
+      }
+    }
+  },
+  "branding": {
+    "primary_color": "#1a56db",
+    "accent_color": "#e74c3c",
+    "logo_path": "assets/aros-retail-logo.svg"
+  },
+  "theme": "$ref:theme.json",
+  "logo": {
+    "primary": "./assets/aros-retail-logo.svg",
+    "icon": "./assets/aros-retail-icon.svg",
+    "darkMode": "./assets/aros-retail-logo-dark.svg"
+  },
+  "layout": {
+    "sidebar": "left",
+    "navigation": "sidebar",
+    "density": "default",
+    "showBreadcrumbs": true
+  },
+  "marketplace": {
+    "visibleCategories": ["retail", "pos", "inventory", "analytics", "labor"],
+    "hiddenNodes": [],
+    "featured": ["rapidrms-connector", "sales-analytics", "inventory-alerts"]
+  }
+}

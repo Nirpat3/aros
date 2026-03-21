@@ -1,0 +1,55 @@
+{
+  "id": "com.nirlab.add-systems",
+  "name": "ADD Systems (ADDS) Connector",
+  "version": "1.0.0",
+  "description": "Connect AROS to ADD Systems back-office platform. Sync fuel, merchandise, lottery, accounts receivable, and environmental compliance data for petroleum and c-store operations.",
+  "category": "bos",
+  "author": "Nirlab Inc",
+  "registry": "https://registry.mib007.io",
+  "packageName": "@aros/connector-add-systems",
+  "capabilities": [
+    "fuel-pricing",
+    "inventory-sync",
+    "lottery-data",
+    "accounts-receivable",
+    "environmental-compliance",
+    "multi-location"
+  ],
+  "pricing": { "model": "free" },
+  "requiredPlatformVersion": "0.2.0",
+  "publishedAt": "2026-03-20T00:00:00Z",
+  "updatedAt": "2026-03-20T00:00:00Z",
+  "status": "in-development",
+  "storeDiscovery": true,
+  "configSchema": {
+    "serverHost": {
+      "type": "string",
+      "required": true,
+      "label": "ADDS Server Host",
+      "description": "Hostname or IP of your ADD Systems server"
+    },
+    "port": {
+      "type": "number",
+      "required": false,
+      "label": "Port",
+      "default": 443
+    },
+    "username": {
+      "type": "string",
+      "required": true,
+      "label": "Username"
+    },
+    "password": {
+      "type": "string",
+      "required": true,
+      "label": "Password",
+      "secret": true
+    },
+    "syncIntervalMs": {
+      "type": "number",
+      "required": false,
+      "label": "Sync interval (ms)",
+      "default": 1800000
+    }
+  }
+}

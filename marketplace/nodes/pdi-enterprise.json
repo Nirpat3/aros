@@ -1,0 +1,66 @@
+{
+  "id": "com.nirlab.pdi-enterprise",
+  "name": "PDI Enterprise / ERP Connector",
+  "version": "1.0.0",
+  "description": "Connect AROS to PDI Enterprise (formerly CStoreOffice). Sync back-office data including fuel pricing, inventory, purchasing, accounts payable, and P&L reporting across all locations.",
+  "category": "bos",
+  "author": "Nirlab Inc",
+  "registry": "https://registry.mib007.io",
+  "packageName": "@aros/connector-pdi",
+  "capabilities": [
+    "fuel-pricing",
+    "inventory-sync",
+    "purchasing-data",
+    "accounts-payable",
+    "pnl-reporting",
+    "multi-location",
+    "conexxus-compatible"
+  ],
+  "pricing": { "model": "free" },
+  "requiredPlatformVersion": "0.2.0",
+  "publishedAt": "2026-03-20T00:00:00Z",
+  "updatedAt": "2026-03-20T00:00:00Z",
+  "status": "beta",
+  "storeDiscovery": true,
+  "configSchema": {
+    "serverUrl": {
+      "type": "string",
+      "required": true,
+      "label": "PDI Server URL",
+      "description": "Your PDI Enterprise server (e.g. https://pdi.yourcompany.com)"
+    },
+    "companyId": {
+      "type": "string",
+      "required": true,
+      "label": "Company ID"
+    },
+    "username": {
+      "type": "string",
+      "required": true,
+      "label": "API Username"
+    },
+    "password": {
+      "type": "string",
+      "required": true,
+      "label": "API Password",
+      "secret": true
+    },
+    "modules": {
+      "type": "select",
+      "required": false,
+      "label": "Modules to Sync",
+      "options": [
+        { "label": "All Modules", "value": "all" },
+        { "label": "Fuel & Pricing Only", "value": "fuel" },
+        { "label": "Inventory & Purchasing", "value": "inventory" },
+        { "label": "Financial / P&L", "value": "financial" }
+      ]
+    },
+    "syncIntervalMs": {
+      "type": "number",
+      "required": false,
+      "label": "Sync interval (ms)",
+      "default": 1800000
+    }
+  }
+}

@@ -20,6 +20,8 @@
   "requiredPlatformVersion": "0.2.0",
   "publishedAt": "2026-03-18T00:00:00Z",
   "updatedAt": "2026-03-18T00:00:00Z",
+  "status": "live",
+  "storeDiscovery": true,
   "configSchema": {
     "clientId": {
       "type": "string",
