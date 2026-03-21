@@ -4,17 +4,27 @@
  * 2. Audit logging (writes to immutable_ledger via event bus)
  * 3. Timing and error handling
  *
- * Usage:
- *   import { runSkill } from "@aros/skills/runner";
- *   import { createEventBus } from "shre-sdk/events";
- *
- *   const bus = createEventBus("aros-agent");
- *   const output = await runSkill(bus, skill, context);
+ * When shre-sdk is available, integrates with the Shre event bus.
+ * Without shre-sdk, runs skills standalone (no feed/audit).
  */
 
-import type { EventBus } from "shre-sdk/events";
-import { postToFeed, audit } from "shre-sdk/feed";
 import type { ArosSkill, SkillContext, SkillOutput } from "./types.js";
+
+// shre-sdk is optional — gracefully degrade when not available
+let postToFeed: ((bus: any, entry: any) => Promise<void>) | null = null;
+let audit: ((bus: any, action: string, data: any, agentId: string) => Promise<void>) | null = null;
+
+try {
+  const feed = await import("shre-sdk/feed");
+  postToFeed = feed.postToFeed;
+  audit = feed.audit;
+} catch {
+  // shre-sdk not available — standalone mode
+}
+
+export interface EventBus {
+  publish(channel: string, data: unknown): Promise<void>;
+}
 
 export interface RunSkillOptions {
   /** Override agent ID (default: "aros-agent") */
@@ -33,7 +43,7 @@ export interface RunSkillOptions {
  * Execute a skill and automatically post results to the feed + audit ledger.
  */
 export async function runSkill(
-  bus: EventBus,
+  bus: EventBus | null,
   skill: ArosSkill,
   context: SkillContext,
   options: RunSkillOptions = {},
@@ -41,8 +51,8 @@ export async function runSkill(
   const agentId = options.agentId ?? "aros-agent";
   const agentEmoji = options.agentEmoji ?? "🤖";
   const storeId = options.storeId ?? context.store.storeId;
-  const shouldPost = options.postToFeedEnabled !== false;
-  const shouldAudit = options.auditEnabled !== false;
+  const shouldPost = options.postToFeedEnabled !== false && postToFeed !== null && bus !== null;
+  const shouldAudit = options.auditEnabled !== false && audit !== null && bus !== null;
 
   const startTime = Date.now();
   let output: SkillOutput;
@@ -52,9 +62,8 @@ export async function runSkill(
   } catch (err) {
     const duration_ms = Date.now() - startTime;
 
-    // Audit the failure
     if (shouldAudit) {
-      await audit(bus, "skill.execute", {
+      await audit!(bus, "skill.execute", {
         skillId: skill.id,
         storeId,
         duration_ms,
@@ -63,9 +72,8 @@ export async function runSkill(
       }, agentId).catch(() => {});
     }
 
-    // Post failure to feed
     if (shouldPost) {
-      await postToFeed(bus, {
+      await postToFeed!(bus, {
         agentId,
         agentEmoji,
         category: "alert",
@@ -84,9 +92,8 @@ export async function runSkill(
 
   const duration_ms = Date.now() - startTime;
 
-  // Audit the execution
   if (shouldAudit) {
-    await audit(bus, "skill.execute", {
+    await audit!(bus, "skill.execute", {
       skillId: skill.id,
       storeId,
       duration_ms,
@@ -95,7 +102,6 @@ export async function runSkill(
     }, agentId).catch(() => {});
   }
 
-  // Post result to feed
   if (shouldPost) {
     const severity = output.alerts?.some(a => a.severity === "critical")
       ? "critical" as const
@@ -103,7 +109,7 @@ export async function runSkill(
         ? "warning" as const
         : "info" as const;
 
-    await postToFeed(bus, {
+    await postToFeed!(bus, {
       agentId,
       agentEmoji,
       category: "skill_result",

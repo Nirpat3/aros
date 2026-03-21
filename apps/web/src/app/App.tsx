@@ -3,6 +3,7 @@ import { ArosChat } from '../aros-ai/ArosChat';
 import { Sidebar } from '../components/Sidebar';
 import { Dashboard } from '../components/Dashboard';
 import { SubmitPlugin } from '../admin/SubmitPlugin';
+import { AuthPage } from '../pages/auth/AuthPage';
 import { useAuth } from '../admin/useAuth';
 
 const MARKETPLACE_ADMIN_URL = (window as any).__MARKETPLACE_URL__
@@ -12,8 +13,18 @@ const MARKETPLACE_ADMIN_URL = (window as any).__MARKETPLACE_URL__
     : 'https://marketplace.nirtek.net/admin';
 
 function AppContent() {
-  const { isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
   const path = window.location.pathname;
+
+  // Auth pages are always accessible
+  if (path.startsWith('/auth') || path.startsWith('/login') || path.startsWith('/signup')) {
+    return <AuthPage />;
+  }
+
+  // All other pages require authentication
+  if (!user) {
+    return <AuthPage />;
+  }
 
   // Admin panel lives at shre-marketplace — redirect there
   if (path.startsWith('/admin') && isAdmin) {
