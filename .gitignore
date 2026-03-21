@@ -20,3 +20,8 @@ models.config.json
 *.swp
 *.swo
 .DS_Store
+
+# Internal strategy & partnerships (NEVER commit to public repo)
+docs/GTM-STRATEGY.md
+docs/partnerships/
+docs/legal/IP-PROTECTION.md
