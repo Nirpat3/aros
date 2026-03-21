@@ -357,7 +357,7 @@ export interface BrandingConfig {
 export const DEFAULT_BRANDING: Omit<BrandingConfig, 'id' | 'tenantId'> = {
   brandName: 'AROS',
   brandTagline: 'Agentic Retail Operating System',
-  brandSupportEmail: 'support@nirtek.net',
+  brandSupportEmail: '',
   brandCopyright: '© 2026 Nirlab Inc. All rights reserved.',
 
   agentName: 'AROS',

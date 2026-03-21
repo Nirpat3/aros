@@ -23,7 +23,7 @@ export default defineConfig({
   preview: {
     port: getPort(),
     host: '0.0.0.0',
-    allowedHosts: ['aros.nirtek.net', 'localhost', '127.0.0.1'],
+    allowedHosts: true,
   },
   build: {
     outDir: 'dist',
