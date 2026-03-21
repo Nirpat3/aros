@@ -13,10 +13,11 @@ export function Sidebar() {
         <span className="aros-brand-name">{config.brand.name}</span>
       </div>
       <nav className="aros-nav">
-        <a href="/" className="aros-nav-item active">Dashboard</a>
+        <a href="/dashboard" className="aros-nav-item active">Dashboard</a>
         {config.features?.marketplace && <a href="/marketplace" className="aros-nav-item">Marketplace</a>}
-        {config.features?.marketplace && <a href="/submit-plugin" className="aros-nav-item">Submit Plugin</a>}
+        {config.features?.marketplace && <a href="/developers" className="aros-nav-item">Developers</a>}
         {config.features?.analytics && <a href="/analytics" className="aros-nav-item">Analytics</a>}
+        <a href="/costs" className="aros-nav-item">Costs & Billing</a>
         <a href="/updates" className="aros-nav-item">
           Updates
           <UpdateBadge coreAvailable={false} uiAvailable={false} />

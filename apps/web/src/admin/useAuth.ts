@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 // Lightweight browser-side auth hook.
-// Reads the JWT from sessionStorage and decodes the payload (base64 middle segment).
+// Stores user data in both sessionStorage and localStorage for persistence.
 // This is NOT security — server validates tokens. This is for UI gating only.
 
 export interface AuthUser {
@@ -13,41 +13,56 @@ export interface AuthUser {
 }
 
 const TOKEN_KEY = 'aros-auth-token';
+const USER_KEY = 'aros-auth-user';
 
-function decodePayload(token: string): AuthUser | null {
+function loadUser(): AuthUser | null {
+  // Try sessionStorage first, fall back to localStorage
+  const raw = sessionStorage.getItem(USER_KEY) || localStorage.getItem(USER_KEY);
+  if (!raw) return null;
   try {
-    const parts = token.split(':');
-    // ArosProvider uses encrypted tokens, not JWT — so we store the decoded user separately
-    const userRaw = sessionStorage.getItem('aros-auth-user');
-    if (userRaw) return JSON.parse(userRaw);
-    return null;
+    const user = JSON.parse(raw) as AuthUser;
+    // Check if token has expired (1 hour buffer)
+    if (user.exp && user.exp * 1000 < Date.now()) {
+      // Expired — clear and return null
+      sessionStorage.removeItem(USER_KEY);
+      sessionStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+      localStorage.removeItem(TOKEN_KEY);
+      return null;
+    }
+    // Sync to sessionStorage if only in localStorage
+    if (!sessionStorage.getItem(USER_KEY)) {
+      sessionStorage.setItem(USER_KEY, raw);
+    }
+    return user;
   } catch {
     return null;
   }
 }
 
 export function useAuth() {
-  const [user, setUser] = useState<AuthUser | null>(() => {
-    const userRaw = sessionStorage.getItem('aros-auth-user');
-    if (userRaw) {
-      try { return JSON.parse(userRaw); } catch { return null; }
-    }
-    return null;
-  });
+  const [user, setUser] = useState<AuthUser | null>(loadUser);
 
   const isSuperAdmin = user?.role === 'superadmin';
   const isAdmin = isSuperAdmin || user?.role === 'owner' || user?.role === 'admin';
 
   const login = useCallback((token: string, userData: AuthUser) => {
+    const json = JSON.stringify(userData);
     sessionStorage.setItem(TOKEN_KEY, token);
-    sessionStorage.setItem('aros-auth-user', JSON.stringify(userData));
+    sessionStorage.setItem(USER_KEY, json);
+    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(USER_KEY, json);
     setUser(userData);
   }, []);
 
   const logout = useCallback(() => {
     sessionStorage.removeItem(TOKEN_KEY);
-    sessionStorage.removeItem('aros-auth-user');
+    sessionStorage.removeItem(USER_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+    localStorage.removeItem('aros-onboarding-complete');
     setUser(null);
+    window.location.href = '/login';
   }, []);
 
   return { user, isSuperAdmin, isAdmin, login, logout };

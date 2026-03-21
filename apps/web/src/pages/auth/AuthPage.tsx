@@ -56,8 +56,9 @@ export function AuthPage() {
         exp: Math.floor(Date.now() / 1000) + 3600,
       });
 
-      // Redirect to onboarding for new signups, dashboard for returning users
-      const redirectTo = mode === 'signup' ? '/onboarding' : '/';
+      // Redirect to onboarding for new signups (plan → payment → setup),
+      // dashboard for returning users
+      const redirectTo = mode === 'signup' ? '/onboarding' : '/dashboard';
       window.location.href = redirectTo;
     } catch (err) {
       setError('Network error. Please try again.');
