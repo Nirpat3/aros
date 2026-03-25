@@ -14,7 +14,8 @@
     "typecheck": "turbo typecheck",
     "clean": "turbo clean",
     "update:core": "tsx updater/index.ts",
-    "marketplace:sync": "tsx marketplace/registry.ts"
+    "marketplace:sync": "tsx marketplace/registry.ts",
+    "serve": "tsx src/server.ts"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
