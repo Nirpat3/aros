@@ -11,9 +11,21 @@ import { createCheckoutSession, createPortalSession, getSubscription, type PlanI
 import { handleStripeWebhook } from './billing/webhook.js';
 import { provisionLicense } from './billing/license.js';
 import { createSupabaseAdmin } from './supabase.js';
+import { createEventBus } from 'shre-sdk/events';
+import { createHeartbeatMonitor } from 'shre-sdk/heartbeat';
 
 const PORT = 5457;
 const startedAt = new Date().toISOString();
+
+// ── Platform Integrations ────────────────────────────────────────
+const eventBus = createEventBus('aros-platform');
+const heartbeat = createHeartbeatMonitor('aros-platform', {
+  intervalMs: 30_000,
+  publishFn: (event, severity, data) => eventBus.publish(event, severity, data),
+});
+heartbeat.registerDependency('cortexdb', 'http://127.0.0.1:5400/health/live');
+heartbeat.registerDependency('redis', 'redis://127.0.0.1:6379');
+heartbeat.registerDependency('shre-tasks', 'http://127.0.0.1:5460/health');
 
 // ── Helpers ─────────────────────────────────────────────────────
 
@@ -737,6 +749,64 @@ async function handleLogin(req: IncomingMessage, res: ServerResponse): Promise<v
   }
 }
 
+// ── Lead Capture ─────────────────────────────────────────────
+
+async function handleLeadCapture(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  const body = await parseJsonBody(req);
+  if (!body) return json(res, 400, { error: 'Invalid JSON' });
+
+  const { name, email, business_name, posSystem, source, utm_campaign, notes } = body as {
+    name?: string; email?: string; business_name?: string;
+    posSystem?: string; source?: string; utm_campaign?: string; notes?: string;
+  };
+
+  if (!name || typeof name !== 'string' || name.trim().length < 2) {
+    return json(res, 400, { error: 'Name is required' });
+  }
+  if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    return json(res, 400, { error: 'Valid email is required' });
+  }
+
+  const safeName = sanitizeString(String(name), 100);
+  const safeEmail = email.trim().toLowerCase().slice(0, 254);
+
+  try {
+    const supabase = createSupabaseAdmin();
+
+    // Upsert lead by email (deduplicates)
+    const { error } = await supabase
+      .from('leads')
+      .upsert({
+        name: safeName,
+        email: safeEmail,
+        business_name: business_name ? sanitizeString(String(business_name), 200) : null,
+        pos_system: posSystem ? sanitizeString(String(posSystem), 50) : null,
+        source: source ? sanitizeString(String(source), 100) : 'contact_form',
+        utm_campaign: utm_campaign ? sanitizeString(String(utm_campaign), 100) : null,
+        notes: notes ? sanitizeString(String(notes), 2000) : null,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'email' });
+
+    if (error) {
+      console.error('[leads]', error.message);
+      return json(res, 500, { error: 'Failed to save lead' });
+    }
+
+    await auditLog({
+      action: 'lead.captured',
+      resource: 'leads',
+      detail: { email: safeEmail, source },
+      ip: getClientIp(req),
+    });
+
+    json(res, 200, { ok: true });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to capture lead';
+    console.error('[leads]', message);
+    json(res, 500, { error: message });
+  }
+}
+
 // ── Request Handler ─────────────────────────────────────────────
 
 async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
@@ -814,6 +884,14 @@ async function handler(req: IncomingMessage, res: ServerResponse): Promise<void>
     return handleOnboardingComplete(req, res);
   }
 
+  // ── Lead capture (public, no auth) ──────────────────────
+  if (url === '/api/leads' && method === 'POST') {
+    if (!rateLimit(req, 10, 60_000)) {
+      return json(res, 429, { error: 'Too many requests. Please wait.' });
+    }
+    return handleLeadCapture(req, res);
+  }
+
   // ── Login (brute-force protected) ─────────────────────────
   if (url === '/api/login' && method === 'POST') {
     if (!rateLimit(req, 10, 60_000)) {
@@ -837,4 +915,13 @@ const server = createServer((req, res) => {
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`[aros-platform] Health server listening on 0.0.0.0:${PORT}`);
+  heartbeat.start();
 });
+
+function shutdown(): void {
+  heartbeat.stop();
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(1), 10_000);
+}
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
