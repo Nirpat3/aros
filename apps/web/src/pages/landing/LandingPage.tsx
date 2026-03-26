@@ -8,7 +8,10 @@ export function LandingPage() {
           <div style={styles.navLinks}>
             <a href="#features" style={styles.navLink}>Features</a>
             <a href="#pricing" style={styles.navLink}>Pricing</a>
+            <a href="/marketplace" style={styles.navLink}>Marketplace</a>
             <a href="/developers" style={styles.navLink}>Developers</a>
+            <a href="https://nirtek.net/blog.html" style={styles.navLink} target="_blank" rel="noopener">Blog</a>
+            <a href="https://support.nirtek.net" style={styles.navLink} target="_blank" rel="noopener">Support</a>
             <a href="/login" style={styles.navLink}>Sign In</a>
             <a href="/signup" style={styles.navCta}>Get Started</a>
           </div>
@@ -40,7 +43,7 @@ export function LandingPage() {
         <p style={styles.sectionDesc}>AI agents that work 24/7, learning and improving with every transaction.</p>
         <div style={styles.featureGrid}>
           {[
-            { title: 'POS Integration', desc: 'Connect RapidRMS, Square, Clover, Shopify — real-time transaction sync with automated inventory management.', icon: 'S' },
+            { title: 'POS Integration', desc: 'Connect RapidRMS, Verifone Commander, and more — real-time transaction sync with automated inventory management.', icon: 'S' },
             { title: 'AI Analytics', desc: 'Daily sales reports, trend detection, cost breakdowns, and predictive reordering — generated automatically.', icon: 'A' },
             { title: 'Agent Workforce', desc: 'Up to 14 specialized AI agents handle support, analytics, operations, inventory, and marketing.', icon: 'W' },
             { title: 'Fleet Management', desc: 'Multi-store operators get unified dashboards, cross-location analytics, and centralized agent management.', icon: 'F' },
@@ -85,7 +88,7 @@ export function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <a href="/signup" style={{
+              <a href={p.cta === 'Contact Sales' ? '/contact' : '/signup'} style={{
                 display: 'block', textAlign: 'center', padding: '12px 0', borderRadius: 10,
                 fontWeight: 600, fontSize: 14, textDecoration: 'none',
                 background: p.popular ? '#3b5bdb' : '#f3f4f6',
@@ -119,23 +122,40 @@ export function LandingPage() {
             <div style={{ fontSize: 13, color: '#6b7280' }}>Agentic Retail Operating System</div>
             <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 8 }}>By Nirlab Inc.</div>
           </div>
-          <div style={{ display: 'flex', gap: 32 }}>
+          <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' as const }}>
             <div>
               <div style={styles.footerHeading}>Product</div>
               <a href="#features" style={styles.footerLink}>Features</a>
               <a href="#pricing" style={styles.footerLink}>Pricing</a>
               <a href="/marketplace" style={styles.footerLink}>Marketplace</a>
+              <a href="https://status.nirtek.net" target="_blank" rel="noopener" style={styles.footerLink}>Status</a>
+            </div>
+            <div>
+              <div style={styles.footerHeading}>Integrations</div>
+              <a href="https://nirtek.net/pos/" target="_blank" rel="noopener" style={styles.footerLink}>POS Integrations</a>
+              <a href="https://nirtek.net/pos/rapidrms.html" target="_blank" rel="noopener" style={styles.footerLink}>RapidRMS</a>
+              <a href="https://nirtek.net/pos/verifone-commander.html" target="_blank" rel="noopener" style={styles.footerLink}>Verifone Commander</a>
+              <a href="https://nirtek.net/partners.html" target="_blank" rel="noopener" style={styles.footerLink}>Partners</a>
             </div>
             <div>
               <div style={styles.footerHeading}>Developers</div>
               <a href="/developers" style={styles.footerLink}>Developer Portal</a>
+              <a href="https://api.nirtek.net" target="_blank" rel="noopener" style={styles.footerLink}>API</a>
+              <a href="https://developers.nirtek.net" target="_blank" rel="noopener" style={styles.footerLink}>SDK Docs</a>
               <a href="https://github.com/nirlab/aros" target="_blank" rel="noopener" style={styles.footerLink}>GitHub</a>
+            </div>
+            <div>
+              <div style={styles.footerHeading}>Resources</div>
+              <a href="https://nirtek.net/blog.html" target="_blank" rel="noopener" style={styles.footerLink}>Blog</a>
+              <a href="https://support.nirtek.net" target="_blank" rel="noopener" style={styles.footerLink}>Support</a>
+              <a href="https://nirtek.net/resources.html" target="_blank" rel="noopener" style={styles.footerLink}>Resources</a>
+              <a href="https://nirtek.net/platform.html" target="_blank" rel="noopener" style={styles.footerLink}>Platform</a>
             </div>
             <div>
               <div style={styles.footerHeading}>Legal</div>
               <a href="https://nirtek.net/terms.html" target="_blank" rel="noopener" style={styles.footerLink}>Terms</a>
               <a href="https://nirtek.net/privacy.html" target="_blank" rel="noopener" style={styles.footerLink}>Privacy</a>
-              <a href="https://nirtek.net/support.html#contact" target="_blank" rel="noopener" style={styles.footerLink}>Contact</a>
+              <a href="/contact" style={styles.footerLink}>Contact</a>
             </div>
           </div>
         </div>

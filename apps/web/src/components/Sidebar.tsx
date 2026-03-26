@@ -17,7 +17,8 @@ export function Sidebar() {
         {config.features?.marketplace && <a href="/marketplace" className="aros-nav-item">Marketplace</a>}
         {config.features?.marketplace && <a href="/developers" className="aros-nav-item">Developers</a>}
         {config.features?.analytics && <a href="/analytics" className="aros-nav-item">Analytics</a>}
-        <a href="/costs" className="aros-nav-item">Costs & Billing</a>
+        <a href="/billing" className="aros-nav-item">Billing</a>
+        <a href="/costs" className="aros-nav-item">Costs</a>
         <a href="/updates" className="aros-nav-item">
           Updates
           <UpdateBadge coreAvailable={false} uiAvailable={false} />

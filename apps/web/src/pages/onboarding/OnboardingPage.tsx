@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from 'react';
-import { useAuth } from '../../admin/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 
 type OnboardingStep = 'verify-email' | 'choose-plan' | 'payment' | 'business-setup' | 'complete';
 
@@ -52,7 +52,7 @@ const PLANS = [
 ];
 
 export function OnboardingPage() {
-  const { user } = useAuth();
+  const { user, tenant } = useAuth();
   const [step, setStep] = useState<OnboardingStep>('verify-email');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
@@ -152,23 +152,21 @@ export function OnboardingPage() {
       return;
     }
 
-    // Paid plan — create Stripe checkout
+    // Paid plan — create Stripe checkout via AROS billing API
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/aros/onboarding/create-checkout`, {
+      const res = await fetch(`${API_BASE}/api/billing/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          workspace_name: companyName || user?.email?.split('@')[0] || 'my-store',
-          admin_email: user?.email,
-          store_count: storeCount,
-          tier: planId,
+          tenantId: tenant?.id,
+          plan: planId,
+          email: user?.email,
         }),
-        credentials: 'include',
       });
       const data = await res.json();
-      if (data.sessionUrl || data.checkout_url) {
-        window.location.href = data.sessionUrl || data.checkout_url;
+      if (data.url) {
+        window.location.href = data.url;
       } else {
         setStep('business-setup');
       }
@@ -183,67 +181,44 @@ export function OnboardingPage() {
   async function handleBusinessSetup(e: FormEvent) {
     e.preventDefault();
     setLoading(true);
-    try {
-      // 1. Save onboarding state
-      await fetch(`${API_BASE}/api/aros/onboarding/state`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          step: 'complete',
-          welcome: { companyName, path: 'operator' },
-          selectedPlan: selectedPlan || 'free',
-          storeName,
-          storeCount,
-          industry,
-          phone,
-          address: { street: address, city, state, zip, country },
-        }),
-        credentials: 'include',
-      });
-    } catch {
-      // Non-fatal — proceed
-    }
 
-    // 2. Provision workspace (creates company + membership)
-    let companyId = '';
-    try {
-      const provRes = await fetch(`${API_BASE}/api/profile/provision-workspace`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-      });
-      if (provRes.ok) {
-        const provData = await provRes.json();
-        companyId = provData.companyId || '';
-      }
-    } catch {
-      // Non-fatal — workspace may already exist
-    }
-
-    // 3. Issue license key for self-hosted deployment
-    if (companyId) {
+    if (tenant?.id) {
+      // Complete onboarding via server API (updates tenant + onboarding_progress + audit log)
       try {
-        const slug = (companyName || user?.email?.split('@')[0] || 'store')
-          .toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 30);
-        const licRes = await fetch(`${API_BASE}/api/companies/${companyId}/licenses`, {
+        await fetch(`${API_BASE}/api/onboarding/complete`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            plan: selectedPlan || 'free',
-            tenantId: `aros-${slug}`,
+            tenantId: tenant.id,
+            companyName: companyName || tenant.name,
+            storeName,
+            storeCount,
+            industry,
+            phone,
+            address: { street: address, city, state, zip, country },
           }),
-          credentials: 'include',
         });
-        if (licRes.ok) {
-          const licData = await licRes.json();
-          setLicenseKey(licData.key || '');
+      } catch {
+        // Non-fatal — proceed
+      }
+
+      // Retrieve license key from tenant record
+      try {
+        const { supabase } = await import('../../lib/supabase');
+        const { data } = await supabase
+          .from('tenants')
+          .select('license_key')
+          .eq('id', tenant.id)
+          .single();
+        if (data?.license_key) {
+          setLicenseKey(data.license_key);
         }
       } catch {
-        // Non-fatal — license can be retrieved later from settings
+        // Non-fatal
       }
     }
 
-    // Mark onboarding complete
+    // Mark onboarding complete (client-side cache of server state)
     localStorage.setItem('aros-onboarding-complete', 'true');
     sessionStorage.setItem('aros-onboarding-complete', 'true');
     setSetupDone(true);
@@ -511,6 +486,14 @@ export function OnboardingPage() {
                   </select>
                 </div>
               </div>
+
+              {(() => {
+                const digits = phone.replace(/\D/g, '');
+                if (phone && (digits.length < 10 || digits.length > 15)) {
+                  return <div style={styles.error}>Please enter a valid phone number (10+ digits)</div>;
+                }
+                return null;
+              })()}
 
               <button type="submit" disabled={loading} style={styles.button}>
                 {loading ? 'Setting up...' : 'Launch AROS'}
