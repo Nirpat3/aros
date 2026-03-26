@@ -1,3 +1,5 @@
+const print = (m: unknown) => process.stdout.write((m == null ? '' : String(m)) + '\n');
+const printErr = (...a: unknown[]) => process.stderr.write(a.map(String).join(' ') + '\n');
 /**
  * AROS License CLI
  *
@@ -24,20 +26,20 @@ const LICENSE_DIR = resolve(homedir(), '.aros');
 const LICENSE_FILE = resolve(LICENSE_DIR, 'license.key');
 
 function printLicenseInfo(license: AROSLicense, devMode = false): void {
-  console.log('\n  AROS License Information');
-  console.log('  ' + '-'.repeat(40));
-  console.log(`  Tenant ID:   ${license.tenantId}`);
-  console.log(`  Tier:        ${license.tier}`);
-  console.log(`  Features:    ${license.features.join(', ') || '(none)'}`);
-  console.log(`  Issued:      ${license.issuedAt}`);
-  console.log(
+  print('\n  AROS License Information');
+  print('  ' + '-'.repeat(40));
+  print(`  Tenant ID:   ${license.tenantId}`);
+  print(`  Tier:        ${license.tier}`);
+  print(`  Features:    ${license.features.join(', ') || '(none)'}`);
+  print(`  Issued:      ${license.issuedAt}`);
+  print(
     `  Expires:     ${license.expiresAt || 'Never (perpetual)'}`
   );
-  console.log(`  Fingerprint: ${license.fingerprint}`);
+  print(`  Fingerprint: ${license.fingerprint}`);
   if (devMode) {
-    console.log(`  Mode:        ⚠ DEV MODE (not for production)`);
+    print(`  Mode:        ⚠ DEV MODE (not for production)`);
   }
-  console.log('');
+  print('');
 }
 
 export function licenseInfo(): void {
@@ -49,14 +51,14 @@ export function licenseInfo(): void {
 
   const key = resolveLicenseKey();
   if (!key) {
-    console.error('\n  No license key found.');
-    console.error('  Run: aros license activate <key>\n');
+    printErr('\n  No license key found.');
+    printErr('  Run: aros license activate <key>\n');
     process.exit(1);
   }
 
   const license = decodeLicenseKey(key);
   if (!license) {
-    console.error('\n  License key has invalid format.\n');
+    printErr('\n  License key has invalid format.\n');
     process.exit(1);
   }
 
@@ -65,35 +67,35 @@ export function licenseInfo(): void {
 
 export function licenseValidate(): void {
   if (isDevMode()) {
-    console.log('\n  ✓ Dev mode active — license validation skipped.\n');
+    print('\n  ✓ Dev mode active — license validation skipped.\n');
     return;
   }
 
   const key = resolveLicenseKey();
   if (!key) {
-    console.error('\n  ✗ No license key found.');
-    console.error('  Run: aros license activate <key>\n');
+    printErr('\n  ✗ No license key found.');
+    printErr('  Run: aros license activate <key>\n');
     process.exit(1);
   }
 
   const result = validateLicenseKey(key);
 
   if (result.valid && result.license) {
-    console.log('\n  ✓ License is valid.');
+    print('\n  ✓ License is valid.');
     printLicenseInfo(result.license);
   } else {
-    console.error(`\n  ✗ License validation failed: ${result.error}`);
+    printErr(`\n  ✗ License validation failed: ${result.error}`);
     if (result.code) {
-      console.error(`    Error code: ${result.code}`);
+      printErr(`    Error code: ${result.code}`);
     }
-    console.error('');
+    printErr('');
     process.exit(1);
   }
 }
 
 export function licenseActivate(key: string): void {
   if (!key || !key.trim()) {
-    console.error('\n  Usage: aros license activate <key>\n');
+    printErr('\n  Usage: aros license activate <key>\n');
     process.exit(1);
   }
 
@@ -102,7 +104,7 @@ export function licenseActivate(key: string): void {
   // Verify the key is at least decodeable
   const license = decodeLicenseKey(trimmedKey);
   if (!license) {
-    console.error('\n  ✗ Invalid license key format.\n');
+    printErr('\n  ✗ Invalid license key format.\n');
     process.exit(1);
   }
 
@@ -114,9 +116,9 @@ export function licenseActivate(key: string): void {
   // Write key to file (600 permissions)
   writeFileSync(LICENSE_FILE, trimmedKey + '\n', { mode: 0o600 });
 
-  console.log('\n  ✓ License key saved to ~/.aros/license.key');
-  console.log(`    Tenant: ${license.tenantId}`);
-  console.log(`    Tier:   ${license.tier}\n`);
+  print('\n  ✓ License key saved to ~/.aros/license.key');
+  print(`    Tenant: ${license.tenantId}`);
+  print(`    Tier:   ${license.tier}\n`);
 }
 
 /**
@@ -136,11 +138,11 @@ export function handleLicenseCLI(args: string[]): void {
       licenseActivate(args[1]);
       break;
     default:
-      console.log('\n  AROS License Management');
-      console.log('  ' + '-'.repeat(30));
-      console.log('  aros license info       — show license details');
-      console.log('  aros license validate   — validate current license');
-      console.log('  aros license activate <key> — save license key\n');
+      print('\n  AROS License Management');
+      print('  ' + '-'.repeat(30));
+      print('  aros license info       — show license details');
+      print('  aros license validate   — validate current license');
+      print('  aros license activate <key> — save license key\n');
       break;
   }
 }

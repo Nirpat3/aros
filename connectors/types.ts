@@ -2,7 +2,7 @@
 
 export interface ConnectorConfig {
   id: string;
-  type: "azure-db" | "rapidrms-api" | "custom";
+  type: "azure-db" | "rapidrms-api" | "verifone-commander" | "custom";
   name: string;
   tenantId: string;
   linkedNodes: string[];     // which nodes this connector serves (e.g. ["storepulse"])

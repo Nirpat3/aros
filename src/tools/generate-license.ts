@@ -1,3 +1,5 @@
+const print = (m: unknown) => process.stdout.write((m == null ? '' : String(m)) + '\n');
+const printErr = (...a: unknown[]) => process.stderr.write(a.map(String).join(' ') + '\n');
 /**
  * AROS License Key Generator — INTERNAL TOOL, NOT SHIPPED
  *
@@ -136,7 +138,7 @@ function parseArgs(argv: string[]): GenerateLicenseOptions {
   }
 
   if (!tenantId || !fingerprint) {
-    console.error('Usage: generate-license --tenant <id> --fingerprint <hex> [--tier starter|professional|enterprise] [--features a,b,c] [--expires YYYY-MM-DD]');
+    printErr('Usage: generate-license --tenant <id> --fingerprint <hex> [--tier starter|professional|enterprise] [--features a,b,c] [--expires YYYY-MM-DD]');
     process.exit(1);
   }
 
@@ -151,13 +153,13 @@ if (isMain) {
   const options = parseArgs(process.argv);
   const key = generateLicenseKey(options);
 
-  console.log('\nGenerated AROS License Key:');
-  console.log('-'.repeat(60));
-  console.log(key);
-  console.log('-'.repeat(60));
-  console.log(`\nTenant:      ${options.tenantId}`);
-  console.log(`Tier:        ${options.tier}`);
-  console.log(`Features:    ${options.features.join(', ') || '(default)'}`);
-  console.log(`Fingerprint: ${options.fingerprint}`);
-  console.log(`Expires:     ${options.expiresAt || 'Never (perpetual)'}\n`);
+  print('\nGenerated AROS License Key:');
+  print('-'.repeat(60));
+  print(key);
+  print('-'.repeat(60));
+  print(`\nTenant:      ${options.tenantId}`);
+  print(`Tier:        ${options.tier}`);
+  print(`Features:    ${options.features.join(', ') || '(default)'}`);
+  print(`Fingerprint: ${options.fingerprint}`);
+  print(`Expires:     ${options.expiresAt || 'Never (perpetual)'}\n`);
 }

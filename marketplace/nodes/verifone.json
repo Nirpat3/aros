@@ -1,54 +1,76 @@
 {
   "id": "com.nirlab.verifone",
   "name": "Verifone Commander Connector",
-  "version": "0.1.0",
-  "description": "Connect AROS to Verifone Commander POS. Sync fuel and c-store transactions, inventory, price book, and loyalty data. Supports Conexxus standards.",
+  "version": "1.0.0",
+  "description": "Connect AROS to Verifone Commander POS. Sync fuel and c-store transactions, department sales, PLU data, shift reports, and payment network totals via LAN CGI API.",
   "category": "pos",
   "author": "Nirlab Inc",
   "registry": "https://registry.mib007.io",
   "packageName": "@aros/connector-verifone",
   "capabilities": [
     "sales-sync",
-    "inventory-sync",
     "fuel-data",
-    "price-book",
-    "loyalty-data",
+    "department-reports",
+    "shift-reports",
+    "plu-data",
+    "payment-network",
+    "hourly-traffic",
+    "deal-tracking",
     "conexxus-compatible"
   ],
   "pricing": { "model": "free" },
   "requiredPlatformVersion": "0.2.0",
   "publishedAt": "2026-03-20T00:00:00Z",
-  "updatedAt": "2026-03-20T00:00:00Z",
-  "status": "in-development",
+  "updatedAt": "2026-03-25T00:00:00Z",
+  "status": "beta",
   "storeDiscovery": true,
   "configSchema": {
     "siteId": {
       "type": "string",
       "required": true,
-      "label": "Commander Site ID"
+      "label": "Site ID",
+      "description": "Unique identifier for this Commander site"
     },
-    "apiEndpoint": {
+    "commanderIp": {
       "type": "string",
       "required": true,
-      "label": "Commander API Endpoint",
-      "description": "URL of your Commander server (e.g. https://commander.yoursite.com/api)"
+      "label": "Commander IP Address",
+      "description": "LAN IP of the Commander device (e.g. 192.168.31.11)",
+      "default": "192.168.31.11"
     },
     "username": {
       "type": "string",
       "required": true,
-      "label": "API Username"
+      "label": "Username",
+      "description": "Commander login username"
     },
     "password": {
       "type": "string",
       "required": true,
-      "label": "API Password",
-      "secret": true
+      "label": "Password",
+      "secret": true,
+      "description": "Commander login password"
     },
     "syncIntervalMs": {
       "type": "number",
       "required": false,
       "label": "Sync interval (ms)",
-      "default": 900000
+      "default": 300000,
+      "description": "How often to poll Commander for new data (default: 5 minutes)"
+    },
+    "hasFuel": {
+      "type": "boolean",
+      "required": false,
+      "label": "Has Fuel",
+      "default": true,
+      "description": "Enable fuel data sync (c-store with fuel dispensers)"
+    },
+    "hasCarwash": {
+      "type": "boolean",
+      "required": false,
+      "label": "Has Car Wash",
+      "default": false,
+      "description": "Enable car wash data sync"
     }
   }
 }

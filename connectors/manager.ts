@@ -4,6 +4,7 @@
 import type { ConnectorConfig, ConnectorTestResult } from './types.js';
 import * as azureDb from './azure-db.js';
 import * as rapidRms from './rapidrms-api.js';
+import * as verifone from './verifone/connector.js';
 
 // ── Storage (per-tenant) ────────────────────────────────────────
 
@@ -56,6 +57,9 @@ export async function testConnector(
   } else if (config.type === 'rapidrms-api') {
     const meta = config as any;
     result = await rapidRms.testConnection(meta.rapidRmsConfig, meta.emailRef, config.credentials.vaultRef);
+  } else if (config.type === 'verifone-commander') {
+    const meta = config as any;
+    result = await verifone.testConnection(meta.verifoneConfig, config.credentials.vaultRef);
   } else {
     result = { success: false, error: `Unknown connector type: ${config.type}`, testedAt: new Date().toISOString() };
   }

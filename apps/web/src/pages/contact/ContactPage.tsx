@@ -1,7 +1,6 @@
 import { useState, FormEvent } from 'react';
 
-const LEADS_API = (window as any).__LEADS_API_URL__
-  || (window.location.hostname === 'localhost' ? 'http://localhost:5453' : 'https://api.nirtek.net');
+const LEADS_API = (window as any).__LEADS_API_URL__ || '';
 
 const INQUIRY_TYPES = [
   { value: '', label: 'What can we help with?' },

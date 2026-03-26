@@ -1,3 +1,5 @@
+const print = (m: unknown) => process.stdout.write((m == null ? '' : String(m)) + '\n');
+const printErr = (...a: unknown[]) => process.stderr.write(a.map(String).join(' ') + '\n');
 /**
  * AROS Boot Guard
  *
@@ -33,7 +35,7 @@ export function enforceBootGuard(): BootGuardResult {
   if (isDevMode()) {
     const license = createDevLicense();
     const elapsed = performance.now() - start;
-    console.log(
+    print(
       `[AROS] Dev mode active — license check skipped (tier: ${license.tier}, tenant: ${license.tenantId})`
     );
     return { license, devMode: true, elapsed };
@@ -43,17 +45,17 @@ export function enforceBootGuard(): BootGuardResult {
   const key = resolveLicenseKey();
 
   if (!key) {
-    console.error('\n' + '='.repeat(70));
-    console.error('  AROS LICENSE ERROR');
-    console.error('='.repeat(70));
-    console.error('  AROS requires a valid license key.');
-    console.error('');
-    console.error('  Set AROS_LICENSE_KEY environment variable or place your');
-    console.error('  license key in ~/.aros/license.key');
-    console.error('');
-    console.error('  Obtain a license at: [URL_PLACEHOLDER]');
-    console.error('  Contact: [CONTACT_PLACEHOLDER]');
-    console.error('='.repeat(70) + '\n');
+    printErr('\n' + '='.repeat(70));
+    printErr('  AROS LICENSE ERROR');
+    printErr('='.repeat(70));
+    printErr('  AROS requires a valid license key.');
+    printErr('');
+    printErr('  Set AROS_LICENSE_KEY environment variable or place your');
+    printErr('  license key in ~/.aros/license.key');
+    printErr('');
+    printErr('  Obtain a license at: [URL_PLACEHOLDER]');
+    printErr('  Contact: [CONTACT_PLACEHOLDER]');
+    printErr('='.repeat(70) + '\n');
     process.exit(1);
   }
 
@@ -61,18 +63,18 @@ export function enforceBootGuard(): BootGuardResult {
   const result = validateLicenseKey(key);
 
   if (!result.valid || !result.license) {
-    console.error('\n' + '='.repeat(70));
-    console.error('  AROS LICENSE ERROR');
-    console.error('='.repeat(70));
-    console.error(`  ${result.error || 'Invalid license key'}`);
-    console.error('');
-    console.error('  AROS requires a valid license key.');
-    console.error('  Obtain a license at: [URL_PLACEHOLDER]');
-    console.error('  Contact: [CONTACT_PLACEHOLDER]');
+    printErr('\n' + '='.repeat(70));
+    printErr('  AROS LICENSE ERROR');
+    printErr('='.repeat(70));
+    printErr(`  ${result.error || 'Invalid license key'}`);
+    printErr('');
+    printErr('  AROS requires a valid license key.');
+    printErr('  Obtain a license at: [URL_PLACEHOLDER]');
+    printErr('  Contact: [CONTACT_PLACEHOLDER]');
     if (result.code) {
-      console.error(`  Error code: ${result.code}`);
+      printErr(`  Error code: ${result.code}`);
     }
-    console.error('='.repeat(70) + '\n');
+    printErr('='.repeat(70) + '\n');
     process.exit(1);
   }
 
@@ -84,7 +86,7 @@ export function enforceBootGuard(): BootGuardResult {
     ? new Date(license.expiresAt).toLocaleDateString()
     : 'perpetual';
 
-  console.log(
+  print(
     `[AROS] License validated — tier: ${license.tier}, tenant: ${license.tenantId}, expires: ${expiryStr} (${elapsed.toFixed(1)}ms)`
   );
 

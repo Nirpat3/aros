@@ -14,15 +14,23 @@
   },
   "agent": {
     "name": "AROS",
-    "model": "claude-opus-4-6",
+    "model": "gpt-4o",
     "role": "platform-driver",
     "description": "AROS AI is the platform driver — identity, control, and conversation unified."
+  },
+  "auth": {
+    "provider": "aros",
+    "note": "Provider can be 'aros' (local file-based), 'shre' (delegate to Shre AI), or 'supabase' (hosted Supabase Auth)"
   },
   "shre": {
     "enabled": true,
     "endpoint": "",
     "fallback": "local",
     "description": "Shre is an optional backend plugin. Set enabled:false for fully standalone deployment."
+  },
+  "supabase": {
+    "enabled": false,
+    "note": "Set to true and provide env vars for hosted deployment"
   },
   "whitelabel": {
     "active": "default",

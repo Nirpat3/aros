@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, FormEvent } from 'react';
 
+// Chat API — local dev only; production uses offline knowledge base
 const CHAT_API = (window as any).__CHAT_API_URL__
-  || (window.location.hostname === 'localhost' ? 'http://localhost:5497' : 'https://api.nirtek.net');
+  || (window.location.hostname === 'localhost' ? 'http://localhost:5497' : '');
 
 interface Message {
   role: 'user' | 'assistant';
@@ -43,6 +44,8 @@ export function ChatWidget() {
     setLoading(true);
 
     try {
+      if (!CHAT_API) throw new Error('offline');
+
       const res = await fetch(`${CHAT_API}/v1/chat/public`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

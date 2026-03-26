@@ -14,42 +14,48 @@ export interface LLMOptions {
 }
 
 /**
- * Anthropic Claude provider — the default for AROS AI.
+ * OpenAI provider — the default for AROS AI.
  */
-export class ClaudeProvider implements LLMProvider {
-  name = 'claude';
+export class OpenAIProvider implements LLMProvider {
+  name = 'openai';
   private apiKey: string;
 
   constructor(apiKey?: string) {
-    this.apiKey = apiKey ?? process.env.ANTHROPIC_API_KEY ?? '';
+    this.apiKey = apiKey ?? process.env.OPENAI_API_KEY ?? '';
   }
 
   async chat(messages: Array<{ role: string; content: string }>, options?: LLMOptions): Promise<string> {
     if (!this.apiKey) {
-      throw new Error('ANTHROPIC_API_KEY not configured. Set it in environment or pass to ClaudeProvider.');
+      throw new Error('OPENAI_API_KEY not configured. Set it in environment or pass to OpenAIProvider.');
     }
 
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    // OpenAI expects system as the first message in the messages array
+    const systemContent = messages.find((m) => m.role === 'system')?.content;
+    const otherMessages = messages.filter((m) => m.role !== 'system');
+    const openaiMessages = [
+      ...(systemContent ? [{ role: 'system', content: systemContent }] : []),
+      ...otherMessages,
+    ];
+
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': this.apiKey,
-        'anthropic-version': '2023-06-01',
+        'Authorization': `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify({
-        model: options?.model ?? 'claude-opus-4-6',
+        model: options?.model ?? 'gpt-4o',
         max_tokens: options?.maxTokens ?? 4096,
-        messages: messages.filter((m) => m.role !== 'system'),
-        system: messages.find((m) => m.role === 'system')?.content,
+        messages: openaiMessages,
       }),
     });
 
     if (!res.ok) {
-      throw new Error(`Claude API error (${res.status}): ${await res.text()}`);
+      throw new Error(`OpenAI API error (${res.status}): ${await res.text()}`);
     }
 
-    const data = (await res.json()) as { content: Array<{ text: string }> };
-    return data.content[0]?.text ?? '';
+    const data = (await res.json()) as { choices: Array<{ message: { content: string } }> };
+    return data.choices?.[0]?.message?.content ?? '';
   }
 }
 
@@ -58,11 +64,11 @@ export class ClaudeProvider implements LLMProvider {
  */
 export function getProvider(): LLMProvider {
   const config = JSON.parse(readFileSync(join(process.cwd(), 'aros.config.json'), 'utf8'));
-  const model = config.agent.model ?? 'claude-opus-4-6';
+  const model = config.agent.model ?? 'gpt-4o';
 
-  if (model.startsWith('claude')) {
-    return new ClaudeProvider();
+  if (model.startsWith('gpt')) {
+    return new OpenAIProvider();
   }
 
-  throw new Error(`Unsupported model: ${model}. Currently only Claude models are supported.`);
+  throw new Error(`Unsupported model: ${model}. Currently only OpenAI models are supported.`);
 }
