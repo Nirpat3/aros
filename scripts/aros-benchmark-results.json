@@ -1,0 +1,328 @@
+{
+  "timestamp": "2026-03-26T21:22:13.419Z",
+  "total_score": 96,
+  "max_score": 100,
+  "grade": "A+",
+  "categories": {
+    "core_architecture": {
+      "score": 12,
+      "max": 12,
+      "checks": [
+        {
+          "name": "Package structure",
+          "score": 3,
+          "max": 3,
+          "detail": "package.json, workspace config, build/dev scripts"
+        },
+        {
+          "name": "Core wrapper",
+          "score": 3,
+          "max": 3,
+          "detail": "packages/core/ exists, package.json present, references core package"
+        },
+        {
+          "name": "POS SDK",
+          "score": 3,
+          "max": 3,
+          "detail": "packages/pos-sdk/ exists, package.json present"
+        },
+        {
+          "name": "Server health",
+          "score": 3,
+          "max": 3,
+          "detail": "src/server.ts exists, health endpoint responds"
+        }
+      ]
+    },
+    "agent_system": {
+      "score": 12,
+      "max": 12,
+      "checks": [
+        {
+          "name": "SOUL.md exists",
+          "score": 2,
+          "max": 2,
+          "detail": "aros-ai/SOUL.md: 110 lines"
+        },
+        {
+          "name": "Agent source",
+          "score": 2,
+          "max": 2,
+          "detail": "aros-ai/agent.ts exists"
+        },
+        {
+          "name": "Shre control",
+          "score": 2,
+          "max": 2,
+          "detail": "aros-ai/shre-control/ has 4 file(s)"
+        },
+        {
+          "name": "6 core agents defined",
+          "score": 3,
+          "max": 3,
+          "detail": "6/6 agents found: Ellie, Ana, Sammy, Victor, Larry, Rita"
+        },
+        {
+          "name": "Trust gate wired",
+          "score": 3,
+          "max": 3,
+          "detail": "AROS agent IDs in TRUSTED_AGENTS: aros, aros-agent"
+        }
+      ]
+    },
+    "skills_ecosystem": {
+      "score": 10,
+      "max": 10,
+      "checks": [
+        {
+          "name": "Skills directory",
+          "score": 2,
+          "max": 2,
+          "detail": "skills/ exists"
+        },
+        {
+          "name": "Skills manifest",
+          "score": 3,
+          "max": 3,
+          "detail": "18 skill categories in AROS-SKILLS.md"
+        },
+        {
+          "name": "Skill implementations",
+          "score": 3,
+          "max": 3,
+          "detail": "30 .ts/.mjs files in skills/src/"
+        },
+        {
+          "name": "Skill documentation",
+          "score": 2,
+          "max": 2,
+          "detail": "18/18 skill categories have descriptions"
+        }
+      ]
+    },
+    "data_connectors": {
+      "score": 10,
+      "max": 10,
+      "checks": [
+        {
+          "name": "Connector directory",
+          "score": 2,
+          "max": 2,
+          "detail": "connectors/ exists"
+        },
+        {
+          "name": "Azure DB connector",
+          "score": 2,
+          "max": 2,
+          "detail": "connectors/azure-db.ts found"
+        },
+        {
+          "name": "RapidRMS connector",
+          "score": 2,
+          "max": 2,
+          "detail": "RapidRMS connector found"
+        },
+        {
+          "name": "Verifone connector",
+          "score": 2,
+          "max": 2,
+          "detail": "Verifone connector found"
+        },
+        {
+          "name": "StorePulse link",
+          "score": 2,
+          "max": 2,
+          "detail": "StorePulse link found"
+        }
+      ]
+    },
+    "marketplace_nodes": {
+      "score": 10,
+      "max": 10,
+      "checks": [
+        {
+          "name": "Marketplace directory",
+          "score": 2,
+          "max": 2,
+          "detail": "marketplace/ exists"
+        },
+        {
+          "name": "Registry",
+          "score": 3,
+          "max": 3,
+          "detail": "marketplace/registry.ts found (comprehensive)"
+        },
+        {
+          "name": "Node types defined",
+          "score": 3,
+          "max": 3,
+          "detail": "13 node types found"
+        },
+        {
+          "name": "Plugin dev docs",
+          "score": 2,
+          "max": 2,
+          "detail": "docs/plugin-development/ has 5 file(s)"
+        }
+      ]
+    },
+    "licensing_security": {
+      "score": 6,
+      "max": 10,
+      "checks": [
+        {
+          "name": "License system",
+          "score": 1,
+          "max": 3,
+          "detail": "validator found in licensing/",
+          "fix": "Add missing: boot-guard, keygen"
+        },
+        {
+          "name": "ECDSA keys",
+          "score": 0,
+          "max": 2,
+          "detail": "No ECDSA/P-256 references found",
+          "fix": "Implement ECDSA P-256 key signing in licensing/"
+        },
+        {
+          "name": "Encryption",
+          "score": 2,
+          "max": 2,
+          "detail": "AES-256-GCM or encryption references found"
+        },
+        {
+          "name": "Security docs",
+          "score": 3,
+          "max": 3,
+          "detail": "security/ has 6 file(s) with docs"
+        }
+      ]
+    },
+    "billing_signup": {
+      "score": 8,
+      "max": 8,
+      "checks": [
+        {
+          "name": "Billing module",
+          "score": 2,
+          "max": 2,
+          "detail": "src/billing/ exists"
+        },
+        {
+          "name": "Stripe integration",
+          "score": 2,
+          "max": 2,
+          "detail": "Stripe references found"
+        },
+        {
+          "name": "Signup flow",
+          "score": 2,
+          "max": 2,
+          "detail": "Signup endpoint found"
+        },
+        {
+          "name": "Pricing tiers",
+          "score": 2,
+          "max": 2,
+          "detail": "4/4 tiers found: free, starter, pro, enterprise"
+        }
+      ]
+    },
+    "deployment_config": {
+      "score": 8,
+      "max": 8,
+      "checks": [
+        {
+          "name": "Docker config",
+          "score": 2,
+          "max": 2,
+          "detail": "docker-compose.yml found"
+        },
+        {
+          "name": "K8s manifests",
+          "score": 2,
+          "max": 2,
+          "detail": "deploy/k8s/ has 1 file(s)"
+        },
+        {
+          "name": "Whitelabel system",
+          "score": 2,
+          "max": 2,
+          "detail": "whitelabel/ has 3 config file(s)"
+        },
+        {
+          "name": "AROS config",
+          "score": 2,
+          "max": 2,
+          "detail": "aros.config.json exists"
+        }
+      ]
+    },
+    "documentation": {
+      "score": 10,
+      "max": 10,
+      "checks": [
+        {
+          "name": "Platform docs",
+          "score": 2,
+          "max": 2,
+          "detail": "docs/PLATFORM.md: 1082 lines"
+        },
+        {
+          "name": "Industry taxonomy",
+          "score": 2,
+          "max": 2,
+          "detail": "docs/INDUSTRIES.md exists"
+        },
+        {
+          "name": "Agent docs",
+          "score": 2,
+          "max": 2,
+          "detail": "docs/AGENTS.md exists"
+        },
+        {
+          "name": "Onboarding docs",
+          "score": 2,
+          "max": 2,
+          "detail": "CUSTOMER-ONBOARDING.md exists"
+        },
+        {
+          "name": "Architecture doc",
+          "score": 2,
+          "max": 2,
+          "detail": "ARCHITECTURE.md exists"
+        }
+      ]
+    },
+    "integration_uplink": {
+      "score": 10,
+      "max": 10,
+      "checks": [
+        {
+          "name": "Uplink architecture",
+          "score": 3,
+          "max": 3,
+          "detail": "AROS-UPLINK-ARCHITECTURE.md: 309 lines"
+        },
+        {
+          "name": "Developer portal",
+          "score": 3,
+          "max": 3,
+          "detail": "portal dir exists, portal/ subdir, sdks/ subdir"
+        },
+        {
+          "name": "SDK packages",
+          "score": 2,
+          "max": 2,
+          "detail": "6 SDK language(s): dotnet, javascript, kotlin, python, rest, swift"
+        },
+        {
+          "name": "Web UI",
+          "score": 2,
+          "max": 2,
+          "detail": "apps/web/ with package.json"
+        }
+      ]
+    }
+  }
+}
