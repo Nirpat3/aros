@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-03-26T21:22:13.419Z",
-  "total_score": 96,
+  "timestamp": "2026-03-27T14:48:39.333Z",
+  "total_score": 99,
   "max_score": 100,
   "grade": "A+",
   "categories": {
@@ -167,22 +167,21 @@
       ]
     },
     "licensing_security": {
-      "score": 6,
+      "score": 9,
       "max": 10,
       "checks": [
         {
           "name": "License system",
-          "score": 1,
+          "score": 2,
           "max": 3,
-          "detail": "validator found in licensing/",
-          "fix": "Add missing: boot-guard, keygen"
+          "detail": "validator, keygen found in licensing/",
+          "fix": "Add missing: boot-guard"
         },
         {
           "name": "ECDSA keys",
-          "score": 0,
+          "score": 2,
           "max": 2,
-          "detail": "No ECDSA/P-256 references found",
-          "fix": "Implement ECDSA P-256 key signing in licensing/"
+          "detail": "P-256/ECDSA references found in licensing code"
         },
         {
           "name": "Encryption",

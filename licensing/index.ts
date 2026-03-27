@@ -104,4 +104,77 @@ export function enforceUserLimit(currentUsers: number): void {
   }
 }
 
+// ── Boot guard ─────────────────────────────────────────────────────────────
+
+/**
+ * Enforce license validation at boot. Must be called before any AROS
+ * services or plugins load. Throws if the license is expired or invalid.
+ */
+export function enforceBootGuard(): void {
+  const license = getLicense();
+  if (license.expiresAt) {
+    const exp = new Date(license.expiresAt);
+    if (exp.getTime() < Date.now()) {
+      auditLog('boot_guard_expired', { tier: license.tier, expiresAt: license.expiresAt });
+      throw new Error(
+        `AROS license expired on ${license.expiresAt}. ` +
+          'Renew your license to continue using the platform.',
+      );
+    }
+  }
+  if (license.tier !== 'free' && !license.licenseKey) {
+    auditLog('boot_guard_missing_key', { tier: license.tier });
+    throw new Error(
+      `License key required for "${license.tier}" tier. ` +
+        'Set licensing.licenseKey in aros.config.json.',
+    );
+  }
+  auditLog('boot_guard_passed', { tier: license.tier });
+}
+
+// ── Key generation ─────────────────────────────────────────────────────────
+
+import { createSign, createVerify, generateKeyPairSync } from 'node:crypto';
+
+/**
+ * Generate an ECDSA P-256 key pair for license signing.
+ */
+export function generateKeyPair(): { publicKey: string; privateKey: string } {
+  const { publicKey, privateKey } = generateKeyPairSync('ec', {
+    namedCurve: 'P-256',
+    publicKeyEncoding:  { type: 'spki',  format: 'pem' },
+    privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+  });
+  return { publicKey, privateKey };
+}
+
+/**
+ * Generate a formatted AROS license key.
+ */
+export function generateKey(tier: LicenseTier): string {
+  const segment = () =>
+    Array.from({ length: 4 }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random() * 36)]).join('');
+  return `AROS-${segment()}-${segment()}-${segment()}-${segment()}`;
+}
+
+/**
+ * Sign a license payload with an ECDSA P-256 private key.
+ */
+export function signLicense(payload: string, privateKeyPem: string): string {
+  const signer = createSign('SHA256');
+  signer.update(payload);
+  signer.end();
+  return signer.sign(privateKeyPem, 'base64');
+}
+
+/**
+ * Verify a license signature with an ECDSA P-256 public key.
+ */
+export function verifyLicenseSignature(payload: string, signature: string, publicKeyPem: string): boolean {
+  const verifier = createVerify('SHA256');
+  verifier.update(payload);
+  verifier.end();
+  return verifier.verify(publicKeyPem, signature, 'base64');
+}
+
 export type { License, LicenseTier } from './types.js';

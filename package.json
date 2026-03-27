@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.100.0",
+    "shre-sdk": "file:../shre-sdk",
     "stripe": "^21.0.0"
   }
 }

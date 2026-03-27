@@ -13,6 +13,7 @@ import { provisionLicense } from './billing/license.js';
 import { createSupabaseAdmin } from './supabase.js';
 import { createEventBus } from 'shre-sdk/events';
 import { createHeartbeatMonitor } from 'shre-sdk/heartbeat';
+import { createTraceMiddleware, getRecentTraces, getRecentFailures, getTraceStats } from 'shre-sdk/trace';
 
 const PORT = 5457;
 const startedAt = new Date().toISOString();
@@ -26,6 +27,8 @@ const heartbeat = createHeartbeatMonitor('aros-platform', {
 heartbeat.registerDependency('cortexdb', 'http://127.0.0.1:5400/health/live');
 heartbeat.registerDependency('redis', 'redis://127.0.0.1:6379');
 heartbeat.registerDependency('shre-tasks', 'http://127.0.0.1:5460/health');
+
+const traceMiddleware = createTraceMiddleware('aros-platform');
 
 // ── Helpers ─────────────────────────────────────────────────────
 
@@ -821,6 +824,20 @@ async function handler(req: IncomingMessage, res: ServerResponse): Promise<void>
     res.writeHead(204);
     res.end();
     return;
+  }
+
+  // ── Trace Middleware ─────────────────────────────────────────
+  traceMiddleware(req, res);
+
+  // ── Trace Endpoints ─────────────────────────────────────────
+  if (url === '/v1/traces/recent' && method === 'GET') {
+    return json(res, 200, getRecentTraces());
+  }
+  if (url === '/v1/traces/failures' && method === 'GET') {
+    return json(res, 200, getRecentFailures());
+  }
+  if (url === '/v1/traces/stats' && method === 'GET') {
+    return json(res, 200, getTraceStats());
   }
 
   // ── Health ──────────────────────────────────────────────────
