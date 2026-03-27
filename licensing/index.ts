@@ -132,6 +132,9 @@ export function enforceBootGuard(): void {
   auditLog('boot_guard_passed', { tier: license.tier });
 }
 
+/** Alias — some consumers reference the bootGuard name directly */
+export const bootGuard = enforceBootGuard;
+
 // ── Key generation ─────────────────────────────────────────────────────────
 
 import { createSign, createVerify, generateKeyPairSync } from 'node:crypto';

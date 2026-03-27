@@ -50,6 +50,23 @@ function formatCents(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
 }
 
+const MODEL_FRIENDLY_NAMES: Record<string, string> = {
+  'anthropic/claude-sonnet-4-6': 'AI Assistant',
+  'anthropic/claude-sonnet-4-20250514': 'AI Assistant',
+  'anthropic/claude-haiku-3-5': 'Quick Responder',
+  'anthropic/claude-opus-4-6': 'Smart Analyzer',
+  'openai/gpt-4o': 'AI Assistant Pro',
+  'openai/gpt-4o-mini': 'Quick Responder',
+  'ollama/shre-ft': 'Local AI',
+};
+
+function friendlyModelName(model: string): string {
+  if (MODEL_FRIENDLY_NAMES[model]) return MODEL_FRIENDLY_NAMES[model];
+  // Strip provider prefix and clean up for display
+  const name = model.replace(/^[^/]+\//, '').replace(/[-_]/g, ' ');
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
+
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-US', {
     year: 'numeric', month: 'short', day: 'numeric',
@@ -454,7 +471,7 @@ function UsageTab({ costSummary }: { costSummary: CostSummary | null }) {
               return (
                 <div key={i}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, fontSize: 13 }}>
-                    <span style={{ fontFamily: 'monospace' }}>{m.model}</span>
+                    <span>{friendlyModelName(m.model)}</span>
                     <span style={{ color: '#f59e0b', fontWeight: 600 }}>{formatCents(m.totalCents)}</span>
                   </div>
                   <div style={{ height: 6, borderRadius: 3, background: '#334155' }}>
@@ -647,8 +664,7 @@ function LicenseTab({ licenses, companyId, licenseKey, keyCopied, onFetchKey, on
                 </div>
               )}
               <p style={{ fontSize: 12, color: '#64748b', marginTop: 8 }}>
-                Set as <code style={{ background: '#1e293b', padding: '2px 6px', borderRadius: 4 }}>AROS_LICENSE_KEY</code> in
-                your self-hosted deployment, or save to <code style={{ background: '#1e293b', padding: '2px 6px', borderRadius: 4 }}>~/.aros/license.key</code>
+                Your license key activates your AROS subscription. Keep it safe.
               </p>
             </div>
           )}

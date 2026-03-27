@@ -71,6 +71,10 @@ function persistMessages(msgs: Message[]) {
 // Component
 // ---------------------------------------------------------------------------
 
+const QUICK_ACTIONS = ['Show today\'s sales', 'Check low inventory', 'Reorder recommendations'];
+
+const ROUTER_URL = import.meta.env.VITE_ROUTER_URL || '/api';
+
 export function ArosChat() {
   const { config } = useWhitelabel();
   // Detect theme from whitelabel config background color
@@ -82,6 +86,7 @@ export function ArosChat() {
   const [messages, setMessages] = useState<Message[]>(() => loadMessages(greeting));
   const [input, setInput] = useState('');
   const [open, setOpen] = useState(false);
+  const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -103,13 +108,38 @@ export function ArosChat() {
     setUserNearBottom(el.scrollHeight - el.scrollTop - el.clientHeight < 200);
   };
 
-  const send = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!input.trim()) return;
-    const userMsg: Message = { role: 'user', content: input.trim(), timestamp: Date.now() };
+  const sendMessage = async (text: string) => {
+    if (!text.trim() || sending) return;
+    const userMsg: Message = { role: 'user', content: text.trim(), timestamp: Date.now() };
+    setSending(true);
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
-    setMessages((prev) => [...prev, { role: 'agent', content: 'Processing your request.', timestamp: Date.now() }]);
+
+    try {
+      const res = await fetch(`${ROUTER_URL}/v1/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agentId: 'aros-agent',
+          messages: [{ role: 'user', content: text.trim() }],
+          stream: false,
+        }),
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const reply = data.response || data.message || data.content || 'No response received.';
+      setMessages((prev) => [...prev, { role: 'agent', content: reply, timestamp: Date.now() }]);
+    } catch {
+      setMessages((prev) => [...prev, { role: 'agent', content: 'Something went wrong. Please try again.', timestamp: Date.now() }]);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const send = async (e: FormEvent) => {
+    e.preventDefault();
+    await sendMessage(input);
   };
 
   const clearChat = () => { setMessages([{ role: 'agent', content: greeting, timestamp: Date.now() }]); localStorage.removeItem(STORAGE_KEY); };
@@ -212,6 +242,26 @@ export function ArosChat() {
 
         {/* Messages */}
         <div ref={scrollRef} onScroll={handleScroll} style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0 }}>
+          {/* Quick actions (show when only greeting is present) */}
+          {messages.length <= 1 && !sending && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 4 }}>
+              {QUICK_ACTIONS.map((action) => (
+                <button
+                  key={action}
+                  onClick={() => sendMessage(action)}
+                  style={{
+                    padding: '6px 12px', borderRadius: 16, fontSize: 12,
+                    background: c.accentSoft, color: c.accent, border: `1px solid ${c.border2}`,
+                    cursor: 'pointer', fontFamily: 'inherit', transition: 'background 150ms',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = c.bgHover; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = c.accentSoft; }}
+                >
+                  {action}
+                </button>
+              ))}
+            </div>
+          )}
           {messages.map((msg, i) => {
             const isUser = msg.role === 'user';
             return (
@@ -244,6 +294,22 @@ export function ArosChat() {
               </div>
             );
           })}
+          {/* Loading indicator */}
+          {sending && (
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-start' }}>
+              <div style={{ width: 24, height: 24, borderRadius: '50%', flexShrink: 0, marginTop: 2, background: c.accentSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={c.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/>
+                </svg>
+              </div>
+              <div style={{
+                maxWidth: '80%', borderRadius: 16, padding: '10px 16px', fontSize: 13, lineHeight: 1.47,
+                background: c.msgAi, color: c.text3, border: `1px solid ${c.border2}`,
+              }}>
+                Thinking...
+              </div>
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
 
@@ -268,13 +334,13 @@ export function ArosChat() {
           </div>
           <button
             type="submit"
-            disabled={!input.trim()}
+            disabled={!input.trim() || sending}
             style={{
               width: 32, height: 32, borderRadius: 8, flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: !input.trim() ? c.bgInput : c.accent,
-              color: !input.trim() ? c.text3 : '#fff',
-              border: 'none', cursor: !input.trim() ? 'not-allowed' : 'pointer',
+              background: (!input.trim() || sending) ? c.bgInput : c.accent,
+              color: (!input.trim() || sending) ? c.text3 : '#fff',
+              border: 'none', cursor: (!input.trim() || sending) ? 'not-allowed' : 'pointer',
               transition: 'background 150ms',
             }}
           >

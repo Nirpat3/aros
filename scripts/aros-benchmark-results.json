@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-03-27T14:48:39.333Z",
-  "total_score": 99,
+  "timestamp": "2026-03-27T17:41:11.147Z",
+  "total_score": 100,
   "max_score": 100,
   "grade": "A+",
   "categories": {
@@ -167,15 +167,14 @@
       ]
     },
     "licensing_security": {
-      "score": 9,
+      "score": 10,
       "max": 10,
       "checks": [
         {
           "name": "License system",
-          "score": 2,
+          "score": 3,
           "max": 3,
-          "detail": "validator, keygen found in licensing/",
-          "fix": "Add missing: boot-guard"
+          "detail": "boot-guard, validator, keygen found in licensing/"
         },
         {
           "name": "ECDSA keys",

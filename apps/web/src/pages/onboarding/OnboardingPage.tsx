@@ -70,8 +70,6 @@ export function OnboardingPage() {
   const [zip, setZip] = useState('');
   const [country, setCountry] = useState('US');
   const [setupDone, setSetupDone] = useState(false);
-  const [licenseKey, setLicenseKey] = useState('');
-  const [keyCopied, setKeyCopied] = useState(false);
 
   // Check URL params for payment callback
   useEffect(() => {
@@ -202,20 +200,6 @@ export function OnboardingPage() {
         // Non-fatal — proceed
       }
 
-      // Retrieve license key from tenant record
-      try {
-        const { supabase } = await import('../../lib/supabase');
-        const { data } = await supabase
-          .from('tenants')
-          .select('license_key')
-          .eq('id', tenant.id)
-          .single();
-        if (data?.license_key) {
-          setLicenseKey(data.license_key);
-        }
-      } catch {
-        // Non-fatal
-      }
     }
 
     // Mark onboarding complete (client-side cache of server state)
@@ -508,55 +492,8 @@ export function OnboardingPage() {
             <div style={{ fontSize: 48, marginBottom: 16 }}>🚀</div>
             <h2 style={styles.cardTitle}>You're all set!</h2>
             <p style={styles.cardDesc}>
-              {companyName || 'Your store'} is ready. AROS is configuring your AI agents now.
+              Your AI agents are being configured. {companyName || 'Your store'} will be ready in moments.
             </p>
-
-            {licenseKey && (
-              <div style={{
-                margin: '24px 0', padding: 20, borderRadius: 12,
-                background: '#f0f4ff', border: '1px solid #c7d2fe', textAlign: 'left',
-              }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#3b5bdb', marginBottom: 8 }}>
-                  Your License Key
-                </div>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 12, lineHeight: 1.5 }}>
-                  Save this key for self-hosted deployments. Set it as <code style={{
-                    background: '#e8ecf8', padding: '2px 6px', borderRadius: 4, fontSize: 11,
-                  }}>AROS_LICENSE_KEY</code> in your environment or place it in <code style={{
-                    background: '#e8ecf8', padding: '2px 6px', borderRadius: 4, fontSize: 11,
-                  }}>~/.aros/license.key</code>
-                </p>
-                <div style={{
-                  display: 'flex', gap: 8, alignItems: 'stretch',
-                }}>
-                  <input
-                    readOnly
-                    value={licenseKey}
-                    style={{
-                      flex: 1, padding: '10px 12px', borderRadius: 8,
-                      border: '1px solid #d1d5db', fontFamily: 'monospace', fontSize: 11,
-                      background: '#fff', color: '#1a1a2e', overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                    onClick={e => (e.target as HTMLInputElement).select()}
-                  />
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(licenseKey);
-                      setKeyCopied(true);
-                      setTimeout(() => setKeyCopied(false), 2000);
-                    }}
-                    style={{
-                      padding: '10px 16px', borderRadius: 8, border: 'none',
-                      background: keyCopied ? '#22c55e' : '#3b5bdb', color: '#fff',
-                      cursor: 'pointer', fontWeight: 600, fontSize: 13, whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {keyCopied ? 'Copied!' : 'Copy'}
-                  </button>
-                </div>
-              </div>
-            )}
 
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
               <button
@@ -565,20 +502,6 @@ export function OnboardingPage() {
               >
                 Go to Dashboard
               </button>
-              {licenseKey && (
-                <a
-                  href="https://github.com/nicktesh/aros-platform"
-                  target="_blank"
-                  rel="noopener"
-                  style={{
-                    ...styles.button,
-                    background: '#1a1a2e', textDecoration: 'none', display: 'inline-flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  Self-Host (GitHub)
-                </a>
-              )}
             </div>
           </div>
         )}

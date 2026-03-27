@@ -1,0 +1,284 @@
+/* ─── AROS Platform Styles ─────────────────────────────────── */
+
+/* ─── Layout ─────────────────────────────────────────────── */
+.aros-app {
+  display: flex;
+  min-height: 100vh;
+  background: var(--aros-color-surface, #F8FAFC);
+}
+
+.aros-main {
+  flex: 1;
+  min-width: 0;
+  padding: 32px;
+  overflow-y: auto;
+}
+
+/* ─── Sidebar ────────────────────────────────────────────── */
+.aros-sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: var(--aros-color-primary, #0F172A);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  transition: transform 0.25s ease;
+}
+
+.aros-sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  padding: 0 4px;
+}
+
+.aros-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.aros-brand-name {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.aros-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.aros-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+}
+
+.aros-nav-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.aros-nav-item.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+/* ─── Mobile hamburger ───────────────────────────────────── */
+.aros-hamburger {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 1100;
+  background: var(--aros-color-primary, #0F172A);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.aros-sidebar-overlay {
+  display: none;
+}
+
+/* ─── Dashboard ──────────────────────────────────────────── */
+.aros-dashboard {
+  max-width: 1100px;
+}
+
+.aros-dashboard h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--aros-color-text, #0F172A);
+  margin-bottom: 4px;
+}
+
+.aros-dashboard > p {
+  color: #64748B;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.aros-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+/* ─── Cards ──────────────────────────────────────────────── */
+.aros-card {
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.aros-card h3 {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748B;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.aros-metric {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--aros-color-text, #0F172A);
+  line-height: 1.2;
+}
+
+.aros-status-healthy {
+  color: var(--aros-color-accent, #10B981);
+}
+
+/* ─── Activity Feed ──────────────────────────────────────── */
+.aros-activity-feed {
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.aros-activity-feed h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--aros-color-text, #0F172A);
+  margin-bottom: 16px;
+}
+
+.aros-activity-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.aros-activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.aros-activity-item:last-child {
+  border-bottom: none;
+}
+
+.aros-activity-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.aros-activity-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.aros-activity-text {
+  font-size: 14px;
+  color: var(--aros-color-text, #0F172A);
+  line-height: 1.4;
+}
+
+.aros-activity-time {
+  font-size: 12px;
+  color: #94A3B8;
+  margin-top: 2px;
+}
+
+/* ─── Skeleton / Loading ─────────────────────────────────── */
+.aros-skeleton {
+  background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+  background-size: 200% 100%;
+  animation: aros-shimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+@keyframes aros-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── Responsive: Tablet (<=900px) ───────────────────────── */
+@media (max-width: 900px) {
+  .aros-dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .aros-main {
+    padding: 24px 20px;
+  }
+}
+
+/* ─── Responsive: Mobile (<=768px) ───────────────────────── */
+@media (max-width: 768px) {
+  .aros-hamburger {
+    display: block;
+  }
+
+  .aros-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1050;
+    transform: translateX(-100%);
+  }
+
+  .aros-sidebar.aros-sidebar--open {
+    transform: translateX(0);
+  }
+
+  .aros-sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1040;
+  }
+
+  .aros-sidebar-overlay.aros-sidebar-overlay--visible {
+    display: block;
+  }
+
+  .aros-main {
+    padding: 60px 16px 24px;
+    width: 100%;
+  }
+
+  .aros-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .aros-dashboard h1 {
+    font-size: 20px;
+  }
+
+  .aros-metric {
+    font-size: 24px;
+  }
+}

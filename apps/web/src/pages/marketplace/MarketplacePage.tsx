@@ -25,11 +25,25 @@ interface CatalogResponse {
 
 type TabType = 'all' | 'apps' | 'tools' | 'nodes';
 
-const CATEGORIES = [
-  'all', 'pos', 'pos-connector', 'inventory', 'analytics', 'loyalty',
-  'marketing', 'payments', 'shipping', 'crm', 'reporting',
-  'database', 'integration', 'utility', 'operations',
-];
+const CATEGORY_LABELS: Record<string, string> = {
+  'all': 'All Categories',
+  'pos': 'Point of Sale',
+  'pos-connector': 'POS Connectors',
+  'inventory': 'Inventory',
+  'analytics': 'Analytics',
+  'loyalty': 'Loyalty Programs',
+  'marketing': 'Marketing',
+  'payments': 'Payments',
+  'shipping': 'Shipping',
+  'crm': 'Customer Management',
+  'reporting': 'Reporting',
+  'database': 'Data Storage',
+  'integration': 'Integrations',
+  'utility': 'Tools',
+  'operations': 'Operations',
+};
+
+const CATEGORIES = Object.keys(CATEGORY_LABELS);
 
 const TIER_COLORS: Record<string, string> = {
   free: '#10B981',
@@ -148,7 +162,7 @@ export function MarketplacePage() {
           }}
         >
           {CATEGORIES.map(c => (
-            <option key={c} value={c}>{c === 'all' ? 'All Categories' : c.replace(/-/g, ' ')}</option>
+            <option key={c} value={c}>{CATEGORY_LABELS[c] || c}</option>
           ))}
         </select>
       </div>
@@ -240,9 +254,9 @@ export function MarketplacePage() {
                     {item.name}
                   </h3>
                   <span style={{
-                    fontSize: 11, color: '#6b6b76', textTransform: 'capitalize',
+                    fontSize: 11, color: '#6b6b76',
                   }}>
-                    {item.category?.replace(/-/g, ' ')}
+                    {CATEGORY_LABELS[item.category] || item.category?.replace(/-/g, ' ')}
                   </span>
                 </div>
               </div>
