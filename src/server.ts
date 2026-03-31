@@ -7,13 +7,23 @@
  */
 
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
-import { createCheckoutSession, createPortalSession, getSubscription, type PlanId } from './billing/stripe.js';
+import {
+  createCheckoutSession,
+  createPortalSession,
+  getSubscription,
+  type PlanId,
+} from './billing/stripe.js';
 import { handleStripeWebhook } from './billing/webhook.js';
 import { provisionLicense } from './billing/license.js';
 import { createSupabaseAdmin } from './supabase.js';
 import { createEventBus } from 'shre-sdk/events';
 import { createHeartbeatMonitor } from 'shre-sdk/heartbeat';
-import { createTraceMiddleware, getRecentTraces, getRecentFailures, getTraceStats } from 'shre-sdk/trace';
+import {
+  createTraceMiddleware,
+  getRecentTraces,
+  getRecentFailures,
+  getTraceStats,
+} from 'shre-sdk/trace';
 
 const PORT = 5457;
 const startedAt = new Date().toISOString();
@@ -69,8 +79,10 @@ async function parseJsonBody(req: IncomingMessage): Promise<Record<string, unkno
 const rateBuckets = new Map<string, { count: number; resetAt: number }>();
 
 function rateLimit(req: IncomingMessage, maxRequests: number, windowMs: number): boolean {
-  const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim()
-    || req.socket.remoteAddress || 'unknown';
+  const ip =
+    (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+    req.socket.remoteAddress ||
+    'unknown';
   const now = Date.now();
   const bucket = rateBuckets.get(ip);
 
@@ -118,8 +130,11 @@ async function auditLog(opts: {
 }
 
 function getClientIp(req: IncomingMessage): string {
-  return (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim()
-    || req.socket.remoteAddress || 'unknown';
+  return (
+    (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+    req.socket.remoteAddress ||
+    'unknown'
+  );
 }
 
 // ── Brute-Force Login Protection (separate from general rate limiter) ─
@@ -181,7 +196,7 @@ setInterval(() => {
 function sanitizeString(input: string, maxLength = 500): string {
   return input
     .slice(0, maxLength)
-    .replace(/[<>]/g, '')       // Strip angle brackets (XSS)
+    .replace(/[<>]/g, '') // Strip angle brackets (XSS)
     .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '') // Strip control chars
     .trim();
 }
@@ -305,7 +320,9 @@ async function handleBillingStatus(req: IncomingMessage, res: ServerResponse): P
     const supabase = createSupabaseAdmin();
     const { data, error } = await supabase
       .from('tenants')
-      .select('id, plan, billing_status, stripe_customer_id, stripe_subscription_id, license_key, license_tier')
+      .select(
+        'id, plan, billing_status, stripe_customer_id, stripe_subscription_id, license_key, license_tier',
+      )
       .eq('id', tenantId)
       .single();
 
@@ -620,29 +637,28 @@ async function handleSignup(req: IncomingMessage, res: ServerResponse): Promise<
     const tenantId = tenant.id;
 
     // 3. Create tenant_members row (owner role)
-    await supabase
-      .from('tenant_members')
-      .insert({
-        tenant_id: tenantId,
-        user_id: userId,
-        role: 'owner',
-      });
+    await supabase.from('tenant_members').insert({
+      tenant_id: tenantId,
+      user_id: userId,
+      role: 'owner',
+    });
 
     // 4. Create onboarding_progress row
-    await supabase
-      .from('onboarding_progress')
-      .insert({
-        tenant_id: tenantId,
-        step: 1,
-        step_data: {},
-      });
+    await supabase.from('onboarding_progress').insert({
+      tenant_id: tenantId,
+      step: 1,
+      step_data: {},
+    });
 
     // 5. Provision free license
     let licenseKey: string | null = null;
     try {
       licenseKey = await provisionLicense(tenantId, 'free');
     } catch (err) {
-      console.error('[signup] License provisioning failed:', err instanceof Error ? err.message : err);
+      console.error(
+        '[signup] License provisioning failed:',
+        err instanceof Error ? err.message : err,
+      );
     }
 
     // 6. Audit log
@@ -759,8 +775,13 @@ async function handleLeadCapture(req: IncomingMessage, res: ServerResponse): Pro
   if (!body) return json(res, 400, { error: 'Invalid JSON' });
 
   const { name, email, business_name, posSystem, source, utm_campaign, notes } = body as {
-    name?: string; email?: string; business_name?: string;
-    posSystem?: string; source?: string; utm_campaign?: string; notes?: string;
+    name?: string;
+    email?: string;
+    business_name?: string;
+    posSystem?: string;
+    source?: string;
+    utm_campaign?: string;
+    notes?: string;
   };
 
   if (!name || typeof name !== 'string' || name.trim().length < 2) {
@@ -777,9 +798,8 @@ async function handleLeadCapture(req: IncomingMessage, res: ServerResponse): Pro
     const supabase = createSupabaseAdmin();
 
     // Upsert lead by email (deduplicates)
-    const { error } = await supabase
-      .from('leads')
-      .upsert({
+    const { error } = await supabase.from('leads').upsert(
+      {
         name: safeName,
         email: safeEmail,
         business_name: business_name ? sanitizeString(String(business_name), 200) : null,
@@ -788,7 +808,9 @@ async function handleLeadCapture(req: IncomingMessage, res: ServerResponse): Pro
         utm_campaign: utm_campaign ? sanitizeString(String(utm_campaign), 100) : null,
         notes: notes ? sanitizeString(String(notes), 2000) : null,
         updated_at: new Date().toISOString(),
-      }, { onConflict: 'email' });
+      },
+      { onConflict: 'email' },
+    );
 
     if (error) {
       console.error('[leads]', error.message);
@@ -826,8 +848,8 @@ async function handler(req: IncomingMessage, res: ServerResponse): Promise<void>
     return;
   }
 
-  // ── Trace Middleware ─────────────────────────────────────────
-  traceMiddleware(req, res);
+  // ── Trace Middleware (Hono-based — safe-wrap for raw Node HTTP) ──
+  try { traceMiddleware(req, res); } catch { /* trace SDK expects Hono context */ }
 
   // ── Trace Endpoints ─────────────────────────────────────────
   if (url === '/v1/traces/recent' && method === 'GET') {
