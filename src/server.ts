@@ -848,8 +848,8 @@ async function handler(req: IncomingMessage, res: ServerResponse): Promise<void>
     return;
   }
 
-  // ── Trace Middleware (Hono-based — safe-wrap for raw Node HTTP) ──
-  try { traceMiddleware(req, res); } catch { /* trace SDK expects Hono context */ }
+  // ── Trace Middleware (SDK detects Express by 3 args: req, res, next) ──
+  try { traceMiddleware(req, res, () => {}); } catch { /* non-fatal */ }
 
   // ── Trace Endpoints ─────────────────────────────────────────
   if (url === '/v1/traces/recent' && method === 'GET') {
