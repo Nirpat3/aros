@@ -99,9 +99,9 @@ export function Signup() {
         return;
       }
 
-      // Account created — send verification OTP
-      setStep('verify');
-      sendOtp();
+      // Account created with email auto-confirmed server-side — go to login
+      window.location.href = `/login?registered=true&email=${encodeURIComponent(email)}`;
+      return;
     } catch {
       setError('Network error. Please try again.');
     } finally {

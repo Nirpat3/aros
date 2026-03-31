@@ -95,6 +95,7 @@ export function OnboardingPage() {
 
   async function sendVerificationCode() {
     setLoading(true);
+    setOtpError('');
     try {
       const res = await fetch(`${API_BASE}/api/auth/email-otp/send-verification-otp`, {
         method: 'POST',
@@ -105,12 +106,11 @@ export function OnboardingPage() {
       if (res.ok) {
         setOtpSent(true);
       } else {
-        // If OTP endpoint doesn't exist, skip verification for now
-        setStep('choose-plan');
+        const data = await res.json().catch(() => ({}));
+        setOtpError(data.error || 'Failed to send verification code. Please try again.');
       }
     } catch {
-      // OTP service not available — skip to plan selection
-      setStep('choose-plan');
+      setOtpError('Could not reach server. Please try again.');
     } finally {
       setLoading(false);
     }
