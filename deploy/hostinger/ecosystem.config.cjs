@@ -8,6 +8,8 @@ module.exports = {
       name: 'aros-platform',
       script: 'src/server.ts',
       interpreter: 'node_modules/.bin/tsx',
+      cwd: '/opt/aros-platform',
+      node_args: '--env-file=.env',
       instances: 1,
       exec_mode: 'fork',
       watch: false,
