@@ -114,10 +114,10 @@ footer{border-top:1px solid rgba(255,255,255,0.04);padding:24px;text-align:cente
     <div class="card-icon">&#63743;</div>
     <h2>macOS</h2>
     <div class="subtitle">Apple Silicon &amp; Intel</div>
-    <div class="terminal">
+    <div class="terminal" data-cmd="curl -fsSL https://raw.githubusercontent.com/Nirlabinc/shre-verifone/main/edge-relay/install-mac.sh | bash">
       <div class="terminal-dots"><span></span><span></span><span></span></div>
       <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
-      <code id="mac-cmd"><span class="comment"># One command — installs everything</span>
+      <code><span class="comment"># One command — installs everything</span>
 curl -fsSL https://raw.githubusercontent.com/Nirlabinc/shre-verifone/main/edge-relay/install-mac.sh | bash</code>
     </div>
     <ul>
@@ -126,7 +126,7 @@ curl -fsSL https://raw.githubusercontent.com/Nirlabinc/shre-verifone/main/edge-r
       <li>Auto-restarts on crash</li>
       <li>Setup wizard opens in browser</li>
     </ul>
-    <a href="https://raw.githubusercontent.com/Nirlabinc/shre-verifone/main/edge-relay/install-mac.sh" class="btn btn-green" download>Download install-mac.sh</a>
+    <button class="btn btn-green" onclick="copyInstall('curl -fsSL https://raw.githubusercontent.com/Nirlabinc/shre-verifone/main/edge-relay/install-mac.sh | bash', this)">Copy Install Command</button>
   </div>
 
   <!-- Windows -->
@@ -134,7 +134,7 @@ curl -fsSL https://raw.githubusercontent.com/Nirlabinc/shre-verifone/main/edge-r
     <div class="card-icon">&#128187;</div>
     <h2>Windows</h2>
     <div class="subtitle">Windows 10 and later</div>
-    <div class="terminal">
+    <div class="terminal" data-cmd="irm https://raw.githubusercontent.com/Nirlabinc/shre-verifone/main/edge-relay/install-mac.sh | iex">
       <div class="terminal-dots"><span></span><span></span><span></span></div>
       <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
       <code><span class="comment"># Run in PowerShell</span>
@@ -154,7 +154,7 @@ irm https://raw.githubusercontent.com/Nirlabinc/shre-verifone/main/edge-relay/in
     <div class="card-icon">&#128038;</div>
     <h2>Linux / Docker</h2>
     <div class="subtitle">Any distro with Docker</div>
-    <div class="terminal">
+    <div class="terminal" data-cmd="git clone https://github.com/Nirlabinc/shre-verifone.git && cd shre-verifone/edge-relay && docker compose up -d">
       <div class="terminal-dots"><span></span><span></span><span></span></div>
       <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
       <code><span class="comment"># Clone and run with Docker</span>
@@ -213,14 +213,25 @@ docker compose up -d</code>
 
 <script>
 function copyCmd(btn) {
-  const code = btn.parentElement.querySelector('code');
-  const text = code.innerText.replace(/^#.*\n/gm, '').trim();
+  const terminal = btn.closest('.terminal');
+  const text = terminal?.dataset.cmd || '';
   navigator.clipboard.writeText(text).then(() => {
     btn.textContent = 'Copied!';
     btn.classList.add('copied');
     setTimeout(() => {
       btn.textContent = 'Copy';
       btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+function copyInstall(cmd, btn) {
+  navigator.clipboard.writeText(cmd).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied to clipboard!';
+    btn.style.background = '#22c55e';
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.background = '';
     }, 2000);
   });
 }
