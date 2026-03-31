@@ -423,8 +423,8 @@ export function OnboardingPage() {
                     style={styles.input}
                   />
                 </div>
-                <div style={{ display: 'flex', gap: 12 }}>
-                  <div style={{ ...styles.field, flex: 2 }}>
+                <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+                  <div style={{ ...styles.field, flex: 2, minWidth: 0 }}>
                     <label style={styles.label}>City</label>
                     <input
                       type="text"
@@ -432,10 +432,10 @@ export function OnboardingPage() {
                       onChange={e => setCity(e.target.value)}
                       placeholder="Springfield"
                       required
-                      style={styles.input}
+                      style={{ ...styles.input, width: '100%', boxSizing: 'border-box' as const }}
                     />
                   </div>
-                  <div style={{ ...styles.field, flex: 1 }}>
+                  <div style={{ ...styles.field, flex: 1, minWidth: 0 }}>
                     <label style={styles.label}>State</label>
                     <input
                       type="text"
@@ -444,11 +444,11 @@ export function OnboardingPage() {
                       placeholder="IL"
                       maxLength={2}
                       required
-                      style={styles.input}
+                      style={{ ...styles.input, width: '100%', boxSizing: 'border-box' as const }}
                     />
                   </div>
-                  <div style={{ ...styles.field, flex: 1 }}>
-                    <label style={styles.label}>ZIP Code</label>
+                  <div style={{ ...styles.field, flex: 1, minWidth: 0 }}>
+                    <label style={styles.label}>ZIP</label>
                     <input
                       type="text"
                       value={zip}
@@ -456,7 +456,7 @@ export function OnboardingPage() {
                       placeholder="62704"
                       maxLength={5}
                       required
-                      style={styles.input}
+                      style={{ ...styles.input, width: '100%', boxSizing: 'border-box' as const }}
                     />
                   </div>
                 </div>
