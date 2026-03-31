@@ -84,14 +84,15 @@ export function OnboardingPage() {
 
   // Skip verification if email already confirmed
   useEffect(() => {
-    if (step === 'verify-email' && (user?.email_confirmed_at || user?.user_metadata?.email_verified)) {
+    if (step !== 'verify-email') return;
+    if (user?.email_confirmed_at || user?.user_metadata?.email_verified) {
       setStep('choose-plan');
       return;
     }
-    if (step === 'verify-email' && !otpSent && user?.email) {
+    if (!otpSent && user?.email) {
       sendVerificationCode();
     }
-  }, [step]);
+  }, [step, user]);
 
   async function sendVerificationCode() {
     setLoading(true);
