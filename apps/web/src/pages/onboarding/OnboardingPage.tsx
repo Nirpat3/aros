@@ -82,8 +82,12 @@ export function OnboardingPage() {
     }
   }, []);
 
-  // Auto-send verification code on mount
+  // Skip verification if email already confirmed
   useEffect(() => {
+    if (step === 'verify-email' && (user?.email_confirmed_at || user?.user_metadata?.email_verified)) {
+      setStep('choose-plan');
+      return;
+    }
     if (step === 'verify-email' && !otpSent && user?.email) {
       sendVerificationCode();
     }
@@ -254,15 +258,15 @@ export function OnboardingPage() {
               <input
                 type="text"
                 value={otp}
-                onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                placeholder="Enter 6-digit code"
-                maxLength={6}
+                onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                placeholder="Enter 8-digit code"
+                maxLength={8}
                 required
                 style={{ ...styles.input, textAlign: 'center', fontSize: 24, letterSpacing: 8 }}
                 autoFocus
               />
               {otpError && <div style={styles.error}>{otpError}</div>}
-              <button type="submit" disabled={loading || otp.length < 6} style={styles.button}>
+              <button type="submit" disabled={loading || otp.length < 8} style={styles.button}>
                 {loading ? 'Verifying...' : 'Verify Email'}
               </button>
               <button
