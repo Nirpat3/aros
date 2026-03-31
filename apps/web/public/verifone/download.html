@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Download Verifone Edge Relay | AROS by Nirlab</title>
+<meta name="description" content="Download the Verifone Edge Relay to connect your Commander POS to the cloud. One-click install for Mac, Windows, and Linux.">
+<link rel="icon" href="/logo.svg" type="image/svg+xml">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:#0a0a0f;color:#e2e8f0;line-height:1.6;min-height:100vh}
+a{color:#38bdf8;text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Nav */
+nav{border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(10,10,15,0.95);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100}
+.nav-inner{max-width:960px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px}
+.nav-brand{font-size:18px;font-weight:700;color:#e2e8f0;text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-brand img{height:24px}
+.nav-brand span{color:#38bdf8;font-weight:400;font-size:14px}
+.nav-links{display:flex;gap:8px;align-items:center}
+.nav-links a{color:#94a3b8;font-size:13px;font-weight:500;padding:6px 12px;border-radius:6px;text-decoration:none;transition:all .2s}
+.nav-links a:hover{color:#e2e8f0;background:rgba(255,255,255,0.05);text-decoration:none}
+
+/* Hero */
+.hero{text-align:center;padding:64px 24px 48px;max-width:700px;margin:0 auto}
+.hero .badge{display:inline-block;font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;background:rgba(34,197,94,0.12);color:#22c55e;margin-bottom:20px;letter-spacing:0.3px}
+.hero h1{font-size:36px;font-weight:800;line-height:1.2;margin-bottom:16px;background:linear-gradient(135deg,#e2e8f0 0%,#94a3b8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:16px;color:#94a3b8;max-width:520px;margin:0 auto}
+
+/* Download cards */
+.downloads{max-width:960px;margin:0 auto;padding:0 24px 64px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:32px 28px;transition:all .25s;position:relative;overflow:hidden}
+.card:hover{border-color:rgba(56,189,248,0.2);background:rgba(255,255,255,0.05);transform:translateY(-2px)}
+.card.recommended{border-color:rgba(34,197,94,0.3)}
+.card.recommended::before{content:'RECOMMENDED';position:absolute;top:16px;right:-28px;background:#22c55e;color:#0a0a0f;font-size:10px;font-weight:700;padding:3px 32px;transform:rotate(45deg);letter-spacing:0.5px}
+.card-icon{font-size:40px;margin-bottom:16px}
+.card h2{font-size:20px;font-weight:700;margin-bottom:6px;color:#e2e8f0}
+.card .subtitle{font-size:13px;color:#64748b;margin-bottom:20px}
+.card ul{list-style:none;margin-bottom:24px}
+.card li{font-size:13px;color:#94a3b8;padding:5px 0;display:flex;align-items:flex-start;gap:8px}
+.card li::before{content:'✓';color:#22c55e;font-weight:700;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px 20px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;transition:all .2s;cursor:pointer;border:none}
+.btn-primary{background:#38bdf8;color:#0a0a0f}
+.btn-primary:hover{background:#7dd3fc;text-decoration:none}
+.btn-green{background:#22c55e;color:#0a0a0f}
+.btn-green:hover{background:#4ade80;text-decoration:none}
+.btn-outline{background:transparent;color:#94a3b8;border:1px solid rgba(255,255,255,0.1)}
+.btn-outline:hover{color:#e2e8f0;border-color:rgba(255,255,255,0.2);text-decoration:none}
+
+/* Terminal */
+.terminal{background:#111118;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px 20px;margin-bottom:20px;position:relative}
+.terminal-dots{display:flex;gap:6px;margin-bottom:12px}
+.terminal-dots span{width:10px;height:10px;border-radius:50%;background:#333}
+.terminal-dots span:first-child{background:#ff5f57}
+.terminal-dots span:nth-child(2){background:#ffbd2e}
+.terminal-dots span:last-child{background:#28c840}
+.terminal code{font-family:'SF Mono','Fira Code',monospace;font-size:12.5px;color:#38bdf8;word-break:break-all;line-height:1.7;display:block}
+.terminal code .comment{color:#475569}
+.copy-btn{position:absolute;top:12px;right:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;transition:all .2s}
+.copy-btn:hover{background:rgba(255,255,255,0.1);color:#e2e8f0}
+.copy-btn.copied{background:rgba(34,197,94,0.15);color:#22c55e;border-color:rgba(34,197,94,0.3)}
+
+/* Requirements */
+.reqs{max-width:960px;margin:0 auto;padding:0 24px 64px}
+.reqs h3{font-size:18px;font-weight:700;margin-bottom:16px;color:#e2e8f0}
+.reqs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.req{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:10px;padding:16px}
+.req .label{font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.req .value{font-size:14px;color:#e2e8f0}
+
+/* Help */
+.help{max-width:960px;margin:0 auto;padding:0 24px 80px;text-align:center}
+.help p{font-size:14px;color:#64748b}
+.help a{color:#38bdf8}
+
+/* Footer */
+footer{border-top:1px solid rgba(255,255,255,0.04);padding:24px;text-align:center;font-size:12px;color:#475569}
+
+@media(max-width:768px){
+  .hero h1{font-size:28px}
+  .downloads{grid-template-columns:1fr}
+  .card.recommended::before{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand">
+      <img src="/logo.svg" alt="AROS">
+      AROS <span>by Nirlab</span>
+    </a>
+    <div class="nav-links">
+      <a href="/">Dashboard</a>
+      <a href="/marketplace">Marketplace</a>
+      <a href="https://nirtek.net/pos/verifone-commander">Learn More</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <span class="badge">Verifone Commander Integration</span>
+  <h1>Download Edge Relay</h1>
+  <p>Connect your Verifone Commander POS to the cloud. Install the Edge Relay on any computer on the same network as your Commander.</p>
+</section>
+
+<section class="downloads">
+
+  <!-- macOS -->
+  <div class="card recommended">
+    <div class="card-icon">&#63743;</div>
+    <h2>macOS</h2>
+    <div class="subtitle">Apple Silicon &amp; Intel</div>
+    <div class="terminal">
+      <div class="terminal-dots"><span></span><span></span><span></span></div>
+      <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+      <code id="mac-cmd"><span class="comment"># One command — installs everything</span>
+curl -fsSL https://raw.githubusercontent.com/Nirlabinc/shre-verifone/main/edge-relay/install-mac.sh | bash</code>
+    </div>
+    <ul>
+      <li>Installs Docker Desktop if needed</li>
+      <li>Auto-starts on boot</li>
+      <li>Auto-restarts on crash</li>
+      <li>Setup wizard opens in browser</li>
+    </ul>
+    <a href="https://raw.githubusercontent.com/Nirlabinc/shre-verifone/main/edge-relay/install-mac.sh" class="btn btn-green" download>Download install-mac.sh</a>
+  </div>
+
+  <!-- Windows -->
+  <div class="card">
+    <div class="card-icon">&#128187;</div>
+    <h2>Windows</h2>
+    <div class="subtitle">Windows 10 and later</div>
+    <div class="terminal">
+      <div class="terminal-dots"><span></span><span></span><span></span></div>
+      <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+      <code><span class="comment"># Run in PowerShell</span>
+irm https://raw.githubusercontent.com/Nirlabinc/shre-verifone/main/edge-relay/install-mac.sh | iex</code>
+    </div>
+    <ul>
+      <li>Requires Docker Desktop</li>
+      <li>Runs as Windows Service</li>
+      <li>Auto-starts on boot</li>
+      <li>Setup wizard opens in browser</li>
+    </ul>
+    <a href="#" class="btn btn-outline" style="opacity:0.5;pointer-events:none">Coming Soon</a>
+  </div>
+
+  <!-- Linux / Docker -->
+  <div class="card">
+    <div class="card-icon">&#128038;</div>
+    <h2>Linux / Docker</h2>
+    <div class="subtitle">Any distro with Docker</div>
+    <div class="terminal">
+      <div class="terminal-dots"><span></span><span></span><span></span></div>
+      <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+      <code><span class="comment"># Clone and run with Docker</span>
+git clone https://github.com/Nirlabinc/shre-verifone.git
+cd shre-verifone/edge-relay
+docker compose up -d</code>
+    </div>
+    <ul>
+      <li>Lightweight Alpine container</li>
+      <li>Auto-restarts on reboot</li>
+      <li>Host networking for LAN access</li>
+      <li>Persistent data volume</li>
+    </ul>
+    <a href="https://github.com/Nirlabinc/shre-verifone" class="btn btn-primary" target="_blank">View on GitHub</a>
+  </div>
+
+</section>
+
+<section class="reqs">
+  <h3>System Requirements</h3>
+  <div class="reqs-grid">
+    <div class="req">
+      <div class="label">Network</div>
+      <div class="value">Same LAN as Commander</div>
+    </div>
+    <div class="req">
+      <div class="label">RAM</div>
+      <div class="value">2 GB available</div>
+    </div>
+    <div class="req">
+      <div class="label">Disk</div>
+      <div class="value">1 GB free space</div>
+    </div>
+    <div class="req">
+      <div class="label">Runtime</div>
+      <div class="value">Docker (auto-installed)</div>
+    </div>
+    <div class="req">
+      <div class="label">Commander</div>
+      <div class="value">Default IP: 192.168.31.11</div>
+    </div>
+    <div class="req">
+      <div class="label">Port</div>
+      <div class="value">18464 (local admin UI)</div>
+    </div>
+  </div>
+</section>
+
+<section class="help">
+  <p>Need help? <a href="https://github.com/Nirlabinc/shre-verifone/issues">Open an issue on GitHub</a></p>
+</section>
+
+<footer>
+  &copy; 2026 Nirlab Inc. All rights reserved.
+</footer>
+
+<script>
+function copyCmd(btn) {
+  const code = btn.parentElement.querySelector('code');
+  const text = code.innerText.replace(/^#.*\n/gm, '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>
