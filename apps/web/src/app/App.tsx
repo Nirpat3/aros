@@ -66,9 +66,21 @@ function AppContent() {
     return <><ContactPage /><ChatWidget /></>;
   }
 
-  // Landing page at root — only when NOT logged in
-  if (path === '/' && !session && !loading) {
+  // Landing page at root — show immediately (no auth wait needed for public page)
+  if (path === '/' && !session) {
     return <><LandingPage /><ChatWidget /></>;
+  }
+
+  // ── Loading state for auth-required pages ──────────────────
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'Inter, system-ui, sans-serif', color: '#6b7280' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#1a1a2e', marginBottom: 8 }}>AROS</div>
+          <div style={{ fontSize: 14 }}>Loading...</div>
+        </div>
+      </div>
+    );
   }
 
   // ── Auth-required pages ────────────────────────────────────
