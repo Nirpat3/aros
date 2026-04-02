@@ -109,6 +109,15 @@ ALTER TABLE edge_relays ENABLE ROW LEVEL SECURITY;
 ALTER TABLE onboarding_progress ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_log ENABLE ROW LEVEL SECURITY;
 
+-- Helper: SECURITY DEFINER function to break RLS recursion between
+-- tenants ↔ tenant_members. Without this, tenant_member_access reads
+-- tenant_members which reads tenants → infinite recursion (42P17).
+CREATE OR REPLACE FUNCTION public.get_owned_tenant_ids(uid uuid)
+RETURNS SETOF uuid
+LANGUAGE sql SECURITY DEFINER STABLE AS $$
+  SELECT id FROM tenants WHERE owner_id = uid
+$$;
+
 -- Tenants: owner has full access
 CREATE POLICY tenant_owner ON tenants
   FOR ALL USING (owner_id = auth.uid());
@@ -119,10 +128,10 @@ CREATE POLICY tenant_member_access ON tenants
     id IN (SELECT tenant_id FROM tenant_members WHERE user_id = auth.uid())
   );
 
--- Tenant members: owner manages
+-- Tenant members: owner manages (uses SECURITY DEFINER to avoid recursion)
 CREATE POLICY member_own_tenant ON tenant_members
   FOR ALL USING (
-    tenant_id IN (SELECT id FROM tenants WHERE owner_id = auth.uid())
+    tenant_id IN (SELECT public.get_owned_tenant_ids(auth.uid()))
   );
 
 -- Tenant members: self-read

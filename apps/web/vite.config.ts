@@ -15,6 +15,9 @@ function getPort(): number {
 }
 
 export default defineConfig({
+  // Read .env from monorepo root so VITE_SUPABASE_* vars are picked up
+  // from the single /opt/aros-platform/.env on the VPS (no duplicate needed in apps/web/)
+  envDir: join(__dirname, '..', '..'),
   plugins: [react()],
   server: {
     port: getPort(),
