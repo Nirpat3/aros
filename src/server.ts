@@ -832,6 +832,165 @@ async function handleLeadCapture(req: IncomingMessage, res: ServerResponse): Pro
   }
 }
 
+// ── Auth Helper ─────────────────────────────────────────────────
+
+async function authenticateRequest(req: IncomingMessage): Promise<{ userId: string; tenantId: string } | null> {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) return null;
+
+  const token = authHeader.slice(7);
+  try {
+    const supabase = createSupabaseAdmin();
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) return null;
+
+    // Look up tenant membership
+    const { data: membership } = await supabase
+      .from('tenant_members')
+      .select('tenant_id')
+      .eq('user_id', user.id)
+      .limit(1)
+      .single();
+
+    if (!membership) return null;
+    return { userId: user.id, tenantId: membership.tenant_id };
+  } catch {
+    return null;
+  }
+}
+
+// ── Dashboard ───────────────────────────────────────────────────
+
+async function handleDashboard(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  const auth = await authenticateRequest(req);
+  if (!auth) {
+    return json(res, 401, { error: 'Authentication required' });
+  }
+
+  const { tenantId } = auth;
+
+  try {
+    const supabase = createSupabaseAdmin();
+
+    // Parallel queries for dashboard data
+    const [tenantResult, activityResult, agentResult] = await Promise.all([
+      // Tenant info (plan, store count)
+      supabase
+        .from('tenants')
+        .select('name, plan, store_count, pos_system, onboarding_completed, created_at')
+        .eq('id', tenantId)
+        .single(),
+
+      // Recent audit log activity for this tenant
+      supabase
+        .from('audit_log')
+        .select('id, action, resource, detail, created_at')
+        .eq('tenant_id', tenantId)
+        .order('created_at', { ascending: false })
+        .limit(10),
+
+      // Tenant's activated agents (table may not exist yet — catch gracefully)
+      supabase
+        .from('tenant_agents')
+        .select('agent_id, status, last_active_at')
+        .eq('tenant_id', tenantId),
+    ]);
+
+    const tenant = tenantResult.data;
+    const activities = activityResult.data || [];
+
+    // Agent stats (graceful if table doesn't exist)
+    const agents: Array<{ agent_id: string; status: string; last_active_at: string | null }> =
+      agentResult.data || [];
+    const activeAgents = agents.filter((a) => a.status === 'active').length;
+    const totalAgents = agents.length;
+    const statuses: Record<string, number> = {};
+    for (const a of agents) {
+      statuses[a.status] = (statuses[a.status] || 0) + 1;
+    }
+
+    // Map audit_log entries to activity feed
+    const activityTypeMap: Record<string, 'success' | 'warning' | 'info' | 'error'> = {
+      'signup.completed': 'success',
+      'onboarding.completed': 'success',
+      'billing.checkout_started': 'info',
+      'auth.login_success': 'info',
+      'auth.login_failed': 'warning',
+      'auth.login_locked': 'error',
+      'lead.captured': 'info',
+    };
+
+    const recentActivity = activities.map((a: { id: string; action: string; resource: string | null; detail: Record<string, unknown> | null; created_at: string }) => {
+      const actionParts = a.action.split('.');
+      const agent = actionParts[0] ? actionParts[0].charAt(0).toUpperCase() + actionParts[0].slice(1) : 'System';
+      const actionLabel = actionParts.slice(1).join(' ').replace(/_/g, ' ') || a.action;
+      const detail = a.detail;
+      const description = detail?.email
+        ? `${actionLabel} — ${detail.email}`
+        : detail?.company
+          ? `${actionLabel} — ${detail.company}`
+          : actionLabel;
+
+      return {
+        id: a.id,
+        agent,
+        action: description,
+        timestamp: timeAgo(a.created_at),
+        type: activityTypeMap[a.action] || 'info',
+      };
+    });
+
+    // Build response — real data where available, zeros for unconnected sources
+    const dashboard = {
+      todaySales: {
+        revenue: 0,
+        changePercent: 0,
+        _note: tenant?.pos_system ? undefined : 'Connect your POS system to see live sales data',
+      },
+      activeAlerts: {
+        count: 0,
+        critical: 0,
+      },
+      aiAgents: {
+        active: activeAgents || (tenant?.plan === 'free' ? 1 : 0),
+        total: totalAgents || (tenant?.plan === 'free' ? 2 : tenant?.plan === 'starter' ? 5 : 10),
+        statuses: Object.keys(statuses).length > 0 ? statuses : { available: totalAgents || 2 },
+      },
+      lowStock: {
+        count: 0,
+        items: [] as Array<{ name: string; current: number; threshold: number }>,
+        _note: tenant?.pos_system ? undefined : 'Connect your POS system to see inventory alerts',
+      },
+      recentActivity: recentActivity.length > 0 ? recentActivity : [
+        {
+          id: 'welcome',
+          agent: 'AROS',
+          action: `Welcome to ${tenant?.name || 'AROS'}! Complete setup to see live data here.`,
+          timestamp: timeAgo(tenant?.created_at || new Date().toISOString()),
+          type: 'info' as const,
+        },
+      ],
+    };
+
+    json(res, 200, dashboard);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to fetch dashboard';
+    console.error('[dashboard]', message);
+    json(res, 500, { error: message });
+  }
+}
+
+function timeAgo(isoDate: string): string {
+  const diff = Date.now() - new Date(isoDate).getTime();
+  const mins = Math.floor(diff / 60_000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins} min ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} hr ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days > 1 ? 's' : ''} ago`;
+}
+
 // ── Request Handler ─────────────────────────────────────────────
 
 async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
@@ -921,6 +1080,11 @@ async function handler(req: IncomingMessage, res: ServerResponse): Promise<void>
 
   if (url === '/api/onboarding/complete' && method === 'POST') {
     return handleOnboardingComplete(req, res);
+  }
+
+  // ── Dashboard (authenticated) ──────────────────────────
+  if (url === '/api/dashboard' && method === 'GET') {
+    return handleDashboard(req, res);
   }
 
   // ── Lead capture (public, no auth) ──────────────────────

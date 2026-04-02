@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useWhitelabel } from '../whitelabel/WhitelabelProvider';
+import { useAuth } from '../contexts/AuthContext';
 
 const API_BASE = (window as any).__AROS_API_URL__
   || (window.location.hostname === 'localhost' ? 'http://localhost:5457' : '');
@@ -92,6 +93,7 @@ function MetricCard({
 /* ─── Dashboard ──────────────────────────────────────────── */
 export function Dashboard() {
   const { config } = useWhitelabel();
+  const { session } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -100,7 +102,14 @@ export function Dashboard() {
 
     async function fetchDashboard() {
       try {
-        const res = await fetch(`${API_BASE}/api/dashboard`, { credentials: 'include' });
+        const headers: Record<string, string> = {};
+        if (session?.access_token) {
+          headers['Authorization'] = `Bearer ${session.access_token}`;
+        }
+        const res = await fetch(`${API_BASE}/api/dashboard`, {
+          credentials: 'include',
+          headers,
+        });
         if (!res.ok) throw new Error('API unavailable');
         const json = await res.json();
         if (!cancelled) {
@@ -118,7 +127,7 @@ export function Dashboard() {
 
     fetchDashboard();
     return () => { cancelled = true; };
-  }, []);
+  }, [session]);
 
   const d = data;
   const changeSign = d && d.todaySales.changePercent >= 0 ? '+' : '';
