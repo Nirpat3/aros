@@ -134,17 +134,16 @@ export class PriceChangeMonitorSkill implements ArosSkill {
         const current = sorted[i]!;
         if (current.unit_price !== lastPrice) {
           const inv = invoiceMap.get(current.invoice_no);
-          const changePct = lastPrice > 0
-            ? ((current.unit_price - lastPrice) / lastPrice) * 100
-            : 0;
-          const oldMarginPct = lastPrice > 0
-            ? ((lastPrice - lastCost) / lastPrice) * 100
-            : 0;
-          const newMarginPct = current.unit_price > 0
-            ? ((current.unit_price - current.cost_price) / current.unit_price) * 100
-            : 0;
+          const changePct =
+            lastPrice > 0 ? ((current.unit_price - lastPrice) / lastPrice) * 100 : 0;
+          const oldMarginPct = lastPrice > 0 ? ((lastPrice - lastCost) / lastPrice) * 100 : 0;
+          const newMarginPct =
+            current.unit_price > 0
+              ? ((current.unit_price - current.cost_price) / current.unit_price) * 100
+              : 0;
 
-          const direction = current.unit_price > lastPrice ? 'increase' as const : 'decrease' as const;
+          const direction =
+            current.unit_price > lastPrice ? ('increase' as const) : ('decrease' as const);
 
           let suspicious = false;
           let suspiciousReason: string | null = null;
@@ -153,7 +152,10 @@ export class PriceChangeMonitorSkill implements ArosSkill {
             suspicious = true;
             suspiciousReason = `Large price change: ${changePct.toFixed(1)}% exceeds ${SUSPICIOUS_CHANGE_PCT}% threshold`;
           }
-          if (direction === 'decrease' && (lastPrice - current.unit_price) > SUSPICIOUS_DECREASE_AMOUNT) {
+          if (
+            direction === 'decrease' &&
+            lastPrice - current.unit_price > SUSPICIOUS_DECREASE_AMOUNT
+          ) {
             suspicious = true;
             suspiciousReason = `Significant price decrease of $${(lastPrice - current.unit_price).toFixed(2)}`;
           }
@@ -187,14 +189,17 @@ export class PriceChangeMonitorSkill implements ArosSkill {
       const firstItem = sorted[0]!;
       const lastItem = sorted[sorted.length - 1]!;
       if (firstItem.cost_price !== lastItem.cost_price && firstItem.cost_price > 0) {
-        const costChangePct = ((lastItem.cost_price - firstItem.cost_price) / firstItem.cost_price) * 100;
+        const costChangePct =
+          ((lastItem.cost_price - firstItem.cost_price) / firstItem.cost_price) * 100;
         const retailAdjusted = firstItem.unit_price !== lastItem.unit_price;
-        const oldMargin = firstItem.unit_price > 0
-          ? ((firstItem.unit_price - firstItem.cost_price) / firstItem.unit_price) * 100
-          : 0;
-        const newMargin = lastItem.unit_price > 0
-          ? ((lastItem.unit_price - lastItem.cost_price) / lastItem.unit_price) * 100
-          : 0;
+        const oldMargin =
+          firstItem.unit_price > 0
+            ? ((firstItem.unit_price - firstItem.cost_price) / firstItem.unit_price) * 100
+            : 0;
+        const newMargin =
+          lastItem.unit_price > 0
+            ? ((lastItem.unit_price - lastItem.cost_price) / lastItem.unit_price) * 100
+            : 0;
 
         if (Math.abs(costChangePct) >= 2) {
           costCreep.push({
@@ -219,12 +224,13 @@ export class PriceChangeMonitorSkill implements ArosSkill {
     });
     costCreep.sort((a, b) => b.marginErosion - a.marginErosion);
 
-    const suspiciousChanges = priceChanges.filter(c => c.suspicious);
-    const priceIncreases = priceChanges.filter(c => c.direction === 'increase').length;
-    const priceDecreases = priceChanges.filter(c => c.direction === 'decrease').length;
-    const avgMarginImpact = priceChanges.length > 0
-      ? priceChanges.reduce((s, c) => s + c.marginImpactPct, 0) / priceChanges.length
-      : 0;
+    const suspiciousChanges = priceChanges.filter((c) => c.suspicious);
+    const priceIncreases = priceChanges.filter((c) => c.direction === 'increase').length;
+    const priceDecreases = priceChanges.filter((c) => c.direction === 'decrease').length;
+    const avgMarginImpact =
+      priceChanges.length > 0
+        ? priceChanges.reduce((s, c) => s + c.marginImpactPct, 0) / priceChanges.length
+        : 0;
 
     const data: PriceChangeMonitorData = {
       priceChanges,
@@ -261,7 +267,7 @@ export class PriceChangeMonitorSkill implements ArosSkill {
     }
 
     // Cost creep without retail adjustment
-    const unadjusted = costCreep.filter(c => !c.retailAdjusted && c.marginErosion > 1);
+    const unadjusted = costCreep.filter((c) => !c.retailAdjusted && c.marginErosion > 1);
     for (const cc of unadjusted.slice(0, 5)) {
       alerts.push({
         severity: 'warning',

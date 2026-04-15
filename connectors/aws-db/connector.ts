@@ -12,10 +12,7 @@ import { retrieveCredential } from '../vault-ref.js';
  * Connect to AWS RDS or Aurora.
  * Password is retrieved from vault via passwordRef — never passed in plain text.
  */
-export async function connect(
-  config: AwsDbConfig,
-  passwordRef: string,
-): Promise<AwsDbConnection> {
+export async function connect(config: AwsDbConfig, passwordRef: string): Promise<AwsDbConnection> {
   const password = await retrieveCredential(passwordRef);
 
   if (config.engine === 'mysql' || config.engine === 'aurora-mysql') {
@@ -148,9 +145,10 @@ export async function downloadData(
       throw new Error(`Invalid table name: ${table}`);
     }
 
-    const sql = conn.engine === 'mysql' || conn.engine === 'aurora-mysql'
-      ? `SELECT * FROM \`${table}\``
-      : `SELECT * FROM "${table}"`;
+    const sql =
+      conn.engine === 'mysql' || conn.engine === 'aurora-mysql'
+        ? `SELECT * FROM \`${table}\``
+        : `SELECT * FROM "${table}"`;
 
     const rows = await query(conn, sql);
     writeFileSync(join(outputPath, `${table}.json`), JSON.stringify(rows, null, 2));

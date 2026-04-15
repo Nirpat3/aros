@@ -24,13 +24,18 @@ import type { LicensePayload, LicenseTier } from '../license-schema.js';
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
-function createTestLicense(overrides: Partial<LicensePayload & { tier: LicenseTier }> = {}): string {
+function createTestLicense(
+  overrides: Partial<LicensePayload & { tier: LicenseTier }> = {},
+): string {
   const payload: LicensePayload = {
     tenantId: overrides.tenantId ?? 'test-tenant',
     tier: overrides.tier ?? 'professional',
     features: overrides.features ?? ['plugins', 'multi-model'],
     issuedAt: overrides.issuedAt ?? new Date().toISOString(),
-    expiresAt: overrides.expiresAt !== undefined ? overrides.expiresAt : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    expiresAt:
+      overrides.expiresAt !== undefined
+        ? overrides.expiresAt
+        : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
     fingerprint: overrides.fingerprint ?? getCurrentFingerprint(),
   };
 

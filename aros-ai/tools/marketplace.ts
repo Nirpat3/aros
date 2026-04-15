@@ -1,5 +1,10 @@
 import { fetchNodes, getNode } from '../../marketplace/registry.js';
-import { installNode, uninstallNode, listInstalled, toggleNode } from '../../marketplace/installer.js';
+import {
+  installNode,
+  uninstallNode,
+  listInstalled,
+  toggleNode,
+} from '../../marketplace/installer.js';
 
 export const marketplaceTools = [
   {
@@ -11,9 +16,7 @@ export const marketplaceTools = [
         category: params.category as any,
       });
       if (result.nodes.length === 0) return 'No nodes found matching your search.';
-      return result.nodes
-        .map((n) => `${n.name} (${n.version}) — ${n.description}`)
-        .join('\n');
+      return result.nodes.map((n) => `${n.name} (${n.version}) — ${n.description}`).join('\n');
     },
   },
   {

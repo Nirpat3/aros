@@ -81,7 +81,7 @@ export class CustomerProfilerSkill implements ArosSkill {
       connector.getInvoiceItems(dateRange),
     ]);
 
-    const valid = invoices.filter(inv => !inv.is_void);
+    const valid = invoices.filter((inv) => !inv.is_void);
 
     // Time-of-day patterns
     const hourMap = new Map<number, { count: number; revenue: number }>();
@@ -128,7 +128,7 @@ export class CustomerProfilerSkill implements ArosSkill {
       .sort((a, b) => b.totalRevenue - a.totalRevenue);
 
     // Ticket-size based segmentation
-    const tickets = valid.map(inv => inv.bill_amount).sort((a, b) => a - b);
+    const tickets = valid.map((inv) => inv.bill_amount).sort((a, b) => a - b);
     const totalRevenue = valid.reduce((s, inv) => s + inv.bill_amount, 0);
     const totalTxns = valid.length;
 
@@ -155,7 +155,7 @@ export class CustomerProfilerSkill implements ArosSkill {
 
     for (const seg of segmentDefs) {
       const segInvoices = valid.filter(
-        inv => inv.bill_amount >= seg.min && inv.bill_amount < seg.max
+        (inv) => inv.bill_amount >= seg.min && inv.bill_amount < seg.max,
       );
       if (segInvoices.length === 0) continue;
 
@@ -170,7 +170,10 @@ export class CustomerProfilerSkill implements ArosSkill {
       let peakHour = 0;
       let peakCount = 0;
       for (const [h, c] of segHourMap) {
-        if (c > peakCount) { peakHour = h; peakCount = c; }
+        if (c > peakCount) {
+          peakHour = h;
+          peakCount = c;
+        }
       }
 
       // Top categories
@@ -203,8 +206,8 @@ export class CustomerProfilerSkill implements ArosSkill {
 
     // Peak hour and day
     const peakHourEntry = timePatterns.reduce(
-      (best, tp) => tp.totalRevenue > best.totalRevenue ? tp : best,
-      timePatterns[0] ?? { hour: 0, transactionCount: 0, avgTicket: 0, totalRevenue: 0 }
+      (best, tp) => (tp.totalRevenue > best.totalRevenue ? tp : best),
+      timePatterns[0] ?? { hour: 0, transactionCount: 0, avgTicket: 0, totalRevenue: 0 },
     );
     const peakDayEntry = dayPatterns[0];
 
@@ -232,8 +235,8 @@ export class CustomerProfilerSkill implements ArosSkill {
     // Action: optimize for peak patterns
     if (segments.length > 0) {
       const biggestSegment = segments.reduce(
-        (best, s) => s.pctOfRevenue > best.pctOfRevenue ? s : best,
-        segments[0]!
+        (best, s) => (s.pctOfRevenue > best.pctOfRevenue ? s : best),
+        segments[0]!,
       );
       actions.push({
         description: `"${biggestSegment.name}" segment drives ${biggestSegment.pctOfRevenue.toFixed(0)}% of revenue — optimize store layout and promotions for this group`,

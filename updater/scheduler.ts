@@ -65,14 +65,18 @@ export async function checkAndApply(): Promise<void> {
     console.log('[scheduler] Auto-applying core update...');
     await applyCore(manifest);
   } else if (decision.core === 'notify') {
-    console.log(`[scheduler] Core update available: ${versions.core} → ${manifest.packages.core.version}`);
+    console.log(
+      `[scheduler] Core update available: ${versions.core} → ${manifest.packages.core.version}`,
+    );
   }
 
   if (decision.ui === 'apply') {
     console.log('[scheduler] Auto-applying UI update...');
     await applyUi(manifest);
   } else if (decision.ui === 'notify') {
-    console.log(`[scheduler] UI update available: ${versions.ui} → ${manifest.packages.ui.version}`);
+    console.log(
+      `[scheduler] UI update available: ${versions.ui} → ${manifest.packages.ui.version}`,
+    );
   }
 
   if (decision.core === 'ignore' && decision.ui === 'ignore') {

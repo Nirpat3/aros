@@ -105,7 +105,10 @@ export class BasketBundlerSkill implements ArosSkill {
     const avgItemsPerBasket = totalItems / totalBaskets;
 
     // Count individual item frequency
-    const itemFreq = new Map<string, { count: number; desc: string; avgPrice: number; totalPrice: number }>();
+    const itemFreq = new Map<
+      string,
+      { count: number; desc: string; avgPrice: number; totalPrice: number }
+    >();
     // Count individual category frequency
     const catFreq = new Map<string, number>();
 
@@ -151,8 +154,8 @@ export class BasketBundlerSkill implements ArosSkill {
 
     const pairCounts = new Map<string, number>();
     for (const [, basketItems] of baskets) {
-      const basketCodes = [...new Set(basketItems.map(i => i.item_code))]
-        .filter(c => topItems.includes(c))
+      const basketCodes = [...new Set(basketItems.map((i) => i.item_code))]
+        .filter((c) => topItems.includes(c))
         .sort();
 
       for (let i = 0; i < basketCodes.length; i++) {
@@ -177,7 +180,7 @@ export class BasketBundlerSkill implements ArosSkill {
       const confidenceBA = (count / freqB.count) * 100;
       const pA = freqA.count / totalBaskets;
       const pB = freqB.count / totalBaskets;
-      const lift = (pA * pB) > 0 ? (count / totalBaskets) / (pA * pB) : 0;
+      const lift = pA * pB > 0 ? count / totalBaskets / (pA * pB) : 0;
 
       if (support >= MIN_SUPPORT && lift >= MIN_LIFT) {
         topItemPairs.push({
@@ -198,7 +201,7 @@ export class BasketBundlerSkill implements ArosSkill {
     // Category pair co-occurrence
     const catPairCounts = new Map<string, number>();
     for (const [, basketItems] of baskets) {
-      const basketCats = [...new Set(basketItems.map(i => i.category))].sort();
+      const basketCats = [...new Set(basketItems.map((i) => i.category))].sort();
       for (let i = 0; i < basketCats.length; i++) {
         for (let j = i + 1; j < basketCats.length; j++) {
           const key = `${basketCats[i]}|||${basketCats[j]}`;
@@ -216,16 +219,22 @@ export class BasketBundlerSkill implements ArosSkill {
       const support = (count / totalBaskets) * 100;
       const pA = fA / totalBaskets;
       const pB = fB / totalBaskets;
-      const lift = (pA * pB) > 0 ? (count / totalBaskets) / (pA * pB) : 0;
+      const lift = pA * pB > 0 ? count / totalBaskets / (pA * pB) : 0;
 
       if (support >= MIN_SUPPORT) {
-        topCategoryPairs.push({ categoryA: catA, categoryB: catB, coOccurrences: count, support, lift });
+        topCategoryPairs.push({
+          categoryA: catA,
+          categoryB: catB,
+          coOccurrences: count,
+          support,
+          lift,
+        });
       }
     }
     topCategoryPairs.sort((a, b) => b.lift - a.lift);
 
     // Bundle recommendations from top pairs
-    const bundleRecommendations = topItemPairs.slice(0, 10).map(pair => {
+    const bundleRecommendations = topItemPairs.slice(0, 10).map((pair) => {
       const priceA = itemFreq.get(pair.itemA)?.avgPrice ?? 0;
       const priceB = itemFreq.get(pair.itemB)?.avgPrice ?? 0;
       const suggestedBundlePrice = Math.round((priceA + priceB) * 0.9 * 100) / 100; // 10% bundle discount

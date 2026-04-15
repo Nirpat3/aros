@@ -36,7 +36,7 @@ export {
   AROS_CONTRACT,
   ALL_CONTRACTS,
   AGENT_CONTRACT_MAP,
-} from "./contracts.js";
+} from './contracts.js';
 
 // Registry (initialization + analysis)
 export {
@@ -50,7 +50,7 @@ export {
   type WaveBlock,
   type Wave,
   type WavePlan,
-} from "./registry.js";
+} from './registry.js';
 
 // Auditor (runtime enforcement)
 export {
@@ -58,7 +58,7 @@ export {
   type ArosAuditor,
   type WriteCheck,
   type ExecutionAudit,
-} from "./auditor.js";
+} from './auditor.js';
 
 // Executor (wave-based parallel execution)
 export {
@@ -69,4 +69,4 @@ export {
   type BlockResult,
   type WaveResult,
   type ExecutionReport,
-} from "./executor.js";
+} from './executor.js';

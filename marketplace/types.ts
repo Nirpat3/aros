@@ -75,7 +75,13 @@ export interface InstallResult {
 
 // ── Plugin Submission & Review (Apple-style) ─────────────────────
 
-export type PluginReviewStatus = 'draft' | 'pending_review' | 'in_review' | 'approved' | 'rejected' | 'published';
+export type PluginReviewStatus =
+  | 'draft'
+  | 'pending_review'
+  | 'in_review'
+  | 'approved'
+  | 'rejected'
+  | 'published';
 
 export interface PluginSubmission {
   id: string;
@@ -114,7 +120,7 @@ export interface DemoCredentials {
   url: string;
   username: string;
   password: string;
-  instructions?: string;   // e.g. "Use store #1 for testing"
+  instructions?: string; // e.g. "Use store #1 for testing"
   environment: 'sandbox' | 'staging' | 'production';
 }
 

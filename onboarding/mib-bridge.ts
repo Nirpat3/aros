@@ -50,11 +50,11 @@ export const MIB_PERMISSIONS: MibPermission[] = [
 
 // Things MIB can NEVER do to tenant/workspace data
 export const MIB_DENIED = [
-  'workspaces:write',       // cannot modify workspace settings
-  'stores:write',           // cannot modify store data
-  'transactions:read',      // cannot see raw POS transactions
-  'credentials:read',       // cannot see POS API keys
-  'users:impersonate',      // cannot log in as tenant user
+  'workspaces:write', // cannot modify workspace settings
+  'stores:write', // cannot modify store data
+  'transactions:read', // cannot see raw POS transactions
+  'credentials:read', // cannot see POS API keys
+  'users:impersonate', // cannot log in as tenant user
 ] as const;
 
 // ── CRM Lead → Tenant Pipeline ───────────────────────────────────
@@ -152,12 +152,12 @@ export function buildCustomerList(
   mappings: CrmToTenantMapping[],
 ): MibCustomerListItem[] {
   const items: MibCustomerListItem[] = [];
-  const mappedLeadIds = new Set(mappings.filter(m => m.tenantId).map(m => m.leadId));
+  const mappedLeadIds = new Set(mappings.filter((m) => m.tenantId).map((m) => m.leadId));
 
   // Active tenants first
   for (const tv of tenants) {
-    const mapping = mappings.find(m => m.tenantId === tv.tenant.id);
-    const lead = mapping ? leads.find(l => l.id === mapping.leadId) : undefined;
+    const mapping = mappings.find((m) => m.tenantId === tv.tenant.id);
+    const lead = mapping ? leads.find((l) => l.id === mapping.leadId) : undefined;
 
     items.push({
       lead,

@@ -14,7 +14,9 @@ export const tasksTool = {
     'Create, list, and manage tasks. Use to schedule work, track progress, delegate to other agents.',
 
   async execute(params: Record<string, unknown>): Promise<string> {
-    const message = String(params.message ?? '').trim().toLowerCase();
+    const message = String(params.message ?? '')
+      .trim()
+      .toLowerCase();
 
     // Parse action from message
     if (message.startsWith('create:') || message.startsWith('/tasks create:')) {

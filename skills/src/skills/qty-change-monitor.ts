@@ -105,7 +105,10 @@ export class QtyChangeMonitorSkill implements ArosSkill {
      */
 
     const adjustments: QtyAdjustment[] = [];
-    const categoryBreakdown: Record<string, { losses: number; gains: number; valueImpact: number }> = {};
+    const categoryBreakdown: Record<
+      string,
+      { losses: number; gains: number; valueImpact: number }
+    > = {};
 
     for (const inv of inventory) {
       const unitsSold = soldMap.get(inv.item_code) ?? 0;
@@ -175,7 +178,7 @@ export class QtyChangeMonitorSkill implements ArosSkill {
 
     // Build shrinkage history (items with repeated losses)
     const shrinkHistory = new Map<string, ItemShrinkageHistory>();
-    for (const adj of adjustments.filter(a => a.direction === 'loss')) {
+    for (const adj of adjustments.filter((a) => a.direction === 'loss')) {
       const existing = shrinkHistory.get(adj.itemCode);
       if (existing) {
         existing.totalShrinkageUnits += Math.abs(adj.discrepancy);
@@ -194,13 +197,16 @@ export class QtyChangeMonitorSkill implements ArosSkill {
         });
       }
     }
-    const shrinkageHistory = [...shrinkHistory.values()]
-      .sort((a, b) => b.totalShrinkageValue - a.totalShrinkageValue);
+    const shrinkageHistory = [...shrinkHistory.values()].sort(
+      (a, b) => b.totalShrinkageValue - a.totalShrinkageValue,
+    );
 
     // Classify
-    const shrinkageItems = adjustments.filter(a => a.direction === 'loss');
-    const overageItems = adjustments.filter(a => a.direction === 'gain');
-    const suspiciousItems = adjustments.filter(a => a.severity === 'suspicious' || a.severity === 'critical');
+    const shrinkageItems = adjustments.filter((a) => a.direction === 'loss');
+    const overageItems = adjustments.filter((a) => a.direction === 'gain');
+    const suspiciousItems = adjustments.filter(
+      (a) => a.severity === 'suspicious' || a.severity === 'critical',
+    );
 
     const totalShrinkageValue = shrinkageItems.reduce((s, a) => s + a.discrepancyValue, 0);
     const totalOverageValue = overageItems.reduce((s, a) => s + a.discrepancyValue, 0);
@@ -221,7 +227,7 @@ export class QtyChangeMonitorSkill implements ArosSkill {
     const actions: Action[] = [];
 
     // Critical: negative inventory
-    for (const adj of adjustments.filter(a => a.severity === 'critical').slice(0, 10)) {
+    for (const adj of adjustments.filter((a) => a.severity === 'critical').slice(0, 10)) {
       alerts.push({
         severity: 'critical',
         message: `${adj.itemDesc} (${adj.itemCode}): ${adj.reason} — ${adj.discrepancy} units ($${adj.discrepancyValue.toFixed(2)})`,
@@ -232,7 +238,7 @@ export class QtyChangeMonitorSkill implements ArosSkill {
     }
 
     // Suspicious patterns
-    for (const adj of adjustments.filter(a => a.severity === 'suspicious').slice(0, 5)) {
+    for (const adj of adjustments.filter((a) => a.severity === 'suspicious').slice(0, 5)) {
       alerts.push({
         severity: 'warning',
         message: `${adj.itemDesc}: ${adj.reason} (${adj.discrepancy > 0 ? '+' : ''}${adj.discrepancy} units)`,
@@ -243,7 +249,7 @@ export class QtyChangeMonitorSkill implements ArosSkill {
     }
 
     // Repeated shrinkage
-    const repeatedLossItems = shrinkageHistory.filter(h => h.repeatedLoss);
+    const repeatedLossItems = shrinkageHistory.filter((h) => h.repeatedLoss);
     for (const item of repeatedLossItems.slice(0, 5)) {
       alerts.push({
         severity: 'critical',

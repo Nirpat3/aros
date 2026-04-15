@@ -29,18 +29,19 @@ export function linkToStorePulse(
 }
 
 /** Get the connectors linked to StorePulse for a tenant. */
-export function getStorePulseConnectors(
-  tenantId: string,
-): { azureDb?: ConnectorConfig; rapidRms?: ConnectorConfig } {
+export function getStorePulseConnectors(tenantId: string): {
+  azureDb?: ConnectorConfig;
+  rapidRms?: ConnectorConfig;
+} {
   const linked = links.get(tenantId);
   if (!linked) return {};
 
   return {
     azureDb: linked.azureConnectorId
-      ? getConnector(tenantId, linked.azureConnectorId) ?? undefined
+      ? (getConnector(tenantId, linked.azureConnectorId) ?? undefined)
       : undefined,
     rapidRms: linked.rapidRmsConnectorId
-      ? getConnector(tenantId, linked.rapidRmsConnectorId) ?? undefined
+      ? (getConnector(tenantId, linked.rapidRmsConnectorId) ?? undefined)
       : undefined,
   };
 }

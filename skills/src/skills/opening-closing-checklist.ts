@@ -50,14 +50,24 @@ const DEFAULT_CHECKLIST: ChecklistItem[] = [
   { id: 'open-01', label: 'Disarm alarm system', category: 'opening', required: true },
   { id: 'open-02', label: 'Turn on lights and signage', category: 'opening', required: true },
   { id: 'open-03', label: 'Count opening cash drawer', category: 'opening', required: true },
-  { id: 'open-04', label: 'Check cooler/freezer temperatures', category: 'opening', required: true },
+  {
+    id: 'open-04',
+    label: 'Check cooler/freezer temperatures',
+    category: 'opening',
+    required: true,
+  },
   { id: 'open-05', label: 'Stock and face shelves', category: 'opening', required: false },
   { id: 'open-06', label: 'Clean floors and counters', category: 'opening', required: false },
   { id: 'open-07', label: 'Verify POS systems are online', category: 'opening', required: true },
   { id: 'open-08', label: 'Check restrooms', category: 'opening', required: false },
   // Closing
   { id: 'close-01', label: 'Run end-of-day POS report', category: 'closing', required: true },
-  { id: 'close-02', label: 'Count and reconcile cash drawers', category: 'closing', required: true },
+  {
+    id: 'close-02',
+    label: 'Count and reconcile cash drawers',
+    category: 'closing',
+    required: true,
+  },
   { id: 'close-03', label: 'Prepare bank deposit', category: 'closing', required: true },
   { id: 'close-04', label: 'Clean and sanitize food areas', category: 'closing', required: true },
   { id: 'close-05', label: 'Empty trash and recycling', category: 'closing', required: false },
@@ -69,17 +79,13 @@ const DEFAULT_CHECKLIST: ChecklistItem[] = [
 function buildReport(
   type: 'opening' | 'closing',
   template: ChecklistItem[],
-  completions: ChecklistCompletion[]
+  completions: ChecklistCompletion[],
 ): ChecklistReport {
-  const typeItems = template.filter(
-    i => i.category === type || i.category === 'both'
-  );
+  const typeItems = template.filter((i) => i.category === type || i.category === 'both');
 
-  const completionMap = new Map(
-    completions.map(c => [c.checklist_item_id, c])
-  );
+  const completionMap = new Map(completions.map((c) => [c.checklist_item_id, c]));
 
-  const items: ChecklistStatus[] = typeItems.map(item => {
+  const items: ChecklistStatus[] = typeItems.map((item) => {
     const completion = completionMap.get(item.id);
     return {
       item,
@@ -90,14 +96,13 @@ function buildReport(
     };
   });
 
-  const completedCount = items.filter(i => i.completed).length;
-  const requiredItems = items.filter(i => i.item.required);
-  const requiredCompletedCount = requiredItems.filter(i => i.completed).length;
-  const missedRequired = requiredItems.filter(i => !i.completed);
+  const completedCount = items.filter((i) => i.completed).length;
+  const requiredItems = items.filter((i) => i.item.required);
+  const requiredCompletedCount = requiredItems.filter((i) => i.completed).length;
+  const missedRequired = requiredItems.filter((i) => !i.completed);
 
-  const compliancePct = requiredItems.length > 0
-    ? (requiredCompletedCount / requiredItems.length) * 100
-    : 100;
+  const compliancePct =
+    requiredItems.length > 0 ? (requiredCompletedCount / requiredItems.length) * 100 : 100;
 
   return {
     type,
@@ -134,9 +139,8 @@ export class OpeningClosingChecklistSkill implements ArosSkill {
 
     const totalRequired = opening.requiredTotalCount + closing.requiredTotalCount;
     const totalRequiredCompleted = opening.requiredCompletedCount + closing.requiredCompletedCount;
-    const overallCompliancePct = totalRequired > 0
-      ? (totalRequiredCompleted / totalRequired) * 100
-      : 100;
+    const overallCompliancePct =
+      totalRequired > 0 ? (totalRequiredCompleted / totalRequired) * 100 : 100;
 
     const data: ChecklistData = { opening, closing, overallCompliancePct };
 

@@ -20,10 +20,10 @@ interface ArosConfig {
 // ── Tier defaults ───────────────────────────────────────────────────────────
 
 const TIER_DEFAULTS: Record<LicenseTier, Pick<License, 'maxUsers' | 'whitelabelEnabled'>> = {
-  free:       { maxUsers: 1,        whitelabelEnabled: false },
-  business:   { maxUsers: Infinity, whitelabelEnabled: false },
+  free: { maxUsers: 1, whitelabelEnabled: false },
+  business: { maxUsers: Infinity, whitelabelEnabled: false },
   enterprise: { maxUsers: Infinity, whitelabelEnabled: false },
-  oem:        { maxUsers: Infinity, whitelabelEnabled: true },
+  oem: { maxUsers: Infinity, whitelabelEnabled: true },
 };
 
 // ── License key format ──────────────────────────────────────────────────────
@@ -96,7 +96,11 @@ export function isWhitelabelAllowed(): boolean {
 export function enforceUserLimit(currentUsers: number): void {
   const license = getLicense();
   if (currentUsers >= license.maxUsers) {
-    auditLog('user_limit_exceeded', { currentUsers, maxUsers: license.maxUsers, tier: license.tier });
+    auditLog('user_limit_exceeded', {
+      currentUsers,
+      maxUsers: license.maxUsers,
+      tier: license.tier,
+    });
     throw new Error(
       `User limit reached (${license.maxUsers}) for "${license.tier}" tier. ` +
         'Upgrade your license to add more users.',
@@ -145,7 +149,7 @@ import { createSign, createVerify, generateKeyPairSync } from 'node:crypto';
 export function generateKeyPair(): { publicKey: string; privateKey: string } {
   const { publicKey, privateKey } = generateKeyPairSync('ec', {
     namedCurve: 'P-256',
-    publicKeyEncoding:  { type: 'spki',  format: 'pem' },
+    publicKeyEncoding: { type: 'spki', format: 'pem' },
     privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
   });
   return { publicKey, privateKey };
@@ -156,7 +160,10 @@ export function generateKeyPair(): { publicKey: string; privateKey: string } {
  */
 export function generateKey(tier: LicenseTier): string {
   const segment = () =>
-    Array.from({ length: 4 }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random() * 36)]).join('');
+    Array.from(
+      { length: 4 },
+      () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random() * 36)],
+    ).join('');
   return `AROS-${segment()}-${segment()}-${segment()}-${segment()}`;
 }
 
@@ -173,7 +180,11 @@ export function signLicense(payload: string, privateKeyPem: string): string {
 /**
  * Verify a license signature with an ECDSA P-256 public key.
  */
-export function verifyLicenseSignature(payload: string, signature: string, publicKeyPem: string): boolean {
+export function verifyLicenseSignature(
+  payload: string,
+  signature: string,
+  publicKeyPem: string,
+): boolean {
   const verifier = createVerify('SHA256');
   verifier.update(payload);
   verifier.end();

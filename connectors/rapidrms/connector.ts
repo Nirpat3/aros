@@ -65,7 +65,7 @@ export class RapidRMSConnector {
 
   /** Fetch sales detail for a date range from RapidRMS API. */
   async fetchSalesDetail(opts: RapidRMSSyncOptions): Promise<unknown> {
-    if (!await this.authenticate()) throw new Error('RapidRMS auth failed');
+    if (!(await this.authenticate())) throw new Error('RapidRMS auth failed');
 
     const dbName = opts.storeDbName ?? this.config.storeDbName;
     const url =
@@ -84,20 +84,17 @@ export class RapidRMSConnector {
 
   /** Fetch inventory snapshot from RapidRMS API. */
   async fetchInventory(storeDbName?: string): Promise<unknown> {
-    if (!await this.authenticate()) throw new Error('RapidRMS auth failed');
+    if (!(await this.authenticate())) throw new Error('RapidRMS auth failed');
 
     const dbName = storeDbName ?? this.config.storeDbName;
-    const res = await fetch(
-      `${this.config.baseUrl}/api/Inventory/Get`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Cookie: this.sessionCookie!,
-        },
-        body: JSON.stringify({ DbName: dbName }),
+    const res = await fetch(`${this.config.baseUrl}/api/Inventory/Get`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: this.sessionCookie!,
       },
-    );
+      body: JSON.stringify({ DbName: dbName }),
+    });
 
     if (!res.ok) throw new Error(`RapidRMS Inventory error: ${res.status}`);
     return res.json();

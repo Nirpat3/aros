@@ -153,9 +153,7 @@ export class LaborCostTrackerSkill implements ArosSkill {
 
     dailyMetrics.sort((a, b) => a.date.localeCompare(b.date));
 
-    const overallLaborPct = overallRevenue > 0
-      ? (overallLaborCost / overallRevenue) * 100
-      : 0;
+    const overallLaborPct = overallRevenue > 0 ? (overallLaborCost / overallRevenue) * 100 : 0;
 
     // Find busiest and most expensive shifts
     let busiestShift: string | null = null;

@@ -18,7 +18,9 @@ export function appendHistory(entry: UpdateHistoryEntry): void {
   const history = JSON.parse(readFileSync(HISTORY_PATH, 'utf8')) as UpdateHistoryEntry[];
   history.push(entry);
   writeFileSync(HISTORY_PATH, JSON.stringify(history, null, 2) + '\n', 'utf8');
-  console.log(`[history] Recorded ${entry.type} ${entry.status}: ${entry.fromVersion} → ${entry.toVersion}`);
+  console.log(
+    `[history] Recorded ${entry.type} ${entry.status}: ${entry.fromVersion} → ${entry.toVersion}`,
+  );
 }
 
 /**

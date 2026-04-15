@@ -1,0 +1,45 @@
+FROM node:22-alpine AS builder
+RUN apk add --no-cache python3 make g++ linux-headers
+WORKDIR /app
+
+# Copy shared packages
+COPY shre-sdk/ /opt/shre-sdk/
+RUN cd /opt/shre-sdk && npm install --omit=dev 2>/dev/null || npm install
+
+COPY shre-model-config/ /opt/shre-model-config/
+RUN cd /opt/shre-model-config && npm install --omit=dev 2>/dev/null || npm install 2>/dev/null || true
+
+# Copy repo-level files services may import
+COPY ports.json /ports.json
+COPY ports.json /opt/shre/ports.json
+COPY scripts/ /scripts/
+COPY config/ /config/
+
+# Copy service and install deps
+ARG SERVICE_DIR
+COPY ${SERVICE_DIR}/package.json ./
+RUN sed -i "s|file:../shre-sdk|file:/opt/shre-sdk|g" package.json \
+ && sed -i "s|file:../shre-model-config|file:/opt/shre-model-config|g" package.json
+RUN npm install
+
+COPY ${SERVICE_DIR}/ ./
+RUN npm run build --if-present || true
+
+# Production stage
+FROM node:22-alpine
+RUN apk add --no-cache curl
+WORKDIR /app
+
+COPY --from=builder /opt/shre-sdk /opt/shre-sdk
+COPY --from=builder /opt/shre-model-config /opt/shre-model-config
+COPY --from=builder /ports.json /ports.json
+COPY --from=builder /opt/shre/ports.json /opt/shre/ports.json
+COPY --from=builder /scripts /scripts
+COPY --from=builder /config /config
+COPY --from=builder /app ./
+
+ENV SHRE_PORTS_PATH=/opt/shre/ports.json
+
+ARG PORT=3000
+EXPOSE ${PORT}
+CMD ["npm", "start"]

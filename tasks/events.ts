@@ -16,11 +16,13 @@ export function emitTaskEvent(event: TaskEvent): void {
   // This ensures task events feed the brain snapshot pipeline
   try {
     // Dynamic import to avoid hard dependency on shre-control at module level
-    import('../aros-ai/shre-control/events.js').then(({ emitSessionComplete }) => {
-      emitSessionComplete(event.agentId, JSON.stringify(event));
-    }).catch(() => {
-      // Shre control not available — events logged locally only
-    });
+    import('../aros-ai/shre-control/events.js')
+      .then(({ emitSessionComplete }) => {
+        emitSessionComplete(event.agentId, JSON.stringify(event));
+      })
+      .catch(() => {
+        // Shre control not available — events logged locally only
+      });
   } catch {
     // Silent — Shre integration is optional
   }

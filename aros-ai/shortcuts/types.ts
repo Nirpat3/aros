@@ -1,19 +1,19 @@
 // ── Shortcut / Mention System Types ─────────────────────────────
 
-export type ShortcutType = "mention" | "tool" | "node";
+export type ShortcutType = 'mention' | 'tool' | 'node';
 
 export interface ParsedShortcut {
   type: ShortcutType;
-  symbol: "@" | "/" | "#";
-  target: string;           // agent name, tool name, or node/app name
-  raw: string;              // original text e.g. "@aros", "/search", "#storepulse"
-  position: number;         // char position in message
+  symbol: '@' | '/' | '#';
+  target: string; // agent name, tool name, or node/app name
+  raw: string; // original text e.g. "@aros", "/search", "#storepulse"
+  position: number; // char position in message
 }
 
 export interface MentionTarget {
   id: string;
   name: string;
-  type: "agent" | "user";
+  type: 'agent' | 'user';
   online?: boolean;
 }
 
@@ -27,8 +27,8 @@ export interface ToolTarget {
 export interface NodeTarget {
   id: string;
   name: string;
-  type: "node" | "app";
-  status: "active" | "inactive" | "installing";
+  type: 'node' | 'app';
+  status: 'active' | 'inactive' | 'installing';
   description: string;
 }
 

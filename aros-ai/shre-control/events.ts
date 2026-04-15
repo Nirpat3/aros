@@ -61,10 +61,7 @@ export function emitUpdateApplied(version: string): void {
  * Start the periodic brain snapshot emitter (every 6 hours).
  * Provide a callback that returns the current brain state for the given agent.
  */
-export function startSnapshotSchedule(
-  agentId: string,
-  getBrain: () => AgentBrain,
-): void {
+export function startSnapshotSchedule(agentId: string, getBrain: () => AgentBrain): void {
   if (snapshotTimer) {
     clearInterval(snapshotTimer);
   }
@@ -79,7 +76,9 @@ export function startSnapshotSchedule(
     }
   }, SNAPSHOT_INTERVAL_MS);
 
-  console.log(`[shre-control:events] Brain snapshot schedule started (every 6h) for agent ${agentId}`);
+  console.log(
+    `[shre-control:events] Brain snapshot schedule started (every 6h) for agent ${agentId}`,
+  );
 }
 
 /**

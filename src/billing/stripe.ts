@@ -69,7 +69,8 @@ export async function createCheckoutSession(opts: CheckoutOptions): Promise<stri
     mode: 'subscription',
     customer_email: opts.email,
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: opts.successUrl || `${baseUrl}/onboarding?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+    success_url:
+      opts.successUrl || `${baseUrl}/onboarding?payment=success&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: opts.cancelUrl || `${baseUrl}/onboarding?payment=canceled`,
     metadata: {
       tenant_id: opts.tenantId,

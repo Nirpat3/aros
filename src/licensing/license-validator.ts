@@ -238,10 +238,7 @@ export function clearLicenseCache(): void {
  * Check if we're in dev mode (skip license validation).
  */
 export function isDevMode(): boolean {
-  return (
-    process.env['AROS_DEV_MODE'] === 'true' &&
-    process.env['NODE_ENV'] !== 'production'
-  );
+  return process.env['AROS_DEV_MODE'] === 'true' && process.env['NODE_ENV'] !== 'production';
 }
 
 /**

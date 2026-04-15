@@ -32,9 +32,7 @@ function printLicenseInfo(license: AROSLicense, devMode = false): void {
   print(`  Tier:        ${license.tier}`);
   print(`  Features:    ${license.features.join(', ') || '(none)'}`);
   print(`  Issued:      ${license.issuedAt}`);
-  print(
-    `  Expires:     ${license.expiresAt || 'Never (perpetual)'}`
-  );
+  print(`  Expires:     ${license.expiresAt || 'Never (perpetual)'}`);
   print(`  Fingerprint: ${license.fingerprint}`);
   if (devMode) {
     print(`  Mode:        ⚠ DEV MODE (not for production)`);

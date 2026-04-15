@@ -52,16 +52,22 @@ interface MarginMonitorData {
  */
 export function computeMargins(
   items: InvoiceItemRow[],
-  targetMarginPct: number
+  targetMarginPct: number,
 ): MarginMonitorData {
   // Filter valid (non-void) items
-  const validItems = items.filter(i => !i.is_void);
+  const validItems = items.filter((i) => !i.is_void);
 
   // SKU-level aggregation
-  const skuMap = new Map<string, {
-    desc: string; category: string;
-    revenue: number; cost: number; qty: number;
-  }>();
+  const skuMap = new Map<
+    string,
+    {
+      desc: string;
+      category: string;
+      revenue: number;
+      cost: number;
+      qty: number;
+    }
+  >();
 
   for (const item of validItems) {
     const existing = skuMap.get(item.item_code);
@@ -124,14 +130,10 @@ export function computeMargins(
   const overallRevenue = bySku.reduce((s, x) => s + x.revenue, 0);
   const overallCost = bySku.reduce((s, x) => s + x.cost, 0);
   const overallMargin = overallRevenue - overallCost;
-  const overallMarginPct = overallRevenue > 0
-    ? (overallMargin / overallRevenue) * 100
-    : 0;
+  const overallMarginPct = overallRevenue > 0 ? (overallMargin / overallRevenue) * 100 : 0;
 
-  const belowTargetSkus = bySku.filter(
-    s => s.marginPct < targetMarginPct && s.marginPct >= 0
-  );
-  const negativeMarginsSkus = bySku.filter(s => s.marginPct < 0);
+  const belowTargetSkus = bySku.filter((s) => s.marginPct < targetMarginPct && s.marginPct >= 0);
+  const negativeMarginsSkus = bySku.filter((s) => s.marginPct < 0);
 
   return {
     overallRevenue,
@@ -190,7 +192,7 @@ export class MarginMonitorSkill implements ArosSkill {
 
     // Action: categories below target
     const weakCategories = data.byCategory.filter(
-      c => c.marginPct < store.targetMarginPct && c.marginPct >= 0
+      (c) => c.marginPct < store.targetMarginPct && c.marginPct >= 0,
     );
     for (const cat of weakCategories.slice(0, 3)) {
       actions.push({
@@ -200,9 +202,10 @@ export class MarginMonitorSkill implements ArosSkill {
       });
     }
 
-    const summary = data.overallRevenue > 0
-      ? `Overall margin: ${data.overallMarginPct.toFixed(1)}% ($${data.overallMargin.toFixed(2)} profit on $${data.overallRevenue.toFixed(2)} revenue). ${data.negativeMarginsSkus.length} items at negative margin, ${data.belowTargetSkus.length} below ${store.targetMarginPct}% target.`
-      : 'No sales data available for margin analysis.';
+    const summary =
+      data.overallRevenue > 0
+        ? `Overall margin: ${data.overallMarginPct.toFixed(1)}% ($${data.overallMargin.toFixed(2)} profit on $${data.overallRevenue.toFixed(2)} revenue). ${data.negativeMarginsSkus.length} items at negative margin, ${data.belowTargetSkus.length} below ${store.targetMarginPct}% target.`
+        : 'No sales data available for margin analysis.';
 
     return {
       skillId: this.id,

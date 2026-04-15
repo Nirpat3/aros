@@ -56,9 +56,7 @@ export class CashReconcilerSkill implements ArosSkill {
 
     const variances: CashVariance[] = readings.map((r: RegisterReadingRow) => {
       const variance = r.actual_cash - r.expected_cash;
-      const variancePct = r.expected_cash > 0
-        ? (variance / r.expected_cash) * 100
-        : 0;
+      const variancePct = r.expected_cash > 0 ? (variance / r.expected_cash) * 100 : 0;
       return {
         registerId: r.register_id,
         shift: r.shift,
@@ -72,11 +70,9 @@ export class CashReconcilerSkill implements ArosSkill {
       };
     });
 
-    const overages = variances.filter(v => v.variance > threshold);
-    const shortages = variances.filter(v => v.variance < -threshold);
-    const withinTolerance = variances.filter(
-      v => Math.abs(v.variance) <= threshold
-    );
+    const overages = variances.filter((v) => v.variance > threshold);
+    const shortages = variances.filter((v) => v.variance < -threshold);
+    const withinTolerance = variances.filter((v) => Math.abs(v.variance) <= threshold);
 
     const totalExpected = variances.reduce((s, v) => s + v.expectedCash, 0);
     const totalActual = variances.reduce((s, v) => s + v.actualCash, 0);
@@ -97,7 +93,8 @@ export class CashReconcilerSkill implements ArosSkill {
 
     // Flag significant shortages
     for (const s of shortages) {
-      const severity = Math.abs(s.variance) > threshold * 3 ? 'critical' as const : 'warning' as const;
+      const severity =
+        Math.abs(s.variance) > threshold * 3 ? ('critical' as const) : ('warning' as const);
       alerts.push({
         severity,
         message: `Cash SHORT $${Math.abs(s.variance).toFixed(2)} — Register ${s.registerId}, ${s.cashierName} (${s.shift} shift)`,
@@ -129,9 +126,10 @@ export class CashReconcilerSkill implements ArosSkill {
       });
     }
 
-    const summary = variances.length > 0
-      ? `Cash reconciliation: $${totalActual.toFixed(2)} actual vs $${totalExpected.toFixed(2)} expected (${totalVariance >= 0 ? '+' : ''}$${totalVariance.toFixed(2)}). ${shortages.length} shortage(s), ${overages.length} overage(s), ${withinTolerance.length} within tolerance.`
-      : 'No register readings available for reconciliation.';
+    const summary =
+      variances.length > 0
+        ? `Cash reconciliation: $${totalActual.toFixed(2)} actual vs $${totalExpected.toFixed(2)} expected (${totalVariance >= 0 ? '+' : ''}$${totalVariance.toFixed(2)}). ${shortages.length} shortage(s), ${overages.length} overage(s), ${withinTolerance.length} within tolerance.`
+        : 'No register readings available for reconciliation.';
 
     return {
       skillId: this.id,

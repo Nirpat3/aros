@@ -1,0 +1,97 @@
+# Cloudflare Tunnel Config — POST VPS CUTOVER
+# ═══════════════════════════════════════════════════════════════════════════
+# This config replaces ~/.cloudflared/config.yml AFTER DNS has been
+# cut over to the VPS (187.124.85.107) for public-facing routes.
+#
+# What changed:
+#   - spillquest.com       → REMOVED (now DNS A record → VPS)
+#   - *.nirtek.net gated   → REMOVED (now DNS A record → VPS via nginx-nirtek.conf)
+#   - aros.nirtek.net      → already removed (was cut over earlier)
+#
+# What remains:
+#   - investor.nirtek.net  → stays on Mac (own auth, port 5414)
+#   - shadow-ollama/ssh    → stays on Mac (Tailscale private routes)
+#   - disabled routes      → kept for completeness
+#   - catch-all 404        → required by cloudflared
+#
+# To apply:
+#   cp cloudflare-config-post-cutover.yml ~/.cloudflared/config.yml
+#   launchctl unload ~/Library/LaunchAgents/ai.shre.cloudflare-tunnel.plist
+#   launchctl load ~/Library/LaunchAgents/ai.shre.cloudflare-tunnel.plist
+# ════════════════════════════════════════════════════════════════════════���══
+
+tunnel: a789b275-63b4-49bd-bb7c-6697135b7b70
+credentials-file: /Users/aibot/.cloudflared/a789b275-63b4-49bd-bb7c-6697135b7b70.json
+
+ingress:
+  # ── Mac-only services (not on VPS, stay on tunnel) ─────────────────────
+  # Shre Chat — stays on Mac (depends on CortexDB, Ollama)
+  - hostname: shre.nirtek.net
+    service: http://127.0.0.1:5431
+
+  - hostname: chat.nirtek.net
+    service: http://127.0.0.1:5431
+
+  # MIB007 — stays on Mac (depends on CortexDB, full agent stack)
+  - hostname: mib007.nirtek.net
+    service: http://127.0.0.1:5431
+
+  - hostname: mib.nirtek.net
+    service: http://127.0.0.1:5431
+
+  # Command Center — mesh topology dashboard, stays on Mac
+  - hostname: commandcenter.nirtek.net
+    service: http://127.0.0.1:5431
+
+  # Shre City — SimCity visualization, stays on Mac
+  - hostname: shrecity.nirtek.net
+    service: http://127.0.0.1:5431
+
+  # Voice — depends on local Ollama, stays on Mac
+  - hostname: voice.nirtek.net
+    service: http://127.0.0.1:5431
+
+  # ── Investor Portal — stays on Mac (own auth, not behind auth-gate) ────
+  - hostname: investor.nirtek.net
+    service: http://127.0.0.1:5414
+
+  - hostname: investors.nirtek.net
+    service: http://127.0.0.1:5414
+
+  # ── Disabled routes ────────────────────────────────────────────────────
+  - hostname: app.nirtek.net
+    service: http_status:410
+
+  - hostname: blocks.nirtek.net
+    service: http_status:403
+
+  - hostname: blocks.nirlab.io
+    service: http_status:403
+
+  # ── Private routes (Tailscale machine-to-machine) ──────────────────────
+  # Shadow PC GPU server — Ollama + fine-tuning
+  - hostname: shadow-ollama.nirtek.net
+    service: http://100.86.194.36:11434
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+
+  # Shadow PC SSH
+  - hostname: shadow-ssh.nirtek.net
+    service: ssh://100.86.194.36:22
+
+  # ── Catch-all (required by cloudflared) ────────────────────────────────
+  - service: http_status:404
+
+# ══════════════════════════════════════════════════════════════════════════��
+# ROUTE DISTRIBUTION:
+#
+# VPS (DNS A record → 187.124.85.107):
+#   spillquest.com, api/pos/billing/support/marketplace.nirtek.net, etc.
+#
+# Mac tunnel (above — depends on CortexDB/Ollama):
+#   shre/chat/mib007/mib/commandcenter/shrecity/voice.nirtek.net
+#   investor.nirtek.net (own auth)
+#
+# Private (Tailscale): shadow-ollama/ssh.nirtek.net
+# ═══════════════════════════════════════════════════════════════════════════

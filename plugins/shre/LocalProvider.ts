@@ -118,7 +118,11 @@ function hashPassword(password: string, salt: string): string {
   return createHash('sha256').update(`${salt}:${password}`).digest('hex');
 }
 
-function createToken(payload: Omit<TokenPayload, 'iat' | 'exp'>, secret: string, ttlSeconds: number): string {
+function createToken(
+  payload: Omit<TokenPayload, 'iat' | 'exp'>,
+  secret: string,
+  ttlSeconds: number,
+): string {
   const now = Math.floor(Date.now() / 1000);
   const full: TokenPayload = { ...payload, iat: now, exp: now + ttlSeconds };
   const key = deriveKey(secret);
@@ -188,8 +192,16 @@ export class LocalProvider implements AuthProvider {
     const hash = hashPassword(credentials.password, user.salt);
     if (hash !== user.passwordHash) throw new Error('Invalid credentials');
 
-    const token = createToken({ sub: user.id, email: user.email, role: user.role }, this.secret, TOKEN_TTL);
-    const refreshToken = createToken({ sub: user.id, email: user.email, role: user.role }, this.secret, REFRESH_TTL);
+    const token = createToken(
+      { sub: user.id, email: user.email, role: user.role },
+      this.secret,
+      TOKEN_TTL,
+    );
+    const refreshToken = createToken(
+      { sub: user.id, email: user.email, role: user.role },
+      this.secret,
+      REFRESH_TTL,
+    );
 
     return { token, refreshToken, expiresIn: TOKEN_TTL, user: this.toPublicUser(user) };
   }
@@ -209,10 +221,23 @@ export class LocalProvider implements AuthProvider {
     const user = users[payload.sub];
     if (!user) throw new Error('User not found');
 
-    const newToken = createToken({ sub: user.id, email: user.email, role: user.role }, this.secret, TOKEN_TTL);
-    const newRefresh = createToken({ sub: user.id, email: user.email, role: user.role }, this.secret, REFRESH_TTL);
+    const newToken = createToken(
+      { sub: user.id, email: user.email, role: user.role },
+      this.secret,
+      TOKEN_TTL,
+    );
+    const newRefresh = createToken(
+      { sub: user.id, email: user.email, role: user.role },
+      this.secret,
+      REFRESH_TTL,
+    );
 
-    return { token: newToken, refreshToken: newRefresh, expiresIn: TOKEN_TTL, user: this.toPublicUser(user) };
+    return {
+      token: newToken,
+      refreshToken: newRefresh,
+      expiresIn: TOKEN_TTL,
+      user: this.toPublicUser(user),
+    };
   }
 
   async revoke(token: string): Promise<void> {

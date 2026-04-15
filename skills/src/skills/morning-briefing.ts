@@ -15,14 +15,7 @@
  * aggregates their outputs into a unified briefing.
  */
 
-import type {
-  ArosSkill,
-  SkillContext,
-  SkillOutput,
-  EmployeeRow,
-  Alert,
-  Action,
-} from '../types.js';
+import type { ArosSkill, SkillContext, SkillOutput, EmployeeRow, Alert, Action } from '../types.js';
 
 import { DailyFlashSkill } from './daily-flash.js';
 import { StockPulseSkill } from './stock-pulse.js';
@@ -43,7 +36,13 @@ export class MorningBriefingSkill implements ArosSkill {
   readonly name = 'Morning Briefing';
   readonly category = 'owner-intelligence' as const;
   readonly frequency = 'daily' as const;
-  readonly requiredData = ['invoices', 'invoice_items', 'inventory', 'register_readings', 'employees'];
+  readonly requiredData = [
+    'invoices',
+    'invoice_items',
+    'inventory',
+    'register_readings',
+    'employees',
+  ];
 
   private dailyFlash = new DailyFlashSkill();
   private stockPulse = new StockPulseSkill();
@@ -63,7 +62,8 @@ export class MorningBriefingSkill implements ArosSkill {
     // Aggregate staffing info
     const scheduledHours = todaySchedule.reduce((s, e) => s + e.scheduled_hours, 0);
     const estimatedLaborCost = todaySchedule.reduce(
-      (s, e) => s + e.hourly_rate * e.scheduled_hours, 0
+      (s, e) => s + e.hourly_rate * e.scheduled_hours,
+      0,
     );
 
     // Merge all alerts, sorted by severity
@@ -72,9 +72,7 @@ export class MorningBriefingSkill implements ArosSkill {
       ...flashOutput.alerts,
       ...stockOutput.alerts,
       ...cashOutput.alerts,
-    ].sort(
-      (a, b) => (severityOrder[a.severity] ?? 3) - (severityOrder[b.severity] ?? 3)
-    );
+    ].sort((a, b) => (severityOrder[a.severity] ?? 3) - (severityOrder[b.severity] ?? 3));
 
     // Merge all actions, sorted by priority
     const allActions: Action[] = [
@@ -102,8 +100,8 @@ export class MorningBriefingSkill implements ArosSkill {
       actionItemCount: allActions.length,
     };
 
-    const criticalCount = allAlerts.filter(a => a.severity === 'critical').length;
-    const warningCount = allAlerts.filter(a => a.severity === 'warning').length;
+    const criticalCount = allAlerts.filter((a) => a.severity === 'critical').length;
+    const warningCount = allAlerts.filter((a) => a.severity === 'warning').length;
 
     // Build summary from sub-skill summaries
     const lines = [
@@ -114,7 +112,9 @@ export class MorningBriefingSkill implements ArosSkill {
     ];
 
     if (criticalCount > 0 || warningCount > 0) {
-      lines.push(`⚠️ ${criticalCount} critical, ${warningCount} warnings. ${allActions.length} action items.`);
+      lines.push(
+        `⚠️ ${criticalCount} critical, ${warningCount} warnings. ${allActions.length} action items.`,
+      );
     }
 
     return {

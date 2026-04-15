@@ -14,11 +14,20 @@
  *     await Promise.all(wave.blocks.map(b => executeBlock(b)));
  *   }
  */
-import { ALL_CONTRACTS, AGENT_CONTRACT_MAP, type AgentBlockContract } from "./contracts.js";
+import { ALL_CONTRACTS, AGENT_CONTRACT_MAP, type AgentBlockContract } from './contracts.js';
 
 // Inline types from shre-sdk/contracts (resolved at runtime via workspace links)
-interface BlockCollision { blockIdA: string; blockIdB: string; conflictingKeys: string[]; }
-interface CollisionReport { collisions: BlockCollision[]; waves: string[][]; cycles: string[][]; isClean: boolean; }
+interface BlockCollision {
+  blockIdA: string;
+  blockIdB: string;
+  conflictingKeys: string[];
+}
+interface CollisionReport {
+  collisions: BlockCollision[];
+  waves: string[][];
+  cycles: string[][];
+  isClean: boolean;
+}
 interface BlockRegistry {
   register(contract: AgentBlockContract): void;
   unregister(blockId: string): boolean;
@@ -32,8 +41,8 @@ interface BlockRegistry {
 let _createBlockRegistry: any;
 let _log: any;
 try {
-  _createBlockRegistry = require("shre-sdk/contracts").createBlockRegistry;
-  _log = require("shre-sdk/logger").createLogger("aros:blocks");
+  _createBlockRegistry = require('shre-sdk/contracts').createBlockRegistry;
+  _log = require('shre-sdk/logger').createLogger('aros:blocks');
 } catch {
   _log = { info: console.log, warn: console.warn, error: console.error };
 }
@@ -52,8 +61,8 @@ let _report: CollisionReport | null = null;
 export function getRegistry(): BlockRegistry {
   if (_registry) return _registry;
 
-  if (!_createBlockRegistry) throw new Error("shre-sdk/contracts not available");
-  _registry = _createBlockRegistry("aros-platform", {
+  if (!_createBlockRegistry) throw new Error('shre-sdk/contracts not available');
+  _registry = _createBlockRegistry('aros-platform', {
     rejectOnCollision: true,
     rejectOnCycle: true,
   });
@@ -76,7 +85,7 @@ export function getRegistry(): BlockRegistry {
   _report = _registry!.analyze();
 
   if (!_report.isClean) {
-    log.error("[blocks] Registry has collisions or cycles!", {
+    log.error('[blocks] Registry has collisions or cycles!', {
       collisions: _report.collisions.length,
       cycles: _report.cycles.length,
     });
@@ -87,10 +96,10 @@ export function getRegistry(): BlockRegistry {
       });
     }
     for (const cycle of _report.cycles) {
-      log.error(`[blocks] CYCLE: ${cycle.join(" → ")}`);
+      log.error(`[blocks] CYCLE: ${cycle.join(' → ')}`);
     }
   } else {
-    log.info("[blocks] Registry clean — no collisions, no cycles", {
+    log.info('[blocks] Registry clean — no collisions, no cycles', {
       blocks: _registry!.listBlockIds().length,
       waves: _report.waves.length,
     });
@@ -145,8 +154,8 @@ export function getWavePlan(): WavePlan {
     const blocks: WaveBlock[] = blockIds.map((bid) => {
       const contract = registry.getContract(bid)!;
       // Reverse-lookup agentId from contract
-      const agentId = Object.entries(AGENT_CONTRACT_MAP)
-        .find(([, c]) => c.blockId === bid)?.[0] || bid;
+      const agentId =
+        Object.entries(AGENT_CONTRACT_MAP).find(([, c]) => c.blockId === bid)?.[0] || bid;
       return {
         blockId: bid,
         agentId,
@@ -209,7 +218,7 @@ export function canRead(agentId: string, stateKey: string): boolean {
 export function getOwnershipMap(): Record<string, string> {
   const map: Record<string, string> = {};
   for (const [agentId, contract] of Object.entries(AGENT_CONTRACT_MAP)) {
-    if (agentId === "aros-agent") continue; // Skip alias
+    if (agentId === 'aros-agent') continue; // Skip alias
     for (const key of contract.owns) {
       map[key] = agentId;
     }

@@ -190,7 +190,7 @@ export class RapidRmsConnector implements DataConnector {
 
   async getInvoiceItemsByInvoice(invoiceNos: string[]): Promise<InvoiceItemRow[]> {
     if (invoiceNos.length === 0) return [];
-    const inClause = invoiceNos.map(n => `'${n}'`).join(',');
+    const inClause = invoiceNos.map((n) => `'${n}'`).join(',');
     const sql = `
       SELECT
         invoice_no, item_code, item_desc,
@@ -230,13 +230,13 @@ export class RapidRmsConnector implements DataConnector {
 
   async getInventoryByCategory(category: string): Promise<InventoryRow[]> {
     const all = await this.getInventory();
-    return all.filter(row => row.category === category);
+    return all.filter((row) => row.category === category);
   }
 
   async getVendorPrices(itemCodes?: string[]): Promise<VendorPriceRow[]> {
     let where = '';
     if (itemCodes && itemCodes.length > 0) {
-      const inClause = itemCodes.map(c => `'${c}'`).join(',');
+      const inClause = itemCodes.map((c) => `'${c}'`).join(',');
       where = `WHERE item_code IN (${inClause})`;
     }
     const sql = `

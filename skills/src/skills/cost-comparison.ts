@@ -74,7 +74,7 @@ export class CostComparisonSkill implements ArosSkill {
     const daySpan = Math.max(
       1,
       (new Date(dateRange.end).getTime() - new Date(dateRange.start).getTime()) /
-        (1000 * 60 * 60 * 24)
+        (1000 * 60 * 60 * 24),
     );
     const volumeMap = new Map<string, number>();
     for (const item of items) {
@@ -93,14 +93,14 @@ export class CostComparisonSkill implements ArosSkill {
       }
     }
 
-    const vendorIds = new Set(vendorPrices.map(vp => vp.vendor_id));
+    const vendorIds = new Set(vendorPrices.map((vp) => vp.vendor_id));
 
     const comparisons: SkuComparison[] = [];
 
     for (const [itemCode, prices] of pricesByItem) {
       if (prices.length < 2) continue; // Need at least 2 vendors to compare
 
-      const vendors: VendorOption[] = prices.map(p => {
+      const vendors: VendorOption[] = prices.map((p) => {
         const caseUnitCost = p.case_qty > 0 ? p.case_cost / p.case_qty : p.unit_cost;
         return {
           vendorId: p.vendor_id,
@@ -143,10 +143,8 @@ export class CostComparisonSkill implements ArosSkill {
 
     comparisons.sort((a, b) => b.annualSavings - a.annualSavings);
 
-    const switchRecommendations = comparisons.filter(c => c.switchRecommended);
-    const totalAnnualSavings = switchRecommendations.reduce(
-      (s, c) => s + c.annualSavings, 0
-    );
+    const switchRecommendations = comparisons.filter((c) => c.switchRecommended);
+    const totalAnnualSavings = switchRecommendations.reduce((s, c) => s + c.annualSavings, 0);
 
     const data: CostComparisonData = {
       comparisons,

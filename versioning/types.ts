@@ -1,6 +1,6 @@
 export type SemVer = `${number}.${number}.${number}`;
-export type UpdateChannel = "stable" | "beta" | "edge";
-export type UpdatePolicy = "auto" | "notify" | "off" | "ignore";
+export type UpdateChannel = 'stable' | 'beta' | 'edge';
+export type UpdatePolicy = 'auto' | 'notify' | 'off' | 'ignore';
 
 export interface VersionManifest {
   version: SemVer;
@@ -24,17 +24,17 @@ export interface PackageRelease {
 }
 
 export interface ChangelogEntry {
-  type: "feat" | "fix" | "perf" | "style" | "breaking" | "security";
+  type: 'feat' | 'fix' | 'perf' | 'style' | 'breaking' | 'security';
   scope?: string;
   message: string;
 }
 
 export interface UpdateHistoryEntry {
   timestamp: string;
-  type: "core" | "ui";
+  type: 'core' | 'ui';
   fromVersion: SemVer;
   toVersion: SemVer;
-  status: "applied" | "ignored" | "skipped" | "failed" | "rolled-back";
+  status: 'applied' | 'ignored' | 'skipped' | 'failed' | 'rolled-back';
   auto: boolean;
   reason?: string;
   appliedBy?: string;

@@ -136,14 +136,13 @@ export class CostChangeTrackerSkill implements ArosSkill {
       if (Math.abs(costChangePct) < 0.5) continue;
 
       const currentRetail = last.unit_price;
-      const oldMarginPct = first.unit_price > 0
-        ? ((first.unit_price - first.cost_price) / first.unit_price) * 100
-        : 0;
-      const newMarginPct = currentRetail > 0
-        ? ((currentRetail - last.cost_price) / currentRetail) * 100
-        : 0;
+      const oldMarginPct =
+        first.unit_price > 0 ? ((first.unit_price - first.cost_price) / first.unit_price) * 100 : 0;
+      const newMarginPct =
+        currentRetail > 0 ? ((currentRetail - last.cost_price) / currentRetail) * 100 : 0;
       const marginErosionPct = oldMarginPct - newMarginPct;
-      const marginSqueeze = newMarginPct < MARGIN_SQUEEZE_THRESHOLD && newMarginPct < store.targetMarginPct;
+      const marginSqueeze =
+        newMarginPct < MARGIN_SQUEEZE_THRESHOLD && newMarginPct < store.targetMarginPct;
 
       costChanges.push({
         itemCode,
@@ -164,7 +163,7 @@ export class CostChangeTrackerSkill implements ArosSkill {
     }
 
     costChanges.sort((a, b) => b.marginErosionPct - a.marginErosionPct);
-    const marginSqueezeItems = costChanges.filter(c => c.marginSqueeze);
+    const marginSqueezeItems = costChanges.filter((c) => c.marginSqueeze);
 
     // Category-level trends
     const catMap = new Map<string, { totalChange: number; totalErosion: number; count: number }>();
@@ -216,9 +215,10 @@ export class CostChangeTrackerSkill implements ArosSkill {
       }))
       .sort((a, b) => b.avgCostChangePct - a.avgCostChangePct);
 
-    const avgCostChangePct = costChanges.length > 0
-      ? costChanges.reduce((s, c) => s + c.costChangePct, 0) / costChanges.length
-      : 0;
+    const avgCostChangePct =
+      costChanges.length > 0
+        ? costChanges.reduce((s, c) => s + c.costChangePct, 0) / costChanges.length
+        : 0;
 
     const data: CostChangeTrackerData = {
       costChanges,
@@ -247,13 +247,17 @@ export class CostChangeTrackerSkill implements ArosSkill {
         description: `Raise retail price on ${item.itemDesc} or find cheaper vendor — margin eroded ${item.marginErosionPct.toFixed(1)}pp`,
         priority: 1,
         automatable: false,
-        payload: { itemCode: item.itemCode, currentRetail: item.currentRetail, newCost: item.newCost },
+        payload: {
+          itemCode: item.itemCode,
+          currentRetail: item.currentRetail,
+          newCost: item.newCost,
+        },
       });
     }
 
     // Big cost increases
     const bigIncreases = costChanges.filter(
-      c => c.costChangePct > COST_CHANGE_ALERT_PCT && !c.marginSqueeze
+      (c) => c.costChangePct > COST_CHANGE_ALERT_PCT && !c.marginSqueeze,
     );
     for (const cc of bigIncreases.slice(0, 5)) {
       alerts.push({
@@ -267,7 +271,7 @@ export class CostChangeTrackerSkill implements ArosSkill {
     }
 
     // Vendor-level action
-    const aggressiveVendors = vendorTrends.filter(v => v.avgCostChangePct > 3 && v.skuCount >= 3);
+    const aggressiveVendors = vendorTrends.filter((v) => v.avgCostChangePct > 3 && v.skuCount >= 3);
     for (const v of aggressiveVendors) {
       actions.push({
         description: `Negotiate with vendor ${v.vendorId} — avg cost increase ${v.avgCostChangePct.toFixed(1)}% across ${v.skuCount} SKUs`,

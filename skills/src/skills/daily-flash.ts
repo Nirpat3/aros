@@ -51,14 +51,11 @@ interface DailyFlashData {
  * Compute the daily flash report from raw invoice data.
  * Exported so other skills (e.g., morning-briefing) can reuse the logic.
  */
-export function computeDailyFlash(
-  invoices: InvoiceRow[],
-  items: InvoiceItemRow[]
-): DailyFlashData {
+export function computeDailyFlash(invoices: InvoiceRow[], items: InvoiceItemRow[]): DailyFlashData {
   // Filter out voids for revenue calculations
-  const validInvoices = invoices.filter(inv => !inv.is_void);
-  const voidInvoices = invoices.filter(inv => inv.is_void);
-  const refundInvoices = invoices.filter(inv => inv.is_refund && !inv.is_void);
+  const validInvoices = invoices.filter((inv) => !inv.is_void);
+  const voidInvoices = invoices.filter((inv) => inv.is_void);
+  const refundInvoices = invoices.filter((inv) => inv.is_refund && !inv.is_void);
 
   const totalRevenue = validInvoices.reduce((sum, inv) => sum + inv.bill_amount, 0);
   const transactionCount = validInvoices.length;
@@ -73,7 +70,7 @@ export function computeDailyFlash(
 
   // Top sellers by revenue
   const itemMap = new Map<string, { desc: string; qty: number; revenue: number }>();
-  const validInvoiceNos = new Set(validInvoices.map(inv => inv.invoice_no));
+  const validInvoiceNos = new Set(validInvoices.map((inv) => inv.invoice_no));
   for (const item of items) {
     if (!validInvoiceNos.has(item.invoice_no) || item.is_void) continue;
     const existing = itemMap.get(item.item_code);
@@ -130,8 +127,7 @@ export function computeDailyFlash(
   const categoryBreakdown: Record<string, number> = {};
   for (const item of items) {
     if (!validInvoiceNos.has(item.invoice_no) || item.is_void) continue;
-    categoryBreakdown[item.category] =
-      (categoryBreakdown[item.category] ?? 0) + item.total_amount;
+    categoryBreakdown[item.category] = (categoryBreakdown[item.category] ?? 0) + item.total_amount;
   }
 
   return {
@@ -170,9 +166,8 @@ export class DailyFlashSkill implements ArosSkill {
     const actions: Action[] = [];
 
     // Alert on high void rate (>2% of transactions)
-    const voidRate = flash.transactionCount > 0
-      ? (flash.voidCount / flash.transactionCount) * 100
-      : 0;
+    const voidRate =
+      flash.transactionCount > 0 ? (flash.voidCount / flash.transactionCount) * 100 : 0;
     if (voidRate > 2) {
       alerts.push({
         severity: 'warning',
@@ -184,9 +179,7 @@ export class DailyFlashSkill implements ArosSkill {
     }
 
     // Alert on high refund rate (>1% of revenue)
-    const refundRate = flash.totalRevenue > 0
-      ? (flash.refundAmount / flash.totalRevenue) * 100
-      : 0;
+    const refundRate = flash.totalRevenue > 0 ? (flash.refundAmount / flash.totalRevenue) * 100 : 0;
     if (refundRate > 1) {
       alerts.push({
         severity: 'warning',
@@ -206,9 +199,10 @@ export class DailyFlashSkill implements ArosSkill {
       });
     }
 
-    const summary = flash.transactionCount > 0
-      ? `Revenue: $${flash.totalRevenue.toFixed(2)} across ${flash.transactionCount} transactions (avg ticket $${flash.avgTicket.toFixed(2)}). ${flash.voidCount} voids, ${flash.refundCount} refunds.`
-      : 'No transactions recorded for this period.';
+    const summary =
+      flash.transactionCount > 0
+        ? `Revenue: $${flash.totalRevenue.toFixed(2)} across ${flash.transactionCount} transactions (avg ticket $${flash.avgTicket.toFixed(2)}). ${flash.voidCount} voids, ${flash.refundCount} refunds.`
+        : 'No transactions recorded for this period.';
 
     return {
       skillId: this.id,

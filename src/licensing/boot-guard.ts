@@ -36,7 +36,7 @@ export function enforceBootGuard(): BootGuardResult {
     const license = createDevLicense();
     const elapsed = performance.now() - start;
     print(
-      `[AROS] Dev mode active — license check skipped (tier: ${license.tier}, tenant: ${license.tenantId})`
+      `[AROS] Dev mode active — license check skipped (tier: ${license.tier}, tenant: ${license.tenantId})`,
     );
     return { license, devMode: true, elapsed };
   }
@@ -87,7 +87,7 @@ export function enforceBootGuard(): BootGuardResult {
     : 'perpetual';
 
   print(
-    `[AROS] License validated — tier: ${license.tier}, tenant: ${license.tenantId}, expires: ${expiryStr} (${elapsed.toFixed(1)}ms)`
+    `[AROS] License validated — tier: ${license.tier}, tenant: ${license.tenantId}, expires: ${expiryStr} (${elapsed.toFixed(1)}ms)`,
   );
 
   return { license, devMode: false, elapsed };

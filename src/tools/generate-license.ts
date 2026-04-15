@@ -44,7 +44,7 @@ function loadPrivateKey(): string {
 
   throw new Error(
     'No private key found. Set NIRLAB_PRIVATE_KEY or NIRLAB_PRIVATE_KEY_PATH env var.\n' +
-    'The private key lives in NirLab vault — never embed it in code.'
+      'The private key lives in NirLab vault — never embed it in code.',
   );
 }
 
@@ -138,7 +138,9 @@ function parseArgs(argv: string[]): GenerateLicenseOptions {
   }
 
   if (!tenantId || !fingerprint) {
-    printErr('Usage: generate-license --tenant <id> --fingerprint <hex> [--tier starter|professional|enterprise] [--features a,b,c] [--expires YYYY-MM-DD]');
+    printErr(
+      'Usage: generate-license --tenant <id> --fingerprint <hex> [--tier starter|professional|enterprise] [--features a,b,c] [--expires YYYY-MM-DD]',
+    );
     process.exit(1);
   }
 
@@ -146,8 +148,9 @@ function parseArgs(argv: string[]): GenerateLicenseOptions {
 }
 
 // Run if executed directly
-const isMain = process.argv[1]?.endsWith('generate-license.ts') ||
-               process.argv[1]?.endsWith('generate-license.js');
+const isMain =
+  process.argv[1]?.endsWith('generate-license.ts') ||
+  process.argv[1]?.endsWith('generate-license.js');
 
 if (isMain) {
   const options = parseArgs(process.argv);

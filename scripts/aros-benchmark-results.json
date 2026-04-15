@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-03-27T17:41:11.147Z",
-  "total_score": 100,
+  "timestamp": "2026-04-14T22:38:34.224Z",
+  "total_score": 99,
   "max_score": 100,
   "grade": "A+",
   "categories": {
     "core_architecture": {
-      "score": 12,
+      "score": 11,
       "max": 12,
       "checks": [
         {
@@ -28,9 +28,10 @@
         },
         {
           "name": "Server health",
-          "score": 3,
+          "score": 2,
           "max": 3,
-          "detail": "src/server.ts exists, health endpoint responds"
+          "detail": "src/server.ts exists, health endpoint not reachable",
+          "fix": "Ensure src/server.ts exists and server is running on port 5457"
         }
       ]
     },

@@ -71,10 +71,7 @@ export async function handleStripeWebhook(
           updateFields.plan = plan;
           updateFields.license_tier = plan;
         }
-        await supabase
-          .from('tenants')
-          .update(updateFields)
-          .eq('id', tenantId);
+        await supabase.from('tenants').update(updateFields).eq('id', tenantId);
       }
       break;
     }
@@ -100,7 +97,8 @@ export async function handleStripeWebhook(
 
     case 'invoice.payment_failed': {
       const invoice = event.data.object as Stripe.Invoice;
-      const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
+      const customerId =
+        typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
 
       if (customerId) {
         await supabase

@@ -76,10 +76,15 @@ export function submitForReview(submissionId: string): PluginSubmission {
   const submissions = loadSubmissions();
   const sub = submissions[submissionId];
   if (!sub) throw new Error('Submission not found');
-  if (sub.status !== 'draft') throw new Error(`Cannot submit for review from status: ${sub.status}`);
+  if (sub.status !== 'draft')
+    throw new Error(`Cannot submit for review from status: ${sub.status}`);
 
   // Validate required fields
-  if (!sub.demoCredentials?.url || !sub.demoCredentials?.username || !sub.demoCredentials?.password) {
+  if (
+    !sub.demoCredentials?.url ||
+    !sub.demoCredentials?.username ||
+    !sub.demoCredentials?.password
+  ) {
     throw new Error('Demo credentials (url, username, password) are required for review');
   }
 
@@ -97,7 +102,8 @@ export function startReview(submissionId: string, reviewerId: string): PluginSub
   const submissions = loadSubmissions();
   const sub = submissions[submissionId];
   if (!sub) throw new Error('Submission not found');
-  if (sub.status !== 'pending_review') throw new Error(`Cannot start review from status: ${sub.status}`);
+  if (sub.status !== 'pending_review')
+    throw new Error(`Cannot start review from status: ${sub.status}`);
 
   sub.status = 'in_review';
   sub.reviewedBy = reviewerId;
@@ -168,12 +174,14 @@ export function listSubmissions(filters?: {
   category?: string;
 }): PluginSubmission[] {
   const all = Object.values(loadSubmissions());
-  return all.filter((sub) => {
-    if (filters?.status && sub.status !== filters.status) return false;
-    if (filters?.submitterId && sub.submitterId !== filters.submitterId) return false;
-    if (filters?.category && sub.category !== filters.category) return false;
-    return true;
-  }).sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+  return all
+    .filter((sub) => {
+      if (filters?.status && sub.status !== filters.status) return false;
+      if (filters?.submitterId && sub.submitterId !== filters.submitterId) return false;
+      if (filters?.category && sub.category !== filters.category) return false;
+      return true;
+    })
+    .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
 }
 
 /**
@@ -182,7 +190,12 @@ export function listSubmissions(filters?: {
 export function countByStatus(): Record<PluginReviewStatus, number> {
   const all = Object.values(loadSubmissions());
   const counts: Record<string, number> = {
-    draft: 0, pending_review: 0, in_review: 0, approved: 0, rejected: 0, published: 0,
+    draft: 0,
+    pending_review: 0,
+    in_review: 0,
+    approved: 0,
+    rejected: 0,
+    published: 0,
   };
   for (const sub of all) {
     counts[sub.status] = (counts[sub.status] ?? 0) + 1;

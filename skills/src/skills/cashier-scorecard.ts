@@ -11,14 +11,7 @@
  * Helps identify top performers and those needing coaching.
  */
 
-import type {
-  ArosSkill,
-  SkillContext,
-  SkillOutput,
-  InvoiceRow,
-  Alert,
-  Action,
-} from '../types.js';
+import type { ArosSkill, SkillContext, SkillOutput, InvoiceRow, Alert, Action } from '../types.js';
 
 interface CashierMetrics {
   cashierName: string;
@@ -57,13 +50,16 @@ export class CashierScorecardSkill implements ArosSkill {
     const invoices = await connector.getInvoices(dateRange);
 
     // Group by cashier
-    const cashierMap = new Map<string, {
-      txns: InvoiceRow[];
-      voids: number;
-      refunds: number;
-      revenue: number;
-      customers: number;
-    }>();
+    const cashierMap = new Map<
+      string,
+      {
+        txns: InvoiceRow[];
+        voids: number;
+        refunds: number;
+        revenue: number;
+        customers: number;
+      }
+    >();
 
     for (const inv of invoices) {
       const name = inv.cashier_name;
@@ -88,7 +84,7 @@ export class CashierScorecardSkill implements ArosSkill {
     }
 
     let cashiers: CashierMetrics[] = [...cashierMap.entries()].map(([name, data]) => {
-      const validCount = data.txns.filter(t => !t.is_void).length;
+      const validCount = data.txns.filter((t) => !t.is_void).length;
       return {
         cashierName: name,
         transactionCount: validCount,
@@ -112,14 +108,13 @@ export class CashierScorecardSkill implements ArosSkill {
     const totalVoids = cashiers.reduce((s, c) => s + c.voidCount, 0);
 
     const storeAvgTicket = totalValidTxns > 0 ? totalRevenue / totalValidTxns : 0;
-    const storeVoidRate = totalValidTxns > 0
-      ? (totalVoids / (totalValidTxns + totalVoids)) * 100
-      : 0;
+    const storeVoidRate =
+      totalValidTxns > 0 ? (totalVoids / (totalValidTxns + totalVoids)) * 100 : 0;
 
     const topPerformer = cashiers[0]?.cashierName ?? null;
     const needsCoaching = cashiers
-      .filter(c => c.voidRate > VOID_RATE_THRESHOLD)
-      .map(c => c.cashierName);
+      .filter((c) => c.voidRate > VOID_RATE_THRESHOLD)
+      .map((c) => c.cashierName);
 
     const data: CashierScorecardData = {
       cashiers,
@@ -154,9 +149,10 @@ export class CashierScorecardSkill implements ArosSkill {
       });
     }
 
-    const summary = cashiers.length > 0
-      ? `${cashiers.length} cashiers tracked. Top performer: ${topPerformer} ($${cashiers[0]?.totalRevenue.toFixed(2) ?? '0'}). Store avg ticket: $${storeAvgTicket.toFixed(2)}, void rate: ${storeVoidRate.toFixed(1)}%. ${needsCoaching.length} cashier(s) need coaching.`
-      : 'No cashier data available for this period.';
+    const summary =
+      cashiers.length > 0
+        ? `${cashiers.length} cashiers tracked. Top performer: ${topPerformer} ($${cashiers[0]?.totalRevenue.toFixed(2) ?? '0'}). Store avg ticket: $${storeAvgTicket.toFixed(2)}, void rate: ${storeVoidRate.toFixed(1)}%. ${needsCoaching.length} cashier(s) need coaching.`
+        : 'No cashier data available for this period.';
 
     return {
       skillId: this.id,

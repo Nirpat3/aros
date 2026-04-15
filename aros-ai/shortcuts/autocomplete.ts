@@ -44,10 +44,7 @@ export function getSuggestions(
 
 // ── Matchers ────────────────────────────────────────────────────
 
-function matchMentions(
-  query: string,
-  registry: MentionTarget[],
-): AutocompleteSuggestion[] {
+function matchMentions(query: string, registry: MentionTarget[]): AutocompleteSuggestion[] {
   return registry
     .filter((t) => t.name.toLowerCase().includes(query))
     .sort((a, b) => scoreMatch(a.name, query) - scoreMatch(b.name, query))
@@ -60,10 +57,7 @@ function matchMentions(
     }));
 }
 
-function matchTools(
-  query: string,
-  registry: ToolTarget[],
-): AutocompleteSuggestion[] {
+function matchTools(query: string, registry: ToolTarget[]): AutocompleteSuggestion[] {
   return registry
     .filter((t) => t.name.toLowerCase().includes(query))
     .sort((a, b) => scoreMatch(a.name, query) - scoreMatch(b.name, query))
@@ -76,10 +70,7 @@ function matchTools(
     }));
 }
 
-function matchNodes(
-  query: string,
-  registry: NodeTarget[],
-): AutocompleteSuggestion[] {
+function matchNodes(query: string, registry: NodeTarget[]): AutocompleteSuggestion[] {
   return registry
     .filter((t) => t.name.toLowerCase().includes(query))
     .sort((a, b) => scoreMatch(a.name, query) - scoreMatch(b.name, query))
@@ -97,8 +88,8 @@ function matchNodes(
 /** Lower score = better match. Prefix matches rank highest. */
 function scoreMatch(name: string, query: string): number {
   const lower = name.toLowerCase();
-  if (lower === query) return 0;                    // exact
-  if (lower.startsWith(query)) return 1;            // prefix
-  if (lower.includes(query)) return 2;              // substring
+  if (lower === query) return 0; // exact
+  if (lower.startsWith(query)) return 1; // prefix
+  if (lower.includes(query)) return 2; // substring
   return 3;
 }

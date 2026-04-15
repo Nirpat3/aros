@@ -15,8 +15,8 @@ export type DayOfWeek = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
 
 /** Operating hours for a single day */
 export interface OperatingHours {
-  open: string;   // HH:mm
-  close: string;  // HH:mm
+  open: string; // HH:mm
+  close: string; // HH:mm
 }
 
 /** Store-level metadata used by every skill */
@@ -227,7 +227,7 @@ export interface BankDepositRow {
 /** Date range for queries */
 export interface DateRange {
   start: string; // ISO date string
-  end: string;   // ISO date string
+  end: string; // ISO date string
 }
 
 /**
@@ -339,12 +339,7 @@ export type SkillCategory =
   | 'marketing';
 
 /** How often the skill should run */
-export type SkillFrequency =
-  | 'realtime'
-  | 'hourly'
-  | 'daily'
-  | 'weekly'
-  | 'on-demand';
+export type SkillFrequency = 'realtime' | 'hourly' | 'daily' | 'weekly' | 'on-demand';
 
 /** Runtime context passed to every skill */
 export interface SkillContext {

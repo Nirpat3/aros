@@ -61,11 +61,11 @@ export interface BehaviorDelta {
 export interface AgentBrain {
   agentId: string;
   tenant: string;
-  snapshot: string;       // ISO timestamp
+  snapshot: string; // ISO timestamp
   soul: SoulConfig;
   skills: SkillDefinition[];
   memory: {
-    longTerm: string;     // MEMORY.md contents
+    longTerm: string; // MEMORY.md contents
     recent: DailyMemory[];
   };
   stats: AgentStats;
@@ -74,17 +74,17 @@ export interface AgentBrain {
 // ── Shre → AROS directives ─────────────────────────────────────────────────
 
 export type ShreDirective =
-  | { type: "soul.update"; agentId: string; patch: Partial<SoulConfig> }
-  | { type: "skill.push"; agentId: string; skill: SkillDefinition }
-  | { type: "memory.inject"; agentId: string; memory: MemoryEntry[] }
-  | { type: "dataset.push"; agentId: string; dataset: TrainingSet }
-  | { type: "agent.restart"; agentId: string }
-  | { type: "agent.rollback"; agentId: string; version: string };
+  | { type: 'soul.update'; agentId: string; patch: Partial<SoulConfig> }
+  | { type: 'skill.push'; agentId: string; skill: SkillDefinition }
+  | { type: 'memory.inject'; agentId: string; memory: MemoryEntry[] }
+  | { type: 'dataset.push'; agentId: string; dataset: TrainingSet }
+  | { type: 'agent.restart'; agentId: string }
+  | { type: 'agent.rollback'; agentId: string; version: string };
 
 // ── AROS → Shre events ─────────────────────────────────────────────────────
 
 export type ArosEvent =
-  | { type: "session.complete"; agentId: string; transcript: string }
-  | { type: "behavior.drift"; agentId: string; delta: BehaviorDelta }
-  | { type: "brain.snapshot"; agentId: string; brain: AgentBrain }
-  | { type: "update.applied"; version: string };
+  | { type: 'session.complete'; agentId: string; transcript: string }
+  | { type: 'behavior.drift'; agentId: string; delta: BehaviorDelta }
+  | { type: 'brain.snapshot'; agentId: string; brain: AgentBrain }
+  | { type: 'update.applied'; version: string };

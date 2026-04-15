@@ -104,6 +104,49 @@ services:
 
   # ─── Core Services ───────────────────────────────────────────────────────
 
+  # shre-auth-gate — authenticates all *.nirtek.net traffic, proxies to upstreams
+  # On VPS: routes to Docker services (shre-router, shre-api, shre-auth, etc.)
+  # Services still on Mac (shre-chat, mib007, etc.) stay on the Cloudflare tunnel.
+  shre-auth-gate:
+    <<: *node-defaults
+    build:
+      context: ../../
+      dockerfile: SHRE-PLATFORM/Dockerfile.node
+      args:
+        SERVICE_DIR: shre-auth-gate
+        PORT: "5431"
+    ports:
+      - "127.0.0.1:5431:5431"
+    environment:
+      PORT: "5431"
+      NODE_TLS_REJECT_UNAUTHORIZED: "0"
+      # Override service hosts for Docker networking (shre-sdk/discovery resolveHost)
+      # Services ON this VPS — resolve to Docker service names
+      SHRE_HOST_SHRE_ROUTER: shre-router
+      SHRE_HOST_SHRE_API: shre-api
+      SHRE_HOST_SHRE_AUTH: shre-auth
+      SHRE_HOST_SHRE_TASKS: shre-tasks
+      SHRE_HOST_SHRE_FLEET: shre-fleet
+      SHRE_HOST_SHRE_SCORER: shre-scorer
+      SHRE_HOST_SHRE_METER: shre-meter
+      SHRE_HOST_SHRE_MARKETPLACE: shre-marketplace
+      # Services NOT on VPS — route to Mac Mini brain via Tailscale
+      # These subdomains should stay on the Cloudflare tunnel instead.
+      # If needed, uncomment and set to brain's Tailscale IP:
+      # SHRE_HOST_SHRE_CHAT: "100.121.228.16"
+      # SHRE_HOST_MIB007: "100.121.228.16"
+    depends_on:
+      shre-auth:
+        condition: service_healthy
+      shre-router:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5431/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
   # shre-router — AI routing gateway, model fallback, multi-key rotation, agent trust
   shre-router:
     <<: *node-defaults

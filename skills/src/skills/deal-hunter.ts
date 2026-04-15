@@ -78,7 +78,7 @@ export class DealHunterSkill implements ArosSkill {
     const daySpan = Math.max(
       1,
       (new Date(dateRange.end).getTime() - new Date(dateRange.start).getTime()) /
-        (1000 * 60 * 60 * 24)
+        (1000 * 60 * 60 * 24),
     );
     const velocityMap = new Map<string, number>();
     for (const item of items) {
@@ -91,47 +91,43 @@ export class DealHunterSkill implements ArosSkill {
     }
 
     // Inventory lookup
-    const invMap = new Map(inventory.map(i => [i.item_code, i]));
+    const invMap = new Map(inventory.map((i) => [i.item_code, i]));
 
     // Find active promos
-    const activePromos = vendorPrices.filter(vp => {
+    const activePromos = vendorPrices.filter((vp) => {
       if (vp.promo_price === null) return false;
       if (vp.promo_start && new Date(vp.promo_start) > new Date(today)) return false;
       if (vp.promo_end && new Date(vp.promo_end) < new Date(today)) return false;
       return vp.promo_price < vp.unit_cost;
     });
 
-    const deals: DealEvaluation[] = activePromos.map(promo => {
+    const deals: DealEvaluation[] = activePromos.map((promo) => {
       const dailyVelocity = velocityMap.get(promo.item_code) ?? 0;
       const inv = invMap.get(promo.item_code);
       const currentStock = inv?.qty_on_hand ?? 0;
       const promoCost = promo.promo_price!;
-      const savingsPct = promo.unit_cost > 0
-        ? ((promo.unit_cost - promoCost) / promo.unit_cost) * 100
-        : 0;
+      const savingsPct =
+        promo.unit_cost > 0 ? ((promo.unit_cost - promoCost) / promo.unit_cost) * 100 : 0;
 
       // How much should we order?
       const targetDaysOfStock = Math.min(MAX_STOCK_DAYS, 30);
-      const idealOrderQty = dailyVelocity > 0
-        ? Math.ceil(dailyVelocity * targetDaysOfStock) - currentStock
-        : 0;
+      const idealOrderQty =
+        dailyVelocity > 0 ? Math.ceil(dailyVelocity * targetDaysOfStock) - currentStock : 0;
       const suggestedOrderQty = Math.max(0, Math.max(idealOrderQty, promo.min_order_qty));
 
-      const daysOfStockIfBought = dailyVelocity > 0
-        ? (currentStock + suggestedOrderQty) / dailyVelocity
-        : Infinity;
+      const daysOfStockIfBought =
+        dailyVelocity > 0 ? (currentStock + suggestedOrderQty) / dailyVelocity : Infinity;
 
       // Overstock risk: high if we'd have way more stock than we can move
-      const overstockRisk = dailyVelocity > 0
-        ? Math.min(1, Math.max(0, (daysOfStockIfBought - MAX_STOCK_DAYS) / MAX_STOCK_DAYS))
-        : 1;
+      const overstockRisk =
+        dailyVelocity > 0
+          ? Math.min(1, Math.max(0, (daysOfStockIfBought - MAX_STOCK_DAYS) / MAX_STOCK_DAYS))
+          : 1;
 
       // Velocity fit: 1.0 if item sells well, lower if slow/no movement
       const velocityFit = dailyVelocity > 0 ? Math.min(1, dailyVelocity / 2) : 0;
 
-      const dealScore = Math.round(
-        (savingsPct / 100) * velocityFit * (1 - overstockRisk) * 100
-      );
+      const dealScore = Math.round((savingsPct / 100) * velocityFit * (1 - overstockRisk) * 100);
 
       let recommendation: DealEvaluation['recommendation'];
       let reason: string;
@@ -147,9 +143,10 @@ export class DealHunterSkill implements ArosSkill {
         reason = `Moderate deal — check if ${daysOfStockIfBought.toFixed(0)} days of stock is acceptable`;
       } else {
         recommendation = 'skip';
-        reason = overstockRisk > 0.5
-          ? `Overstock risk too high — would have ${daysOfStockIfBought.toFixed(0)} days of stock`
-          : `Savings too small relative to inventory risk`;
+        reason =
+          overstockRisk > 0.5
+            ? `Overstock risk too high — would have ${daysOfStockIfBought.toFixed(0)} days of stock`
+            : `Savings too small relative to inventory risk`;
       }
 
       const estimatedSavings = suggestedOrderQty * (promo.unit_cost - promoCost);
@@ -178,12 +175,10 @@ export class DealHunterSkill implements ArosSkill {
 
     deals.sort((a, b) => b.dealScore - a.dealScore);
 
-    const buyRecommendations = deals.filter(d => d.recommendation === 'buy');
-    const skipRecommendations = deals.filter(d => d.recommendation === 'skip');
-    const reviewRecommendations = deals.filter(d => d.recommendation === 'review');
-    const totalPotentialSavings = buyRecommendations.reduce(
-      (s, d) => s + d.estimatedSavings, 0
-    );
+    const buyRecommendations = deals.filter((d) => d.recommendation === 'buy');
+    const skipRecommendations = deals.filter((d) => d.recommendation === 'skip');
+    const reviewRecommendations = deals.filter((d) => d.recommendation === 'review');
+    const totalPotentialSavings = buyRecommendations.reduce((s, d) => s + d.estimatedSavings, 0);
 
     const data: DealHunterData = {
       deals,

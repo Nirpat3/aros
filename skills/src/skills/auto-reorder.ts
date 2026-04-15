@@ -77,7 +77,7 @@ export class AutoReorderSkill implements ArosSkill {
     const daySpan = Math.max(
       1,
       (new Date(dateRange.end).getTime() - new Date(dateRange.start).getTime()) /
-        (1000 * 60 * 60 * 24)
+        (1000 * 60 * 60 * 24),
     );
 
     // Aggregate qty sold per item
@@ -126,20 +126,32 @@ export class AutoReorderSkill implements ArosSkill {
       });
     }
 
-    const criticalItems = velocities.filter(v => v.urgency === 'critical');
-    const soonItems = velocities.filter(v => v.urgency === 'soon');
+    const criticalItems = velocities.filter((v) => v.urgency === 'critical');
+    const soonItems = velocities.filter((v) => v.urgency === 'soon');
 
     // Group reorder items by vendor into PO drafts
-    const vendorItems = new Map<string, Array<{
-      itemCode: string; itemDesc: string;
-      orderQty: number; estimatedCost: number;
-    }>>();
+    const vendorItems = new Map<
+      string,
+      Array<{
+        itemCode: string;
+        itemDesc: string;
+        orderQty: number;
+        estimatedCost: number;
+      }>
+    >();
 
     const needsReorder = [...criticalItems, ...soonItems];
     for (const v of needsReorder) {
-      const inv = inventory.find(i => i.item_code === v.itemCode);
+      const inv = inventory.find((i) => i.item_code === v.itemCode);
       if (!inv) continue;
-      const orderQty = Math.max(inv.reorder_qty, Math.ceil(v.dailyVelocity * (inv.lead_time_days + SAFETY_BUFFER_DAYS + 7)));
+      // Target qty: enough to cover lead time + safety + 7 days, or at least the reorder_qty
+      const targetQty = Math.max(
+        inv.reorder_qty,
+        Math.ceil(v.dailyVelocity * (inv.lead_time_days + SAFETY_BUFFER_DAYS + 7)),
+      );
+      // Subtract what we already have on hand and on order to avoid over-ordering
+      const orderQty = Math.max(0, targetQty - inv.qty_on_hand - inv.qty_on_order);
+      if (orderQty <= 0) continue; // already covered by on-hand + on-order
       const entry = {
         itemCode: v.itemCode,
         itemDesc: v.itemDesc,
@@ -159,7 +171,7 @@ export class AutoReorderSkill implements ArosSkill {
         vendorId,
         items: poItems,
         totalEstimatedCost: poItems.reduce((s, i) => s + i.estimatedCost, 0),
-      })
+      }),
     );
 
     const alerts: Alert[] = [];
@@ -186,9 +198,10 @@ export class AutoReorderSkill implements ArosSkill {
     }
 
     const totalPoCost = purchaseOrders.reduce((s, po) => s + po.totalEstimatedCost, 0);
-    const summary = needsReorder.length > 0
-      ? `${criticalItems.length} critical, ${soonItems.length} soon-to-reorder items. ${purchaseOrders.length} PO drafts totaling $${totalPoCost.toFixed(2)}.`
-      : `All ${velocities.length} SKUs have adequate stock for current velocity (${daySpan.toFixed(0)}-day analysis window).`;
+    const summary =
+      needsReorder.length > 0
+        ? `${criticalItems.length} critical, ${soonItems.length} soon-to-reorder items. ${purchaseOrders.length} PO drafts totaling $${totalPoCost.toFixed(2)}.`
+        : `All ${velocities.length} SKUs have adequate stock for current velocity (${daySpan.toFixed(0)}-day analysis window).`;
 
     return {
       skillId: this.id,

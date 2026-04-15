@@ -1,0 +1,217 @@
+x-node-build: &node-build
+  context: /opt/shre/platform-src
+  dockerfile: Dockerfile.service
+
+x-node-service: &node-defaults
+  restart: unless-stopped
+  networks: [shre-core]
+  environment: &node-env
+    REDIS_HOST: redis
+    REDIS_PORT: "6379"
+    REDIS_PASSWORD: ${REDIS_PASSWORD:-shrepassword}
+    POSTGRES_HOST: postgres
+    POSTGRES_PORT: "5432"
+    POSTGRES_USER: ${POSTGRES_USER:-rapidnir}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rapid@nir}
+    POSTGRES_DB: ${POSTGRES_DB:-shre}
+    QDRANT_HOST: qdrant
+    QDRANT_PORT: "6333"
+    NODE_ENV: production
+    NODE_TLS_REJECT_UNAUTHORIZED: "0"
+    SHRE_PORTS_PATH: /opt/shre/ports.json
+    CORTEX_URL: http://cortex-router:5400
+
+x-healthcheck: &healthcheck
+  interval: 15s
+  timeout: 5s
+  retries: 3
+  start_period: 25s
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports: ["127.0.0.1:5433:5432"]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-rapidnir}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rapid@nir}
+      POSTGRES_DB: ${POSTGRES_DB:-shre}
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rapidnir}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [shre-core]
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:-shrepassword} --appendonly yes
+    volumes: [redisdata:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-shrepassword}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [shre-core]
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    restart: unless-stopped
+    volumes: [qdrantdata:/qdrant/storage]
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/6333'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [shre-core]
+
+  shre-auth:
+    <<: *node-defaults
+    build:
+      <<: *node-build
+      args: {SERVICE_DIR: shre-auth}
+    ports: ["127.0.0.1:5455:5455"]
+    environment:
+      <<: *node-env
+      PORT: "5455"
+      AUTH_SIGNING_KEY: ${AUTH_SIGNING_KEY:-}
+      PG_PORT: "5432"
+    depends_on:
+      redis: {condition: service_healthy}
+      postgres: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5455/health || exit 1"]
+      <<: *healthcheck
+
+  shre-router:
+    <<: *node-defaults
+    build:
+      <<: *node-build
+      args: {SERVICE_DIR: shre-router}
+    ports: ["127.0.0.1:5497:5497"]
+    environment:
+      <<: *node-env
+      PORT: "5497"
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ROUTER_ADMIN_TOKEN: ${ROUTER_ADMIN_TOKEN:-}
+    depends_on:
+      redis: {condition: service_healthy}
+      postgres: {condition: service_healthy}
+      qdrant: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5497/health || exit 1"]
+      <<: *healthcheck
+
+  shre-api:
+    <<: *node-defaults
+    build:
+      <<: *node-build
+      args: {SERVICE_DIR: shre-api}
+    ports: ["127.0.0.1:5438:5438"]
+    environment:
+      <<: *node-env
+      PORT: "5438"
+    depends_on:
+      redis: {condition: service_healthy}
+      postgres: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5438/health || exit 1"]
+      <<: *healthcheck
+
+  shre-tasks:
+    <<: *node-defaults
+    build:
+      <<: *node-build
+      args: {SERVICE_DIR: shre-tasks}
+    ports: ["127.0.0.1:5460:5460"]
+    environment:
+      <<: *node-env
+      PORT: "5460"
+    depends_on:
+      redis: {condition: service_healthy}
+      postgres: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5460/health || exit 1"]
+      <<: *healthcheck
+
+  shre-meter:
+    <<: *node-defaults
+    build:
+      <<: *node-build
+      args: {SERVICE_DIR: shre-meter}
+    environment:
+      <<: *node-env
+      PORT: "5495"
+    depends_on:
+      redis: {condition: service_healthy}
+      postgres: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5495/health || exit 1"]
+      <<: *healthcheck
+
+  shre-fleet:
+    <<: *node-defaults
+    build:
+      <<: *node-build
+      args: {SERVICE_DIR: shre-fleet}
+    environment:
+      <<: *node-env
+      PORT: "5498"
+    depends_on:
+      shre-tasks: {condition: service_healthy}
+      shre-router: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5498/health || exit 1"]
+      <<: *healthcheck
+
+  shre-scorer:
+    <<: *node-defaults
+    build:
+      <<: *node-build
+      args: {SERVICE_DIR: shre-scorer}
+    environment:
+      <<: *node-env
+      PORT: "5491"
+      CORTEX_URL: http://cortex-router:5400
+    depends_on:
+      redis: {condition: service_healthy}
+      postgres: {condition: service_healthy}
+      qdrant: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5491/health || exit 1"]
+      <<: *healthcheck
+
+  shre-auth-gate:
+    <<: *node-defaults
+    build:
+      <<: *node-build
+      args: {SERVICE_DIR: shre-auth-gate}
+    ports: ["127.0.0.1:5431:5431"]
+    environment:
+      <<: *node-env
+      PORT: "5431"
+      SHRE_HOST_SHRE_ROUTER: shre-router
+      SHRE_HOST_SHRE_API: shre-api
+      SHRE_HOST_SHRE_AUTH: shre-auth
+      SHRE_HOST_SHRE_TASKS: shre-tasks
+      SHRE_HOST_SHRE_FLEET: shre-fleet
+      SHRE_HOST_SHRE_SCORER: shre-scorer
+      SHRE_HOST_SHRE_METER: shre-meter
+    depends_on:
+      shre-auth: {condition: service_healthy}
+      shre-router: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5431/health || exit 1"]
+      <<: *healthcheck
+
+networks:
+  shre-core:
+    driver: bridge
+
+volumes:
+  pgdata: {name: shre-core-pgdata}
+  redisdata: {name: shre-core-redisdata}
+  qdrantdata: {name: shre-core-qdrantdata}

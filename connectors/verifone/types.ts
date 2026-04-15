@@ -13,7 +13,7 @@ export interface VerifoneCommanderConfig {
   siteName: string;
 }
 
-export type VerifoneMode = "direct" | "relay";
+export type VerifoneMode = 'direct' | 'relay';
 
 /**
  * direct — AROS talks to Commander on same LAN (no edge relay needed)

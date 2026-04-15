@@ -13,8 +13,4 @@ export {
 
 export { SecureField as SecureFieldComponent } from './secure-field.js';
 
-export {
-  sanitizeForDisplay,
-  sanitizeForStorage,
-  sanitizeForLogs,
-} from './chat-guard.js';
+export { sanitizeForDisplay, sanitizeForStorage, sanitizeForLogs } from './chat-guard.js';

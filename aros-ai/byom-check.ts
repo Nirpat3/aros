@@ -9,14 +9,14 @@ import { join } from 'node:path';
 
 export interface ModelConfig {
   provider: 'openai' | 'anthropic' | 'google' | 'ollama' | 'custom';
-  apiKey?: string;         // Not required for ollama
-  endpoint?: string;       // Required for ollama/custom
+  apiKey?: string; // Not required for ollama
+  endpoint?: string; // Required for ollama/custom
   model: string;
   label?: string;
 }
 
 export interface ModelsConfig {
-  active: string;          // provider id of active model
+  active: string; // provider id of active model
   providers: ModelConfig[];
 }
 
@@ -56,7 +56,7 @@ export function assertByom(configDir: string = process.cwd()): void {
     process.exit(1);
   }
 
-  const active = config.providers.find(p => p.provider === config.active);
+  const active = config.providers.find((p) => p.provider === config.active);
   if (!active) {
     console.error('[aros] No active model provider found in models.config.json');
     process.exit(1);

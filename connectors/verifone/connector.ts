@@ -6,10 +6,10 @@
 //
 // Auto-detection: check localhost:18464 first (relay), then try Commander IP.
 
-import type { ConnectorTestResult } from "../types.js";
-import type { VerifoneCommanderConfig, VerifoneConnectionInfo, VerifoneMode } from "./types.js";
+import type { ConnectorTestResult } from '../types.js';
+import type { VerifoneCommanderConfig, VerifoneConnectionInfo, VerifoneMode } from './types.js';
 
-const RELAY_URL = "http://localhost:18464";
+const RELAY_URL = 'http://localhost:18464';
 const CGI_TIMEOUT_MS = 10_000;
 
 // ── Auto-detection ──────────────────────────────────────────────
@@ -28,8 +28,8 @@ export async function detectRelay(): Promise<{
     const data = await res.json();
     return {
       detected: true,
-      version: data.version || "unknown",
-      status: data.status || "unknown",
+      version: data.version || 'unknown',
+      status: data.status || 'unknown',
     };
   } catch {
     return { detected: false };
@@ -49,13 +49,11 @@ async function testCommanderDirect(
 
     const body = await res.text();
     const match = body.match(/cookie[=:]?\s*["']?([A-Za-z0-9_-]+)/i);
-    const setCookie = res.headers.get("set-cookie");
+    const setCookie = res.headers.get('set-cookie');
     const cookie =
-      match?.[1] ||
-      setCookie?.match(/cookie=([^;]+)/i)?.[1] ||
-      setCookie?.match(/(\w{8,})/)?.[1];
+      match?.[1] || setCookie?.match(/cookie=([^;]+)/i)?.[1] || setCookie?.match(/(\w{8,})/)?.[1];
 
-    return cookie ? { reachable: true, cookie } : { reachable: false, error: "No cookie returned" };
+    return cookie ? { reachable: true, cookie } : { reachable: false, error: 'No cookie returned' };
   } catch (err: any) {
     return { reachable: false, error: err.message };
   }
@@ -75,7 +73,7 @@ export async function detectConnectionMode(
   const relay = await detectRelay();
   if (relay.detected) {
     return {
-      mode: "relay",
+      mode: 'relay',
       endpoint: RELAY_URL,
       reachable: true,
       relayDetected: true,
@@ -87,7 +85,7 @@ export async function detectConnectionMode(
   // 2. Try direct Commander access
   const direct = await testCommanderDirect(config.commanderIp, config.username, password);
   return {
-    mode: "direct",
+    mode: 'direct',
     endpoint: `https://${config.commanderIp}`,
     reachable: direct.reachable,
     relayDetected: false,
@@ -131,7 +129,7 @@ export async function testConnection(
     if (!password) {
       return {
         success: false,
-        error: "No edge relay detected and no password provided for direct test",
+        error: 'No edge relay detected and no password provided for direct test',
         latencyMs: Date.now() - start,
         testedAt: new Date().toISOString(),
       };
@@ -143,14 +141,14 @@ export async function testConnection(
       rejectUnauthorized: false,
     });
     const text = await res.text();
-    const loginOk = text.includes("validated") || text.includes("cookie=");
+    const loginOk = text.includes('validated') || text.includes('cookie=');
     return {
       success: loginOk,
-      error: loginOk ? undefined : "Commander login failed — check username/password",
+      error: loginOk ? undefined : 'Commander login failed — check username/password',
       latencyMs: Date.now() - start,
       testedAt: new Date().toISOString(),
-      mode: "direct",
-      hint: "Install Edge Relay for cloud sync: https://support.nirtek.net/edge-relay",
+      mode: 'direct',
+      hint: 'Install Edge Relay for cloud sync: https://support.nirtek.net/edge-relay',
     };
   } catch (err: any) {
     return {
@@ -172,7 +170,7 @@ export async function fetchReports(
   config: VerifoneCommanderConfig,
   password: string,
 ): Promise<any[]> {
-  if (mode === "relay") {
+  if (mode === 'relay') {
     return fetchViaRelay(config);
   }
   return fetchDirect(config, password);
@@ -195,11 +193,11 @@ async function fetchDirect(config: VerifoneCommanderConfig, password: string): P
 
   const body = await loginRes.text();
   const match = body.match(/cookie[=:]?\s*["']?([A-Za-z0-9_-]+)/i);
-  const setCookie = loginRes.headers.get("set-cookie");
+  const setCookie = loginRes.headers.get('set-cookie');
   const cookie =
     match?.[1] || setCookie?.match(/cookie=([^;]+)/i)?.[1] || setCookie?.match(/(\w{8,})/)?.[1];
 
-  if (!cookie) throw new Error("No cookie from Commander login");
+  if (!cookie) throw new Error('No cookie from Commander login');
 
   // Fetch summary report
   const reportUrl = `https://${config.commanderIp}/cgi-bin/CGILink?cmd=vrubyrept&reptname=summary&period=2&cookie=${cookie}`;
@@ -226,9 +224,10 @@ export async function getRelayInstallInfo(): Promise<{
   if (relay.detected) return { installed: true, platform: process.platform };
 
   const platformMap: Record<string, string> = {
-    win32: "https://download.shreai.com/verifone-edge-relay/latest/windows/VerifoneEdgeRelay-Setup.exe",
-    darwin: "https://download.shreai.com/verifone-edge-relay/latest/macos/install.sh",
-    linux: "https://download.shreai.com/verifone-edge-relay/latest/linux/install.sh",
+    win32:
+      'https://download.shreai.com/verifone-edge-relay/latest/windows/VerifoneEdgeRelay-Setup.exe',
+    darwin: 'https://download.shreai.com/verifone-edge-relay/latest/macos/install.sh',
+    linux: 'https://download.shreai.com/verifone-edge-relay/latest/linux/install.sh',
   };
 
   return {

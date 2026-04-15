@@ -12,19 +12,19 @@
  * Helps prevent payroll fraud and ensures labor law compliance.
  */
 
-import type {
-  ArosSkill,
-  SkillContext,
-  SkillOutput,
-  TimecardRow,
-  Alert,
-  Action,
-} from '../types.js';
+import type { ArosSkill, SkillContext, SkillOutput, TimecardRow, Alert, Action } from '../types.js';
 
 interface TimecardIssue {
   employeeId: string;
   employeeName: string;
-  type: 'missed-punch' | 'overlap' | 'overtime-approaching' | 'overtime-exceeded' | 'long-shift' | 'short-break' | 'early-clock-in';
+  type:
+    | 'missed-punch'
+    | 'overlap'
+    | 'overtime-approaching'
+    | 'overtime-exceeded'
+    | 'long-shift'
+    | 'short-break'
+    | 'early-clock-in';
   description: string;
   severity: 'info' | 'warning' | 'critical';
   clockIn: string;
@@ -154,7 +154,7 @@ export class TimecardAuditorSkill implements ArosSkill {
 
       // Check for overlapping shifts (buddy punching indicator)
       const sortedCards = [...cards].sort(
-        (a, b) => new Date(a.clock_in).getTime() - new Date(b.clock_in).getTime()
+        (a, b) => new Date(a.clock_in).getTime() - new Date(b.clock_in).getTime(),
       );
       for (let i = 0; i < sortedCards.length - 1; i++) {
         const current = sortedCards[i]!;
@@ -206,7 +206,7 @@ export class TimecardAuditorSkill implements ArosSkill {
 
       const regularHours = Math.min(totalHours, OVERTIME_THRESHOLD);
       const otHours = Math.max(0, totalHours - OVERTIME_THRESHOLD);
-      const estimatedPayrollCost = (regularHours * rate) + (otHours * rate * OVERTIME_MULTIPLIER);
+      const estimatedPayrollCost = regularHours * rate + otHours * rate * OVERTIME_MULTIPLIER;
 
       summaries.push({
         employeeId: empId,
@@ -253,7 +253,7 @@ export class TimecardAuditorSkill implements ArosSkill {
       });
     }
 
-    for (const emp of summaries.filter(e => e.issues.some(i => i.type === 'overlap'))) {
+    for (const emp of summaries.filter((e) => e.issues.some((i) => i.type === 'overlap'))) {
       alerts.push({
         severity: 'critical',
         message: `Overlapping shifts for ${emp.employeeName} — possible buddy punching`,

@@ -14,14 +14,7 @@
  * integrate Google Business Profile API for real-time data.
  */
 
-import type {
-  ArosSkill,
-  SkillContext,
-  SkillOutput,
-  ReviewRow,
-  Alert,
-  Action,
-} from '../types.js';
+import type { ArosSkill, SkillContext, SkillOutput, ReviewRow, Alert, Action } from '../types.js';
 
 interface SeoCheckItem {
   id: string;
@@ -98,36 +91,38 @@ export class LocalSeoSkill implements ArosSkill {
       label: 'Sufficient recent reviews (10+ in period)',
       status: recentReviewCount >= 10 ? 'pass' : recentReviewCount >= 5 ? 'warning' : 'fail',
       impact: 'high',
-      recommendation: recentReviewCount < 10
-        ? `Only ${recentReviewCount} reviews in period — actively request reviews from satisfied customers`
-        : null,
+      recommendation:
+        recentReviewCount < 10
+          ? `Only ${recentReviewCount} reviews in period — actively request reviews from satisfied customers`
+          : null,
     });
 
     // Check 5: Review response rate
-    const repliedCount = reviews.filter(r => r.replied).length;
+    const repliedCount = reviews.filter((r) => r.replied).length;
     const responseRate = reviews.length > 0 ? (repliedCount / reviews.length) * 100 : 100;
     checks.push({
       id: 'review-response-rate',
       label: 'Review response rate above 80%',
       status: responseRate >= 80 ? 'pass' : responseRate >= 50 ? 'warning' : 'fail',
       impact: 'medium',
-      recommendation: responseRate < 80
-        ? `Response rate is ${responseRate.toFixed(0)}% — respond to all reviews, especially negative ones`
-        : null,
+      recommendation:
+        responseRate < 80
+          ? `Response rate is ${responseRate.toFixed(0)}% — respond to all reviews, especially negative ones`
+          : null,
     });
 
     // Check 6: Average rating
-    const avgRating = reviews.length > 0
-      ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
-      : 0;
+    const avgRating =
+      reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
     checks.push({
       id: 'avg-rating',
       label: 'Average rating 4.0+ stars',
       status: avgRating >= 4.0 ? 'pass' : avgRating >= 3.5 ? 'warning' : 'fail',
       impact: 'high',
-      recommendation: avgRating < 4.0
-        ? `Average rating is ${avgRating.toFixed(1)} — address negative feedback themes to improve`
-        : null,
+      recommendation:
+        avgRating < 4.0
+          ? `Average rating is ${avgRating.toFixed(1)} — address negative feedback themes to improve`
+          : null,
     });
 
     // Check 7: Yelp presence
@@ -142,15 +137,16 @@ export class LocalSeoSkill implements ArosSkill {
     });
 
     // Check 8: Multi-platform reviews
-    const platforms = new Set(reviews.map(r => r.platform));
+    const platforms = new Set(reviews.map((r) => r.platform));
     checks.push({
       id: 'multi-platform',
       label: 'Reviews on multiple platforms',
       status: platforms.size >= 2 ? 'pass' : 'warning',
       impact: 'medium',
-      recommendation: platforms.size < 2
-        ? 'Diversify review sources — encourage reviews on both Google and Yelp'
-        : null,
+      recommendation:
+        platforms.size < 2
+          ? 'Diversify review sources — encourage reviews on both Google and Yelp'
+          : null,
     });
 
     // Calculate overall score
@@ -165,17 +161,17 @@ export class LocalSeoSkill implements ArosSkill {
     }
     const overallScore = totalWeight > 0 ? Math.round((earnedWeight / totalWeight) * 100) : 0;
 
-    const passCount = checks.filter(c => c.status === 'pass').length;
-    const failCount = checks.filter(c => c.status === 'fail').length;
-    const warningCount = checks.filter(c => c.status === 'warning').length;
+    const passCount = checks.filter((c) => c.status === 'pass').length;
+    const failCount = checks.filter((c) => c.status === 'fail').length;
+    const warningCount = checks.filter((c) => c.status === 'warning').length;
 
     const recommendations = checks
-      .filter(c => c.recommendation !== null)
+      .filter((c) => c.recommendation !== null)
       .sort((a, b) => {
         const impactOrder = { high: 0, medium: 1, low: 2 };
         return impactOrder[a.impact] - impactOrder[b.impact];
       })
-      .map(c => c.recommendation!);
+      .map((c) => c.recommendation!);
 
     const data: LocalSeoData = {
       overallScore,

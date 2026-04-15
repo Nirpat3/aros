@@ -146,7 +146,11 @@ export function checkInviteUser(plan: TenantPlan, currentCount: number): PlanChe
   return { allowed: true };
 }
 
-export function checkAddStores(plan: TenantPlan, currentCount: number, adding: number): PlanCheckResult {
+export function checkAddStores(
+  plan: TenantPlan,
+  currentCount: number,
+  adding: number,
+): PlanCheckResult {
   const limits = PLAN_LIMITS[plan];
   if (currentCount + adding > limits.maxStoresPerWorkspace) {
     return {
@@ -219,7 +223,7 @@ export interface MibTenantView {
   plan: TenantPlan;
   onboardingComplete: boolean;
   branding?: BrandingConfig;
-  monthlyRevenue: number;       // calculated from plan + store count
+  monthlyRevenue: number; // calculated from plan + store count
 }
 
 export function calculateMRR(plan: TenantPlan, storeCount: number): number {

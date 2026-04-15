@@ -60,5 +60,8 @@ export function extractNodes(message: string): ParsedShortcut[] {
 /** Remove all shortcuts from message, returning clean text. */
 export function stripShortcuts(message: string): string {
   SHORTCUT_RE.lastIndex = 0;
-  return message.replace(SHORTCUT_RE, '').replace(/\s{2,}/g, ' ').trim();
+  return message
+    .replace(SHORTCUT_RE, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
 }

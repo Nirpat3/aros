@@ -8,6 +8,7 @@ import { OnboardingPage } from '../pages/onboarding/OnboardingPage';
 import { MarketplacePage } from '../pages/marketplace/MarketplacePage';
 import { DeveloperPortal } from '../pages/developers/DeveloperPortal';
 import { LandingPage } from '../pages/landing/LandingPage';
+import { SocialTemplates } from '../pages/social/SocialTemplates';
 import { ContactPage } from '../pages/contact/ContactPage';
 import { CostsPage } from '../pages/costs/CostsPage';
 import { BillingPage } from '../pages/billing/BillingPage';
@@ -59,6 +60,11 @@ function AppContent() {
 
   if (path === '/verify-email') {
     return <VerifyEmail />;
+  }
+
+  // Social media templates — public design tool
+  if (path === '/social') {
+    return <SocialTemplates />;
   }
 
   // Contact page — public, no auth required

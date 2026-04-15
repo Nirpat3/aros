@@ -21,10 +21,7 @@ import { resolveMention, resolveTool, resolveNode } from './resolver.js';
  *
  * Returns resolved targets and the clean (shortcut-free) message.
  */
-export function handleShortcuts(
-  message: string,
-  context: SessionContext,
-): ShortcutHandlerResult {
+export function handleShortcuts(message: string, context: SessionContext): ShortcutHandlerResult {
   const shortcuts = parseShortcuts(message);
 
   let routeTo: MentionTarget | undefined;

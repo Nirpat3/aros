@@ -109,7 +109,7 @@ export interface AgentOption {
   role: string;
   description: string;
   priceMonthly: number;
-  included: boolean;  // free with platform
+  included: boolean; // free with platform
   recommended: boolean;
 }
 
@@ -152,7 +152,7 @@ export interface Tenant {
   slug: string;
   plan: TenantPlan;
   companyType: CompanyType;
-  parentTenantId?: string;       // for reseller sub-tenants
+  parentTenantId?: string; // for reseller sub-tenants
   ownerUserId: string;
   onboardingComplete: boolean;
   brandingId?: string;
@@ -235,7 +235,7 @@ export interface Workspace {
   storeCount: number;
   memberCount: number;
   agentCount: number;
-  connectorNodeId?: string;     // which marketplace node powers this workspace
+  connectorNodeId?: string; // which marketplace node powers this workspace
   connectorConfig?: Record<string, unknown>;
   createdAt: string;
 }
@@ -266,7 +266,7 @@ export interface WorkspaceAgent {
 export interface WorkspaceStore {
   id: string;
   workspaceId: string;
-  externalId: string;           // POS system's store ID
+  externalId: string; // POS system's store ID
   name: string;
   address?: string;
   city?: string;

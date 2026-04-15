@@ -27,11 +27,15 @@
  *   const result = await executor.runOne("ana", "tenant-123");
  */
 let _log: any;
-try { _log = require("shre-sdk/logger").createLogger("aros:executor"); } catch { _log = { info: console.log, warn: console.warn, error: console.error }; }
-import { createResilience } from "shre-sdk/resilience";
-import { getWavePlan, getContractFor, type Wave, type WaveBlock } from "./registry.js";
-import { createArosAuditor, type ArosAuditor, type ExecutionAudit } from "./auditor.js";
-import { publish } from "./event-helpers.js";
+try {
+  _log = require('shre-sdk/logger').createLogger('aros:executor');
+} catch {
+  _log = { info: console.log, warn: console.warn, error: console.error };
+}
+import { createResilience } from 'shre-sdk/resilience';
+import { getWavePlan, getContractFor, type Wave, type WaveBlock } from './registry.js';
+import { createArosAuditor, type ArosAuditor, type ExecutionAudit } from './auditor.js';
+import { publish } from './event-helpers.js';
 
 const log = _log;
 
@@ -98,10 +102,8 @@ export interface WaveExecutor {
 
 export function createWaveExecutor(options: WaveExecutorOptions = {}): WaveExecutor {
   const auditor = createArosAuditor();
-  const resilience = createResilience({ service: "aros:executor" });
-  const handlers = new Map<string, AgentHandler>(
-    Object.entries(options.handlers || {}),
-  );
+  const resilience = createResilience({ service: 'aros:executor' });
+  const handlers = new Map<string, AgentHandler>(Object.entries(options.handlers || {}));
 
   function registerHandler(agentId: string, handler: AgentHandler) {
     handlers.set(agentId, handler);
@@ -115,11 +117,15 @@ export function createWaveExecutor(options: WaveExecutorOptions = {}): WaveExecu
         agentId: block.agentId,
         success: false,
         audit: {
-          agentId: block.agentId, blockId: block.blockId,
-          allowed: false, writes: [], violations: ["No contract found"],
-          durationMs: 0, timestamp: new Date().toISOString(),
+          agentId: block.agentId,
+          blockId: block.blockId,
+          allowed: false,
+          writes: [],
+          violations: ['No contract found'],
+          durationMs: 0,
+          timestamp: new Date().toISOString(),
         },
-        error: "No block contract registered",
+        error: 'No block contract registered',
         retries: 0,
       };
     }
@@ -132,11 +138,15 @@ export function createWaveExecutor(options: WaveExecutorOptions = {}): WaveExecu
         agentId: block.agentId,
         success: false,
         audit: {
-          agentId: block.agentId, blockId: block.blockId,
-          allowed: true, writes: [], violations: [],
-          durationMs: 0, timestamp: new Date().toISOString(),
+          agentId: block.agentId,
+          blockId: block.blockId,
+          allowed: true,
+          writes: [],
+          violations: [],
+          durationMs: 0,
+          timestamp: new Date().toISOString(),
         },
-        error: "No handler registered — block skipped",
+        error: 'No handler registered — block skipped',
         retries: 0,
       };
     }
@@ -161,8 +171,8 @@ export function createWaveExecutor(options: WaveExecutorOptions = {}): WaveExecu
                 return Promise.race([
                   handler(tenantId, contract.owns),
                   new Promise<never>((_, reject) => {
-                    controller.signal.addEventListener("abort", () =>
-                      reject(new Error(`TTL exceeded (${contract.maxTtlS}s)`))
+                    controller.signal.addEventListener('abort', () =>
+                      reject(new Error(`TTL exceeded (${contract.maxTtlS}s)`)),
                     );
                   }),
                 ]);
@@ -173,7 +183,7 @@ export function createWaveExecutor(options: WaveExecutorOptions = {}): WaveExecu
 
             if (!audit.allowed) {
               // Audit violations are not retryable — throw with marker
-              const err = new Error(`Audit violations: ${audit.violations.join("; ")}`);
+              const err = new Error(`Audit violations: ${audit.violations.join('; ')}`);
               (err as any).__auditViolation = true;
               (err as any).__audit = audit;
               throw err;
@@ -220,9 +230,13 @@ export function createWaveExecutor(options: WaveExecutorOptions = {}): WaveExecu
         agentId: block.agentId,
         success: false,
         audit: {
-          agentId: block.agentId, blockId: block.blockId,
-          allowed: true, writes: [], violations: [`Failed after retries: ${err.message}`],
-          durationMs: 0, timestamp: new Date().toISOString(),
+          agentId: block.agentId,
+          blockId: block.blockId,
+          allowed: true,
+          writes: [],
+          violations: [`Failed after retries: ${err.message}`],
+          durationMs: 0,
+          timestamp: new Date().toISOString(),
         },
         error: err.message,
         retries: maxRetries,
@@ -239,9 +253,7 @@ export function createWaveExecutor(options: WaveExecutorOptions = {}): WaveExecu
     });
 
     // Run all blocks in this wave in parallel
-    const results = await Promise.all(
-      wave.blocks.map((block) => runBlock(block, tenantId)),
-    );
+    const results = await Promise.all(wave.blocks.map((block) => runBlock(block, tenantId)));
 
     const waveResult: WaveResult = {
       waveIndex: wave.index,
@@ -269,13 +281,13 @@ export function createWaveExecutor(options: WaveExecutorOptions = {}): WaveExecu
     const start = Date.now();
     const plan = getWavePlan();
 
-    log.info("[executor] Starting full wave execution", {
+    log.info('[executor] Starting full wave execution', {
       tenantId,
       waves: plan.waves.length,
       blocks: plan.totalBlocks,
     });
 
-    publish("block.wave_execution_started", "info", { tenantId, waves: plan.waves.length });
+    publish('block.wave_execution_started', 'info', { tenantId, waves: plan.waves.length });
 
     const waveResults: WaveResult[] = [];
     let totalViolations: string[] = [];
@@ -297,13 +309,16 @@ export function createWaveExecutor(options: WaveExecutorOptions = {}): WaveExecu
       totalDurationMs: Date.now() - start,
       blocksExecuted: allBlocks.length,
       blocksSucceeded: allBlocks.filter((b) => b.success).length,
-      blocksFailed: allBlocks.filter((b) => !b.success && b.error !== "No handler registered — block skipped").length,
-      blocksSkipped: allBlocks.filter((b) => b.error === "No handler registered — block skipped").length,
+      blocksFailed: allBlocks.filter(
+        (b) => !b.success && b.error !== 'No handler registered — block skipped',
+      ).length,
+      blocksSkipped: allBlocks.filter((b) => b.error === 'No handler registered — block skipped')
+        .length,
       violations: totalViolations,
       timestamp: new Date().toISOString(),
     };
 
-    publish("block.wave_execution_completed", "info", {
+    publish('block.wave_execution_completed', 'info', {
       tenantId,
       durationMs: report.totalDurationMs,
       succeeded: report.blocksSucceeded,
@@ -311,7 +326,7 @@ export function createWaveExecutor(options: WaveExecutorOptions = {}): WaveExecu
       skipped: report.blocksSkipped,
     });
 
-    log.info("[executor] Full execution complete", {
+    log.info('[executor] Full execution complete', {
       tenantId,
       durationMs: report.totalDurationMs,
       succeeded: report.blocksSucceeded,
@@ -325,13 +340,17 @@ export function createWaveExecutor(options: WaveExecutorOptions = {}): WaveExecu
     const contract = getContractFor(agentId);
     if (!contract) {
       return {
-        blockId: "unknown",
+        blockId: 'unknown',
         agentId,
         success: false,
         audit: {
-          agentId, blockId: "unknown",
-          allowed: false, writes: [], violations: ["Unknown agent"],
-          durationMs: 0, timestamp: new Date().toISOString(),
+          agentId,
+          blockId: 'unknown',
+          allowed: false,
+          writes: [],
+          violations: ['Unknown agent'],
+          durationMs: 0,
+          timestamp: new Date().toISOString(),
         },
         error: `No contract for agent '${agentId}'`,
         retries: 0,

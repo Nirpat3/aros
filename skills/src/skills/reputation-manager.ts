@@ -11,14 +11,7 @@
  * - 4-5 stars: Thank + encourage return visit
  */
 
-import type {
-  ArosSkill,
-  SkillContext,
-  SkillOutput,
-  ReviewRow,
-  Alert,
-  Action,
-} from '../types.js';
+import type { ArosSkill, SkillContext, SkillOutput, ReviewRow, Alert, Action } from '../types.js';
 
 interface ReviewAnalysis {
   review: ReviewRow;
@@ -68,7 +61,7 @@ export class ReputationManagerSkill implements ArosSkill {
     const { connector, dateRange, store, today } = context;
     const reviews = await connector.getReviews(dateRange);
 
-    const reviewAnalyses: ReviewAnalysis[] = reviews.map(review => {
+    const reviewAnalyses: ReviewAnalysis[] = reviews.map((review) => {
       const sentiment: ReviewAnalysis['sentiment'] =
         review.rating >= 4 ? 'positive' : review.rating >= 3 ? 'neutral' : 'negative';
 
@@ -76,18 +69,15 @@ export class ReputationManagerSkill implements ArosSkill {
       const daysSincePosted = Math.max(
         0,
         Math.floor(
-          (new Date(today).getTime() - new Date(review.date).getTime()) /
-            (1000 * 60 * 60 * 24)
-        )
+          (new Date(today).getTime() - new Date(review.date).getTime()) / (1000 * 60 * 60 * 24),
+        ),
       );
 
       let urgency: ReviewAnalysis['urgency'] = 'low';
       if (review.rating <= 2 && !review.replied) urgency = 'high';
       else if (!review.replied && daysSincePosted <= 2) urgency = 'medium';
 
-      const draft = needsResponse
-        ? draftResponse(review, store.storeName)
-        : null;
+      const draft = needsResponse ? draftResponse(review, store.storeName) : null;
 
       return {
         review,
@@ -125,18 +115,17 @@ export class ReputationManagerSkill implements ArosSkill {
     }
 
     const totalReviews = reviews.length;
-    const avgRating = totalReviews > 0
-      ? reviews.reduce((s, r) => s + r.rating, 0) / totalReviews
-      : 0;
-    const unrepliedCount = reviews.filter(r => !r.replied).length;
-    const negativeCount = reviewAnalyses.filter(a => a.sentiment === 'negative').length;
-    const positiveCount = reviewAnalyses.filter(a => a.sentiment === 'positive').length;
+    const avgRating =
+      totalReviews > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / totalReviews : 0;
+    const unrepliedCount = reviews.filter((r) => !r.replied).length;
+    const negativeCount = reviewAnalyses.filter((a) => a.sentiment === 'negative').length;
+    const positiveCount = reviewAnalyses.filter((a) => a.sentiment === 'positive').length;
 
     // Simple trend: compare first half vs second half of period
     let ratingTrend: ReputationData['ratingTrend'] = 'insufficient-data';
     if (reviews.length >= 4) {
       const sorted = [...reviews].sort(
-        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
       );
       const mid = Math.floor(sorted.length / 2);
       const firstHalf = sorted.slice(0, mid);
@@ -164,9 +153,7 @@ export class ReputationManagerSkill implements ArosSkill {
     const actions: Action[] = [];
 
     // Urgent: unreplied negative reviews
-    const urgentReviews = reviewAnalyses.filter(
-      a => a.urgency === 'high' && a.needsResponse
-    );
+    const urgentReviews = reviewAnalyses.filter((a) => a.urgency === 'high' && a.needsResponse);
     for (const ur of urgentReviews.slice(0, 5)) {
       alerts.push({
         severity: 'critical',

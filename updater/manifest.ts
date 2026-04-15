@@ -36,7 +36,10 @@ export async function fetchManifest(feedUrl: string): Promise<VersionManifest> {
 /**
  * Fetch a specific version's manifest from the update feed.
  */
-export async function fetchSpecificVersion(feedUrl: string, version: SemVer): Promise<VersionManifest> {
+export async function fetchSpecificVersion(
+  feedUrl: string,
+  version: SemVer,
+): Promise<VersionManifest> {
   const url = `${feedUrl}/${version}.json`;
   console.log(`[manifest] Fetching ${url}`);
 

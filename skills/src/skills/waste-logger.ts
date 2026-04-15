@@ -11,14 +11,7 @@
  * Helps operators reduce shrink by identifying systemic waste issues.
  */
 
-import type {
-  ArosSkill,
-  SkillContext,
-  SkillOutput,
-  WasteLogRow,
-  Alert,
-  Action,
-} from '../types.js';
+import type { ArosSkill, SkillContext, SkillOutput, WasteLogRow, Alert, Action } from '../types.js';
 
 interface WasteByCategoryData {
   category: string;
@@ -72,17 +65,22 @@ export class WasteLoggerSkill implements ArosSkill {
     ]);
 
     const totalRevenue = invoices
-      .filter(inv => !inv.is_void)
+      .filter((inv) => !inv.is_void)
       .reduce((s, inv) => s + inv.bill_amount, 0);
 
     const totalWasteCost = wasteLogs.reduce((s, w) => s + w.total_cost, 0);
     const totalWasteQty = wasteLogs.reduce((s, w) => s + w.qty_wasted, 0);
 
     // By category
-    const catMap = new Map<string, {
-      cost: number; qty: number; count: number;
-      reasons: Map<string, { count: number; cost: number }>;
-    }>();
+    const catMap = new Map<
+      string,
+      {
+        cost: number;
+        qty: number;
+        count: number;
+        reasons: Map<string, { count: number; cost: number }>;
+      }
+    >();
     for (const w of wasteLogs) {
       let cat = catMap.get(w.category);
       if (!cat) {
@@ -183,9 +181,7 @@ export class WasteLoggerSkill implements ArosSkill {
       .map(([date, d]) => ({ date, cost: d.cost, entries: d.entries }))
       .sort((a, b) => a.date.localeCompare(b.date));
 
-    const wasteAsRevenuePercent = totalRevenue > 0
-      ? (totalWasteCost / totalRevenue) * 100
-      : 0;
+    const wasteAsRevenuePercent = totalRevenue > 0 ? (totalWasteCost / totalRevenue) * 100 : 0;
 
     const data: WasteLoggerData = {
       totalWasteCost,

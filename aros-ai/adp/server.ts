@@ -8,7 +8,11 @@ const CONTROL_KEY_HEADER = 'authorization';
 function requireShreAuth(req: Request, res: Response, next: NextFunction): void {
   const auth = req.headers[CONTROL_KEY_HEADER];
   if (!auth || !auth.startsWith('Bearer ')) {
-    res.status(401).json({ error: 'Missing or invalid Authorization header. Expected: Bearer <shre-control-key>' });
+    res
+      .status(401)
+      .json({
+        error: 'Missing or invalid Authorization header. Expected: Bearer <shre-control-key>',
+      });
     return;
   }
 
@@ -58,7 +62,14 @@ function ensureAgent(id: string): AgentRecord {
       soul: { identity: '', disposition: [], capabilities: [], boundaries: [], voice: '' },
       skills: [],
       memory: { longTerm: '', recent: [] },
-      stats: { sessionsTotal: 0, sessionsToday: 0, avgResponseMs: 0, tokensUsed: 0, lastActive: new Date().toISOString(), uptime: 0 },
+      stats: {
+        sessionsTotal: 0,
+        sessionsToday: 0,
+        avgResponseMs: 0,
+        tokensUsed: 0,
+        lastActive: new Date().toISOString(),
+        uptime: 0,
+      },
     });
   }
   return agents.get(id)!;
@@ -93,28 +104,40 @@ export function createADPRouter(): Router {
   // GET /.aros/agents/:id/brain — full brain snapshot
   router.get('/.aros/agents/:id/brain', (req: Request, res: Response) => {
     const agent = getAgent(req.params.id);
-    if (!agent) { res.status(404).json({ error: 'Agent not found' }); return; }
+    if (!agent) {
+      res.status(404).json({ error: 'Agent not found' });
+      return;
+    }
     res.json(toBrain(agent));
   });
 
   // GET /.aros/agents/:id/soul
   router.get('/.aros/agents/:id/soul', (req: Request, res: Response) => {
     const agent = getAgent(req.params.id);
-    if (!agent) { res.status(404).json({ error: 'Agent not found' }); return; }
+    if (!agent) {
+      res.status(404).json({ error: 'Agent not found' });
+      return;
+    }
     res.json({ agentId: agent.id, soul: agent.soul });
   });
 
   // GET /.aros/agents/:id/skills
   router.get('/.aros/agents/:id/skills', (req: Request, res: Response) => {
     const agent = getAgent(req.params.id);
-    if (!agent) { res.status(404).json({ error: 'Agent not found' }); return; }
+    if (!agent) {
+      res.status(404).json({ error: 'Agent not found' });
+      return;
+    }
     res.json({ agentId: agent.id, skills: agent.skills });
   });
 
   // GET /.aros/agents/:id/memory
   router.get('/.aros/agents/:id/memory', (req: Request, res: Response) => {
     const agent = getAgent(req.params.id);
-    if (!agent) { res.status(404).json({ error: 'Agent not found' }); return; }
+    if (!agent) {
+      res.status(404).json({ error: 'Agent not found' });
+      return;
+    }
     res.json({ agentId: agent.id, memory: agent.memory });
   });
 
@@ -176,8 +199,15 @@ export function createADPRouter(): Router {
     }
 
     // Store dataset for scheduled fine-tune run (stub — production writes to CortexService)
-    console.log(`[adp] Dataset "${dataset.name}" pushed for agent ${agent.id} (${dataset.entries.length} entries)`);
-    res.json({ ok: true, datasetId: dataset.id, entries: dataset.entries.length, scheduledForFineTune: true });
+    console.log(
+      `[adp] Dataset "${dataset.name}" pushed for agent ${agent.id} (${dataset.entries.length} entries)`,
+    );
+    res.json({
+      ok: true,
+      datasetId: dataset.id,
+      entries: dataset.entries.length,
+      scheduledForFineTune: true,
+    });
   });
 
   return router;

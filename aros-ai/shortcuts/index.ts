@@ -19,11 +19,7 @@ export {
   stripShortcuts,
 } from './parser.js';
 
-export {
-  resolveMention,
-  resolveTool,
-  resolveNode,
-} from './resolver.js';
+export { resolveMention, resolveTool, resolveNode } from './resolver.js';
 
 export { handleShortcuts } from './handler.js';
 export { getSuggestions } from './autocomplete.js';

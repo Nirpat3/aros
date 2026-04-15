@@ -130,7 +130,8 @@ export class BankReconcilerSkill implements ArosSkill {
         const posExpected = posData?.amount ?? 0;
         const bankActual = bankDay.get(type) ?? 0;
         const variance = bankActual - posExpected;
-        const variancePct = posExpected > 0 ? (variance / posExpected) * 100 : (bankActual > 0 ? 100 : 0);
+        const variancePct =
+          posExpected > 0 ? (variance / posExpected) * 100 : bankActual > 0 ? 100 : 0;
 
         dayPosTotal += posExpected;
         dayBankTotal += bankActual;
@@ -140,7 +141,10 @@ export class BankReconcilerSkill implements ArosSkill {
           status = 'missing-deposit';
           missingDepositCount++;
           dayHasDiscrepancy = true;
-        } else if (Math.abs(variance) > VARIANCE_THRESHOLD || Math.abs(variancePct) > VARIANCE_PCT_THRESHOLD) {
+        } else if (
+          Math.abs(variance) > VARIANCE_THRESHOLD ||
+          Math.abs(variancePct) > VARIANCE_PCT_THRESHOLD
+        ) {
           status = 'discrepancy';
           discrepancyCount++;
           dayHasDiscrepancy = true;

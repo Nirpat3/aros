@@ -89,7 +89,7 @@ export class ItemProfilerSkill implements ArosSkill {
     const daySpan = Math.max(
       1,
       (new Date(dateRange.end).getTime() - new Date(dateRange.start).getTime()) /
-        (1000 * 60 * 60 * 24)
+        (1000 * 60 * 60 * 24),
     );
 
     // Build invoice date lookup
@@ -185,7 +185,10 @@ export class ItemProfilerSkill implements ArosSkill {
       let peakHour = 0;
       let peakCount = 0;
       for (const [h, c] of agg.hourCounts) {
-        if (c > peakCount) { peakHour = h; peakCount = c; }
+        if (c > peakCount) {
+          peakHour = h;
+          peakCount = c;
+        }
       }
 
       // Day distribution
@@ -228,9 +231,8 @@ export class ItemProfilerSkill implements ArosSkill {
         marginPct: agg.revenue > 0 ? (margin / agg.revenue) * 100 : 0,
         revenueShare: totalRevenue > 0 ? (agg.revenue / totalRevenue) * 100 : 0,
         marginShare: totalMargin > 0 ? (margin / totalMargin) * 100 : 0,
-        avgPrice: agg.prices.length > 0
-          ? agg.prices.reduce((s, p) => s + p, 0) / agg.prices.length
-          : 0,
+        avgPrice:
+          agg.prices.length > 0 ? agg.prices.reduce((s, p) => s + p, 0) / agg.prices.length : 0,
         transactionCount: agg.transactions.size,
         peakHour,
         topCrossSells,
@@ -238,14 +240,18 @@ export class ItemProfilerSkill implements ArosSkill {
       };
     });
 
-    const aItems = profiles.filter(p => p.abcClass === 'A').length;
-    const bItems = profiles.filter(p => p.abcClass === 'B').length;
-    const cItems = profiles.filter(p => p.abcClass === 'C').length;
+    const aItems = profiles.filter((p) => p.abcClass === 'A').length;
+    const bItems = profiles.filter((p) => p.abcClass === 'B').length;
+    const cItems = profiles.filter((p) => p.abcClass === 'C').length;
 
-    const topByVelocity = [...profiles].sort((a, b) => b.dailyVelocity - a.dailyVelocity).slice(0, 10);
-    const topByMarginContribution = [...profiles].sort((a, b) => b.marginDollars - a.marginDollars).slice(0, 10);
+    const topByVelocity = [...profiles]
+      .sort((a, b) => b.dailyVelocity - a.dailyVelocity)
+      .slice(0, 10);
+    const topByMarginContribution = [...profiles]
+      .sort((a, b) => b.marginDollars - a.marginDollars)
+      .slice(0, 10);
     const bottomByVelocity = [...profiles]
-      .filter(p => p.unitsSold > 0)
+      .filter((p) => p.unitsSold > 0)
       .sort((a, b) => a.dailyVelocity - b.dailyVelocity)
       .slice(0, 10);
 
@@ -267,7 +273,8 @@ export class ItemProfilerSkill implements ArosSkill {
 
     // Flag C items that take up shelf space but contribute little
     if (cItems > 0) {
-      const cRevenue = profiles.filter(p => p.abcClass === 'C')
+      const cRevenue = profiles
+        .filter((p) => p.abcClass === 'C')
         .reduce((s, p) => s + p.revenue, 0);
       alerts.push({
         severity: 'info',

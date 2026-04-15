@@ -18,19 +18,13 @@ function tenantStore(tenantId: string): Map<string, ConnectorConfig> {
 // ── Public API ──────────────────────────────────────────────────
 
 /** Register a new connector for a tenant. */
-export async function registerConnector(
-  tenantId: string,
-  config: ConnectorConfig,
-): Promise<void> {
+export async function registerConnector(tenantId: string, config: ConnectorConfig): Promise<void> {
   const ts = tenantStore(tenantId);
   ts.set(config.id, { ...config, status: 'pending' });
 }
 
 /** Get a specific connector. */
-export function getConnector(
-  tenantId: string,
-  connectorId: string,
-): ConnectorConfig | null {
+export function getConnector(tenantId: string, connectorId: string): ConnectorConfig | null {
   return tenantStore(tenantId).get(connectorId) ?? null;
 }
 
@@ -56,12 +50,20 @@ export async function testConnector(
     result = await azureDb.testConnection(meta.azureConfig, config.credentials.vaultRef);
   } else if (config.type === 'rapidrms-api') {
     const meta = config as any;
-    result = await rapidRms.testConnection(meta.rapidRmsConfig, meta.emailRef, config.credentials.vaultRef);
+    result = await rapidRms.testConnection(
+      meta.rapidRmsConfig,
+      meta.emailRef,
+      config.credentials.vaultRef,
+    );
   } else if (config.type === 'verifone-commander') {
     const meta = config as any;
     result = await verifone.testConnection(meta.verifoneConfig, config.credentials.vaultRef);
   } else {
-    result = { success: false, error: `Unknown connector type: ${config.type}`, testedAt: new Date().toISOString() };
+    result = {
+      success: false,
+      error: `Unknown connector type: ${config.type}`,
+      testedAt: new Date().toISOString(),
+    };
   }
 
   // Update status
@@ -76,9 +78,6 @@ export async function testConnector(
 }
 
 /** Remove a connector. */
-export async function removeConnector(
-  tenantId: string,
-  connectorId: string,
-): Promise<void> {
+export async function removeConnector(tenantId: string, connectorId: string): Promise<void> {
   tenantStore(tenantId).delete(connectorId);
 }

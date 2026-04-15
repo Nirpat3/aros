@@ -84,7 +84,7 @@ export class DeadItemKillerSkill implements ArosSkill {
     const daySpan = Math.max(
       1,
       (new Date(dateRange.end).getTime() - new Date(dateRange.start).getTime()) /
-        (1000 * 60 * 60 * 24)
+        (1000 * 60 * 60 * 24),
     );
 
     // Sales volume per SKU in period
@@ -133,7 +133,7 @@ export class DeadItemKillerSkill implements ArosSkill {
         actionReason = 'Recent slow-mover — try markdown to stimulate sales';
       } else if (ageBucket === '60-day') {
         recommendedAction = 'markdown';
-        markdownPrice = Math.round(inv.retail_price * 0.50 * 100) / 100; // 50% off
+        markdownPrice = Math.round(inv.retail_price * 0.5 * 100) / 100; // 50% off
         actionReason = '60+ days without sale — aggressive markdown recommended';
       } else if (inv.vendor_id && ageBucket === '90-day') {
         recommendedAction = 'return-to-vendor';
@@ -167,10 +167,10 @@ export class DeadItemKillerSkill implements ArosSkill {
 
     deadItems.sort((a, b) => b.inventoryValue - a.inventoryValue);
 
-    const by30Day = deadItems.filter(d => d.ageBucket === '30-day');
-    const by60Day = deadItems.filter(d => d.ageBucket === '60-day');
-    const by90Day = deadItems.filter(d => d.ageBucket === '90-day');
-    const by90Plus = deadItems.filter(d => d.ageBucket === '90-plus');
+    const by30Day = deadItems.filter((d) => d.ageBucket === '30-day');
+    const by60Day = deadItems.filter((d) => d.ageBucket === '60-day');
+    const by90Day = deadItems.filter((d) => d.ageBucket === '90-day');
+    const by90Plus = deadItems.filter((d) => d.ageBucket === '90-plus');
 
     const totalDeadInventoryValue = deadItems.reduce((s, d) => s + d.inventoryValue, 0);
     const totalDeadRetailValue = deadItems.reduce((s, d) => s + d.retailValue, 0);
@@ -188,10 +188,8 @@ export class DeadItemKillerSkill implements ArosSkill {
     }
 
     // Potential recovery from markdowns
-    const markdownItems = deadItems.filter(d => d.markdownPrice !== null);
-    const potentialRecovery = markdownItems.reduce(
-      (s, d) => s + (d.markdownPrice! * d.qtyOnHand), 0
-    );
+    const markdownItems = deadItems.filter((d) => d.markdownPrice !== null);
+    const potentialRecovery = markdownItems.reduce((s, d) => s + d.markdownPrice! * d.qtyOnHand, 0);
 
     const data: DeadItemKillerData = {
       deadItems,
@@ -230,17 +228,21 @@ export class DeadItemKillerSkill implements ArosSkill {
     }
 
     // Group actions by type
-    const markdownCount = deadItems.filter(d => d.recommendedAction === 'markdown').length;
-    const returnCount = deadItems.filter(d => d.recommendedAction === 'return-to-vendor').length;
-    const discontinueCount = deadItems.filter(d => d.recommendedAction === 'discontinue').length;
-    const donateCount = deadItems.filter(d => d.recommendedAction === 'donate').length;
+    const markdownCount = deadItems.filter((d) => d.recommendedAction === 'markdown').length;
+    const returnCount = deadItems.filter((d) => d.recommendedAction === 'return-to-vendor').length;
+    const discontinueCount = deadItems.filter((d) => d.recommendedAction === 'discontinue').length;
+    const donateCount = deadItems.filter((d) => d.recommendedAction === 'donate').length;
 
     if (markdownCount > 0) {
       actions.push({
         description: `Markdown ${markdownCount} slow-movers — potential recovery $${potentialRecovery.toFixed(2)}`,
         priority: 2,
         automatable: true,
-        payload: { items: markdownItems.slice(0, 20).map(d => ({ code: d.itemCode, markdownPrice: d.markdownPrice })) },
+        payload: {
+          items: markdownItems
+            .slice(0, 20)
+            .map((d) => ({ code: d.itemCode, markdownPrice: d.markdownPrice })),
+        },
       });
     }
 

@@ -46,7 +46,8 @@ export async function fetchNodes(options?: {
   ]);
 
   const mib007Nodes = mib007Result.status === 'fulfilled' ? mib007Result.value.nodes : [];
-  const marketplaceNodes = marketplaceResult.status === 'fulfilled' ? marketplaceResult.value.nodes : [];
+  const marketplaceNodes =
+    marketplaceResult.status === 'fulfilled' ? marketplaceResult.value.nodes : [];
 
   // If both failed, fall back to cache
   if (mib007Nodes.length === 0 && marketplaceNodes.length === 0) {
@@ -72,7 +73,9 @@ export async function fetchNodes(options?: {
 
   // Cache the merged result
   writeFileSync(CACHE_PATH, JSON.stringify(data, null, 2), 'utf8');
-  console.log(`[marketplace] Fetched ${nodes.length} nodes (${mib007Nodes.length} MIB007 + ${marketplaceNodes.length} marketplace)`);
+  console.log(
+    `[marketplace] Fetched ${nodes.length} nodes (${mib007Nodes.length} MIB007 + ${marketplaceNodes.length} marketplace)`,
+  );
 
   return data;
 }

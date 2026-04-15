@@ -51,7 +51,7 @@ export function getAuthProvider(): AuthProvider {
 
   throw new Error(
     'Shre is enabled but no endpoint is configured and fallback is set to "error". ' +
-      'Set shre.endpoint in aros.config.json or set shre.fallback to "local".'
+      'Set shre.endpoint in aros.config.json or set shre.fallback to "local".',
   );
 }
 

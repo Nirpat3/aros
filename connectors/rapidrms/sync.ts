@@ -60,13 +60,13 @@ export class RapidRMSDataSync {
    */
   async syncSales(opts: RapidRMSSyncOptions): Promise<POSSyncResult> {
     const start = Date.now();
-    const raw = await this.connector.fetchSalesDetail(opts) as RawSalesResponse;
+    const raw = (await this.connector.fetchSalesDetail(opts)) as RawSalesResponse;
 
     // Support both casing conventions the API may return
     const invoices = raw.Invoices ?? raw.invoices ?? [];
     const topLevelItems = raw.Items ?? raw.lineItems ?? [];
 
-    const normalized = invoices.map(inv => this.normalizeInvoice(inv, topLevelItems));
+    const normalized = invoices.map((inv) => this.normalizeInvoice(inv, topLevelItems));
 
     const invoicesUpserted = normalized.length;
     const lineItemsUpserted = normalized.reduce((sum, t) => sum + t.lineItems.length, 0);
@@ -84,10 +84,10 @@ export class RapidRMSDataSync {
    * Suitable for direct agent context injection.
    */
   async fetchTransactions(opts: RapidRMSSyncOptions): Promise<POSTransaction[]> {
-    const raw = await this.connector.fetchSalesDetail(opts) as RawSalesResponse;
+    const raw = (await this.connector.fetchSalesDetail(opts)) as RawSalesResponse;
     const invoices = raw.Invoices ?? raw.invoices ?? [];
     const topLevelItems = raw.Items ?? raw.lineItems ?? [];
-    return invoices.map(inv => this.normalizeInvoice(inv, topLevelItems));
+    return invoices.map((inv) => this.normalizeInvoice(inv, topLevelItems));
   }
 
   /** Test connectivity. */
@@ -109,7 +109,7 @@ export class RapidRMSDataSync {
       discountAmount: inv.DiscountAmount ?? 0,
       voidAmount: inv.VoidAmount ?? 0,
       tenderType: inv.TenderType ?? 'unknown',
-      lineItems: items.map(item => this.normalizeLineItem(item)),
+      lineItems: items.map((item) => this.normalizeLineItem(item)),
     };
   }
 

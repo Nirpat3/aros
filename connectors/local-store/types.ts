@@ -1,9 +1,9 @@
 // ── AROS Local Agent Data Store Types ───────────────────────────
 
 export interface LocalStoreConfig {
-  storePath: string;        // local path to write agent datasets
+  storePath: string; // local path to write agent datasets
   conexxusEnabled: boolean; // normalize to Conexxus schema where applicable
-  maxAgeMs: number;         // data TTL before re-fetch (default 900000 = 15min)
+  maxAgeMs: number; // data TTL before re-fetch (default 900000 = 15min)
 }
 
 export interface AgentDataset {
@@ -22,14 +22,14 @@ export interface AgentDataset {
 export interface ConexxusDataRecord {
   transactionId: string;
   siteId?: string;
-  timestamp: string;        // ISO 8601
+  timestamp: string; // ISO 8601
   totalAmount: number;
   items: ConexxusLineItem[];
   tender?: ConexxusTender;
 }
 
 export interface ConexxusLineItem {
-  plu?: string;             // Conexxus product lookup unit
+  plu?: string; // Conexxus product lookup unit
   description: string;
   quantity: number;
   unitPrice: number;

@@ -1,4 +1,10 @@
-import type { ShreDirective, SoulConfig, SkillDefinition, MemoryEntry, TrainingSet } from '../adp/types.js';
+import type {
+  ShreDirective,
+  SoulConfig,
+  SkillDefinition,
+  MemoryEntry,
+  TrainingSet,
+} from '../adp/types.js';
 
 // ── Audit logging ───────────────────────────────────────────────────────────
 
@@ -8,7 +14,10 @@ function auditLog(event: string, data: Record<string, unknown>): void {
 
 // ── Directive handlers ──────────────────────────────────────────────────────
 
-async function handleSoulUpdate(agentId: string, patch: Partial<SoulConfig>): Promise<Record<string, unknown>> {
+async function handleSoulUpdate(
+  agentId: string,
+  patch: Partial<SoulConfig>,
+): Promise<Record<string, unknown>> {
   // In production: read SOUL.md, apply patch, write back, restart agent context
   auditLog('soul.update', { agentId, fields: Object.keys(patch) });
 
@@ -17,7 +26,10 @@ async function handleSoulUpdate(agentId: string, patch: Partial<SoulConfig>): Pr
   return { applied: true, fields: Object.keys(patch) };
 }
 
-async function handleSkillPush(agentId: string, skill: SkillDefinition): Promise<Record<string, unknown>> {
+async function handleSkillPush(
+  agentId: string,
+  skill: SkillDefinition,
+): Promise<Record<string, unknown>> {
   // In production: register skill in agent's tool registry
   auditLog('skill.push', { agentId, skillId: skill.id, skillName: skill.name });
 
@@ -25,7 +37,10 @@ async function handleSkillPush(agentId: string, skill: SkillDefinition): Promise
   return { registered: true, skillId: skill.id };
 }
 
-async function handleMemoryInject(agentId: string, memories: MemoryEntry[]): Promise<Record<string, unknown>> {
+async function handleMemoryInject(
+  agentId: string,
+  memories: MemoryEntry[],
+): Promise<Record<string, unknown>> {
   // In production: append entries to agent memory files on disk
   auditLog('memory.inject', { agentId, count: memories.length });
 
@@ -33,11 +48,16 @@ async function handleMemoryInject(agentId: string, memories: MemoryEntry[]): Pro
   return { injected: memories.length };
 }
 
-async function handleDatasetPush(agentId: string, dataset: TrainingSet): Promise<Record<string, unknown>> {
+async function handleDatasetPush(
+  agentId: string,
+  dataset: TrainingSet,
+): Promise<Record<string, unknown>> {
   // In production: store dataset in CortexService, schedule fine-tune run
   auditLog('dataset.push', { agentId, datasetId: dataset.id, entries: dataset.entries.length });
 
-  console.log(`[directives] Dataset "${dataset.name}" stored for agent ${agentId}, fine-tune scheduled`);
+  console.log(
+    `[directives] Dataset "${dataset.name}" stored for agent ${agentId}, fine-tune scheduled`,
+  );
   return { stored: true, datasetId: dataset.id, scheduledFineTune: true };
 }
 
@@ -49,7 +69,10 @@ async function handleAgentRestart(agentId: string): Promise<Record<string, unkno
   return { restarted: true };
 }
 
-async function handleAgentRollback(agentId: string, version: string): Promise<Record<string, unknown>> {
+async function handleAgentRollback(
+  agentId: string,
+  version: string,
+): Promise<Record<string, unknown>> {
   // In production: restore previous soul/memory snapshot from CortexService
   auditLog('agent.rollback', { agentId, version });
 

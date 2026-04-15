@@ -90,31 +90,26 @@ export class TransactionProfilerSkill implements ArosSkill {
       connector.getInvoiceItems(dateRange),
     ]);
 
-    const valid = invoices.filter(inv => !inv.is_void);
+    const valid = invoices.filter((inv) => !inv.is_void);
     const totalTxns = valid.length;
     const totalRevenue = valid.reduce((s, inv) => s + inv.bill_amount, 0);
     const avgTicket = totalTxns > 0 ? totalRevenue / totalTxns : 0;
 
     // Median ticket
-    const sortedTickets = valid.map(inv => inv.bill_amount).sort((a, b) => a - b);
-    const medianTicket = sortedTickets.length > 0
-      ? (sortedTickets[Math.floor(sortedTickets.length / 2)] ?? 0)
-      : 0;
+    const sortedTickets = valid.map((inv) => inv.bill_amount).sort((a, b) => a - b);
+    const medianTicket =
+      sortedTickets.length > 0 ? (sortedTickets[Math.floor(sortedTickets.length / 2)] ?? 0) : 0;
 
     // Items per basket
     const basketItemCounts = new Map<string, number>();
     for (const item of items) {
       if (item.is_void) continue;
-      basketItemCounts.set(
-        item.invoice_no,
-        (basketItemCounts.get(item.invoice_no) ?? 0) + 1
-      );
+      basketItemCounts.set(item.invoice_no, (basketItemCounts.get(item.invoice_no) ?? 0) + 1);
     }
 
     const totalItemsSold = [...basketItemCounts.values()].reduce((s, c) => s + c, 0);
-    const avgItemsPerBasket = basketItemCounts.size > 0
-      ? totalItemsSold / basketItemCounts.size
-      : 0;
+    const avgItemsPerBasket =
+      basketItemCounts.size > 0 ? totalItemsSold / basketItemCounts.size : 0;
 
     // Basket size distribution
     const sizeMap = new Map<number, { count: number; revenue: number }>();
@@ -174,7 +169,7 @@ export class TransactionProfilerSkill implements ArosSkill {
       }
     }
 
-    const maxHourlyRevenue = Math.max(...[...hourMap.values()].map(h => h.revenue), 0);
+    const maxHourlyRevenue = Math.max(...[...hourMap.values()].map((h) => h.revenue), 0);
     const peakThreshold = maxHourlyRevenue * 0.6;
 
     const hourlyProfiles: HourlyProfile[] = [...hourMap.entries()]
@@ -189,21 +184,35 @@ export class TransactionProfilerSkill implements ArosSkill {
       .sort((a, b) => a.hour - b.hour);
 
     const peakHour = hourlyProfiles.reduce(
-      (best, h) => h.revenue > best.revenue ? h : best,
-      hourlyProfiles[0] ?? { hour: 0, revenue: 0, transactionCount: 0, avgTicket: 0, avgItemsPerBasket: 0, isPeak: false }
+      (best, h) => (h.revenue > best.revenue ? h : best),
+      hourlyProfiles[0] ?? {
+        hour: 0,
+        revenue: 0,
+        transactionCount: 0,
+        avgTicket: 0,
+        avgItemsPerBasket: 0,
+        isPeak: false,
+      },
     ).hour;
 
-    const offPeakEntries = hourlyProfiles.filter(h => !h.isPeak && h.transactionCount > 0);
-    const offPeakHour = offPeakEntries.length > 0
-      ? offPeakEntries.reduce((best, h) => h.revenue < best.revenue ? h : best, offPeakEntries[0]!).hour
-      : 0;
+    const offPeakEntries = hourlyProfiles.filter((h) => !h.isPeak && h.transactionCount > 0);
+    const offPeakHour =
+      offPeakEntries.length > 0
+        ? offPeakEntries.reduce(
+            (best, h) => (h.revenue < best.revenue ? h : best),
+            offPeakEntries[0]!,
+          ).hour
+        : 0;
 
     const peakRevenue = hourMap.get(peakHour)?.revenue ?? 0;
     const offPeakRevenue = hourMap.get(offPeakHour)?.revenue ?? 1;
     const peakToOffPeakRatio = offPeakRevenue > 0 ? peakRevenue / offPeakRevenue : 0;
 
     // Cashier correlations
-    const cashierMap = new Map<string, { count: number; revenue: number; items: number; discounts: number }>();
+    const cashierMap = new Map<
+      string,
+      { count: number; revenue: number; items: number; discounts: number }
+    >();
     for (const inv of valid) {
       const itemCount = basketItemCounts.get(inv.invoice_no) ?? 1;
       const existing = cashierMap.get(inv.cashier_name);
@@ -279,7 +288,7 @@ export class TransactionProfilerSkill implements ArosSkill {
     }
 
     // Single-item basket opportunity
-    const singleItem = basketSizeDistribution.find(b => b.itemCount === 1);
+    const singleItem = basketSizeDistribution.find((b) => b.itemCount === 1);
     if (singleItem && singleItem.pctOfBaskets > 40) {
       actions.push({
         description: `${singleItem.pctOfBaskets.toFixed(0)}% of baskets are single-item — implement cashier upsell prompts to increase basket size`,

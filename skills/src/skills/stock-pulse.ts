@@ -57,7 +57,7 @@ function daysBetween(dateStr: string, today: string): number | null {
 export function computeStockPulse(
   inventory: InventoryRow[],
   _recentItems: InvoiceItemRow[],
-  today: string
+  today: string,
 ): StockPulseData {
   const outOfStock: StockAlert[] = [];
   const lowStock: StockAlert[] = [];
@@ -183,7 +183,7 @@ export class StockPulseSkill implements ArosSkill {
         description: `Review ${data.deadStock.length} dead stock items for markdown or return to vendor`,
         priority: 3,
         automatable: false,
-        payload: { items: data.deadStock.map(i => i.itemCode) },
+        payload: { items: data.deadStock.map((i) => i.itemCode) },
       });
     }
 

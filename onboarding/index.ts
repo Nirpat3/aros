@@ -23,9 +23,17 @@ import type {
 import { STEP_ORDER, PLAN_LIMITS, DEFAULT_BRANDING } from './types.js';
 
 export type {
-  OnboardingState, OnboardingStep, OnboardingPath,
-  SelectedNode, DiscoveredStore, ModelConfig, SyncStatus,
-  Tenant, TenantPlan, Workspace, WorkspaceType,
+  OnboardingState,
+  OnboardingStep,
+  OnboardingPath,
+  SelectedNode,
+  DiscoveredStore,
+  ModelConfig,
+  SyncStatus,
+  Tenant,
+  TenantPlan,
+  Workspace,
+  WorkspaceType,
   BrandingConfig,
 } from './types.js';
 export { STEP_ORDER, PLAN_LIMITS, DEFAULT_BRANDING } from './types.js';
@@ -77,18 +85,14 @@ export function advanceStep(
     : [...state.completedSteps, completedStep];
 
   const currentIndex = STEP_ORDER.indexOf(completedStep);
-  const nextStep = currentIndex < STEP_ORDER.length - 1
-    ? STEP_ORDER[currentIndex + 1]
-    : 'complete' as const;
+  const nextStep =
+    currentIndex < STEP_ORDER.length - 1 ? STEP_ORDER[currentIndex + 1] : ('complete' as const);
 
   return { ...state, step: nextStep, completedSteps };
 }
 
 /** Go back to a previous step. */
-export function goToStep(
-  state: OnboardingState,
-  targetStep: OnboardingStep,
-): OnboardingState {
+export function goToStep(state: OnboardingState, targetStep: OnboardingStep): OnboardingState {
   return { ...state, step: targetStep };
 }
 
@@ -126,7 +130,7 @@ export function setWelcomeData(
 
 /** Add a connector node selection. */
 export function addNode(state: OnboardingState, node: SelectedNode): OnboardingState {
-  if (state.selectedNodes.some(n => n.nodeId === node.nodeId)) return state;
+  if (state.selectedNodes.some((n) => n.nodeId === node.nodeId)) return state;
   return {
     ...state,
     selectedNodes: [...state.selectedNodes, node],
@@ -137,7 +141,7 @@ export function addNode(state: OnboardingState, node: SelectedNode): OnboardingS
 export function removeNode(state: OnboardingState, nodeId: string): OnboardingState {
   return {
     ...state,
-    selectedNodes: state.selectedNodes.filter(n => n.nodeId !== nodeId),
+    selectedNodes: state.selectedNodes.filter((n) => n.nodeId !== nodeId),
     nodeConfigs: Object.fromEntries(
       Object.entries(state.nodeConfigs).filter(([k]) => k !== nodeId),
     ),
@@ -167,7 +171,7 @@ export function setDiscoveredStores(
 /** Toggle store selection. */
 export function toggleStore(state: OnboardingState, storeId: string): OnboardingState {
   const selected = state.selectedStoreIds.includes(storeId)
-    ? state.selectedStoreIds.filter(id => id !== storeId)
+    ? state.selectedStoreIds.filter((id) => id !== storeId)
     : [...state.selectedStoreIds, storeId];
   return { ...state, selectedStoreIds: selected };
 }
@@ -176,22 +180,19 @@ export function toggleStore(state: OnboardingState, storeId: string): Onboarding
 export function selectAllStores(state: OnboardingState): OnboardingState {
   return {
     ...state,
-    selectedStoreIds: state.discoveredStores.map(s => s.id),
+    selectedStoreIds: state.discoveredStores.map((s) => s.id),
   };
 }
 
 /** Set AI model configuration. */
-export function setModelConfig(
-  state: OnboardingState,
-  config: ModelConfig,
-): OnboardingState {
+export function setModelConfig(state: OnboardingState, config: ModelConfig): OnboardingState {
   return { ...state, modelConfig: config };
 }
 
 /** Toggle agent selection. */
 export function toggleAgent(state: OnboardingState, agentId: string): OnboardingState {
   const selected = state.selectedAgents.includes(agentId)
-    ? state.selectedAgents.filter(id => id !== agentId)
+    ? state.selectedAgents.filter((id) => id !== agentId)
     : [...state.selectedAgents, agentId];
   return { ...state, selectedAgents: selected };
 }
@@ -210,10 +211,7 @@ export function selectBundle(
 }
 
 /** Update sync status. */
-export function setSyncStatus(
-  state: OnboardingState,
-  syncStatus: SyncStatus,
-): OnboardingState {
+export function setSyncStatus(state: OnboardingState, syncStatus: SyncStatus): OnboardingState {
   return { ...state, syncStatus };
 }
 
@@ -230,7 +228,7 @@ export function canAdvance(state: OnboardingState): boolean {
 
     case 'configure':
       // Every selected node must have a config entry
-      return state.selectedNodes.every(n => {
+      return state.selectedNodes.every((n) => {
         const config = state.nodeConfigs[n.nodeId];
         return config && Object.keys(config).length > 0;
       });
@@ -265,7 +263,7 @@ export function canCreateWorkspace(plan: TenantPlan, currentCount: number): bool
 
 /** Check if workspace can add more stores. */
 export function canAddStores(plan: TenantPlan, currentCount: number, adding: number): boolean {
-  return (currentCount + adding) <= PLAN_LIMITS[plan].maxStoresPerWorkspace;
+  return currentCount + adding <= PLAN_LIMITS[plan].maxStoresPerWorkspace;
 }
 
 /** Check if workspace can invite more users. */

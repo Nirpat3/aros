@@ -381,8 +381,21 @@ export class AnalyticsConnector implements DataConnector {
         completed_by = EXCLUDED.completed_by,
         notes        = EXCLUDED.notes`,
       this.storeId
-        ? [completion.checklist_item_id, completion.completed, completion.completed_by, completion.completed_at, completion.notes, this.storeId]
-        : [completion.checklist_item_id, completion.completed, completion.completed_by, completion.completed_at, completion.notes],
+        ? [
+            completion.checklist_item_id,
+            completion.completed,
+            completion.completed_by,
+            completion.completed_at,
+            completion.notes,
+            this.storeId,
+          ]
+        : [
+            completion.checklist_item_id,
+            completion.completed,
+            completion.completed_by,
+            completion.completed_at,
+            completion.notes,
+          ],
     );
   }
 

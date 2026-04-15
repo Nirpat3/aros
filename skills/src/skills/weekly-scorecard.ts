@@ -14,13 +14,7 @@
  * where data is available.
  */
 
-import type {
-  ArosSkill,
-  SkillContext,
-  SkillOutput,
-  Alert,
-  Action,
-} from '../types.js';
+import type { ArosSkill, SkillContext, SkillOutput, Alert, Action } from '../types.js';
 
 interface KpiMetric {
   name: string;
@@ -66,28 +60,25 @@ export class WeeklyScorecardSkill implements ArosSkill {
     ]);
 
     // Sales metrics
-    const validInvoices = invoices.filter(inv => !inv.is_void);
+    const validInvoices = invoices.filter((inv) => !inv.is_void);
     const totalRevenue = validInvoices.reduce((s, inv) => s + inv.bill_amount, 0);
     const transactionCount = validInvoices.length;
     const avgTicket = transactionCount > 0 ? totalRevenue / transactionCount : 0;
     const customerCount = validInvoices.reduce((s, inv) => s + inv.customer_count, 0);
 
     // Margin
-    const validItems = items.filter(i => !i.is_void);
+    const validItems = items.filter((i) => !i.is_void);
     const totalCost = validItems.reduce((s, i) => s + i.cost_price * i.item_qty, 0);
     const grossMargin = totalRevenue - totalCost;
     const grossMarginPct = totalRevenue > 0 ? (grossMargin / totalRevenue) * 100 : 0;
 
     // Labor
-    const totalLaborCost = employees.reduce(
-      (s, e) => s + e.hourly_rate * e.actual_hours, 0
-    );
+    const totalLaborCost = employees.reduce((s, e) => s + e.hourly_rate * e.actual_hours, 0);
     const laborPct = totalRevenue > 0 ? (totalLaborCost / totalRevenue) * 100 : 0;
 
     // Voids / shrink estimate
-    const voidCount = invoices.filter(i => i.is_void).length;
-    const voidAmount = invoices.filter(i => i.is_void)
-      .reduce((s, i) => s + i.bill_amount, 0);
+    const voidCount = invoices.filter((i) => i.is_void).length;
+    const voidAmount = invoices.filter((i) => i.is_void).reduce((s, i) => s + i.bill_amount, 0);
     const shrinkPct = totalRevenue > 0 ? (voidAmount / totalRevenue) * 100 : 0;
 
     // Category performance
@@ -117,53 +108,78 @@ export class WeeklyScorecardSkill implements ArosSkill {
     const kpis: KpiMetric[] = [
       {
         name: 'Total Revenue',
-        value: totalRevenue, unit: '$',
-        priorWeek: null, priorYear: null,
-        wowChangePct: null, yoyChangePct: null,
-        target: null, onTarget: null,
+        value: totalRevenue,
+        unit: '$',
+        priorWeek: null,
+        priorYear: null,
+        wowChangePct: null,
+        yoyChangePct: null,
+        target: null,
+        onTarget: null,
       },
       {
         name: 'Transaction Count',
-        value: transactionCount, unit: 'txn',
-        priorWeek: null, priorYear: null,
-        wowChangePct: null, yoyChangePct: null,
-        target: null, onTarget: null,
+        value: transactionCount,
+        unit: 'txn',
+        priorWeek: null,
+        priorYear: null,
+        wowChangePct: null,
+        yoyChangePct: null,
+        target: null,
+        onTarget: null,
       },
       {
         name: 'Average Ticket',
-        value: avgTicket, unit: '$',
-        priorWeek: null, priorYear: null,
-        wowChangePct: null, yoyChangePct: null,
-        target: null, onTarget: null,
+        value: avgTicket,
+        unit: '$',
+        priorWeek: null,
+        priorYear: null,
+        wowChangePct: null,
+        yoyChangePct: null,
+        target: null,
+        onTarget: null,
       },
       {
         name: 'Customer Count',
-        value: customerCount, unit: 'customers',
-        priorWeek: null, priorYear: null,
-        wowChangePct: null, yoyChangePct: null,
-        target: null, onTarget: null,
+        value: customerCount,
+        unit: 'customers',
+        priorWeek: null,
+        priorYear: null,
+        wowChangePct: null,
+        yoyChangePct: null,
+        target: null,
+        onTarget: null,
       },
       {
         name: 'Gross Margin %',
-        value: grossMarginPct, unit: '%',
-        priorWeek: null, priorYear: null,
-        wowChangePct: null, yoyChangePct: null,
+        value: grossMarginPct,
+        unit: '%',
+        priorWeek: null,
+        priorYear: null,
+        wowChangePct: null,
+        yoyChangePct: null,
         target: store.targetMarginPct,
         onTarget: grossMarginPct >= store.targetMarginPct,
       },
       {
         name: 'Labor Cost %',
-        value: laborPct, unit: '%',
-        priorWeek: null, priorYear: null,
-        wowChangePct: null, yoyChangePct: null,
+        value: laborPct,
+        unit: '%',
+        priorWeek: null,
+        priorYear: null,
+        wowChangePct: null,
+        yoyChangePct: null,
         target: store.targetLaborPct,
         onTarget: laborPct <= store.targetLaborPct,
       },
       {
         name: 'Shrink %',
-        value: shrinkPct, unit: '%',
-        priorWeek: null, priorYear: null,
-        wowChangePct: null, yoyChangePct: null,
+        value: shrinkPct,
+        unit: '%',
+        priorWeek: null,
+        priorYear: null,
+        wowChangePct: null,
+        yoyChangePct: null,
         target: 1.0,
         onTarget: shrinkPct <= 1.0,
       },
@@ -176,7 +192,9 @@ export class WeeklyScorecardSkill implements ArosSkill {
     if (grossMarginPct >= store.targetMarginPct) {
       highlights.push(`Margin on target at ${grossMarginPct.toFixed(1)}%`);
     } else {
-      concerns.push(`Margin below target: ${grossMarginPct.toFixed(1)}% vs ${store.targetMarginPct}% target`);
+      concerns.push(
+        `Margin below target: ${grossMarginPct.toFixed(1)}% vs ${store.targetMarginPct}% target`,
+      );
     }
 
     if (laborPct <= store.targetLaborPct) {

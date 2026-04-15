@@ -23,10 +23,7 @@ export function sanitizeForDisplay(message: string): string {
 // ── Storage Sanitizer ───────────────────────────────────────────
 
 /** Replace plain secure values with vault refs before persisting. */
-export function sanitizeForStorage(
-  message: string,
-  secureFields: SecureField[],
-): string {
+export function sanitizeForStorage(message: string, secureFields: SecureField[]): string {
   let result = message;
   for (const field of secureFields) {
     if (field.isEncrypted && field.mask) {

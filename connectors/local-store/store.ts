@@ -36,12 +36,13 @@ export class LocalAgentStore {
     data: unknown[],
     schema: AgentDataset['schema'] = 'raw',
   ): Promise<AgentDataset> {
-    const resolved = this.config.conexxusEnabled && schema === 'aros-standard'
-      ? {
-          schema: 'conexxus' as const,
-          data: this.toConexxus(data as POSTransaction[]),
-        }
-      : { schema, data: data as Record<string, unknown>[] };
+    const resolved =
+      this.config.conexxusEnabled && schema === 'aros-standard'
+        ? {
+            schema: 'conexxus' as const,
+            data: this.toConexxus(data as POSTransaction[]),
+          }
+        : { schema, data: data as Record<string, unknown>[] };
 
     const dataset: AgentDataset = {
       connectorId,
@@ -89,8 +90,8 @@ export class LocalAgentStore {
    * Full Conexxus standard definitions live in shre-conexxus/.
    */
   toConexxus(transactions: POSTransaction[]): ConexxusDataRecord[] {
-    return transactions.map(tx => {
-      const items: ConexxusLineItem[] = tx.lineItems.map(item => ({
+    return transactions.map((tx) => {
+      const items: ConexxusLineItem[] = tx.lineItems.map((item) => ({
         description: item.itemName,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
@@ -150,7 +151,8 @@ export class LocalAgentStore {
   private normalizeTenderType(raw: string): ConexxusTender['type'] {
     const t = raw.toLowerCase();
     if (t.includes('cash')) return 'cash';
-    if (t.includes('credit') || t.includes('visa') || t.includes('mc') || t.includes('amex')) return 'credit';
+    if (t.includes('credit') || t.includes('visa') || t.includes('mc') || t.includes('amex'))
+      return 'credit';
     if (t.includes('debit')) return 'debit';
     if (t.includes('gift')) return 'gift';
     if (t.includes('loyalty') || t.includes('reward')) return 'loyalty';

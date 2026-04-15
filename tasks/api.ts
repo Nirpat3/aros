@@ -28,7 +28,9 @@ export function createTaskRouter(getAgent: () => import('../aros-ai/agent.js').A
     try {
       const input: TaskCreateInput = req.body;
       if (!input.title || !input.agentId || !input.tenantId || !input.createdBy) {
-        res.status(400).json({ error: 'Missing required fields: title, agentId, tenantId, createdBy' });
+        res
+          .status(400)
+          .json({ error: 'Missing required fields: title, agentId, tenantId, createdBy' });
         return;
       }
 

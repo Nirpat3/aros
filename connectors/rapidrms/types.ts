@@ -1,19 +1,19 @@
 // ── RapidRMS Connector Types ─────────────────────────────────────
 
 export interface RapidRMSConfig {
-  baseUrl: string;          // default: https://rapidrmsapi.azurewebsites.net
-  clientId: string;         // RapidRMS client ID
-  email: string;            // vaultRef in production
-  password: string;         // vaultRef in production
-  storeDbName: string;      // e.g. RapidRMS2
-  syncIntervalMs?: number;  // default 900000 (15 min)
+  baseUrl: string; // default: https://rapidrmsapi.azurewebsites.net
+  clientId: string; // RapidRMS client ID
+  email: string; // vaultRef in production
+  password: string; // vaultRef in production
+  storeDbName: string; // e.g. RapidRMS2
+  syncIntervalMs?: number; // default 900000 (15 min)
 }
 
 export interface POSTransaction {
   invoiceId: string;
   storeId: string;
   cashier?: string;
-  timestamp: string;        // ISO 8601
+  timestamp: string; // ISO 8601
   totalAmount: number;
   taxAmount: number;
   discountAmount: number;
@@ -46,8 +46,8 @@ export interface POSInventoryItem {
 }
 
 export interface RapidRMSSyncOptions {
-  fromDate: string;     // YYYY-MM-DD
-  toDate: string;       // YYYY-MM-DD
+  fromDate: string; // YYYY-MM-DD
+  toDate: string; // YYYY-MM-DD
   storeDbName?: string;
 }
 

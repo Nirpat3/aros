@@ -11,19 +11,17 @@
  * Scoring: each suspicious pattern adds to a risk score per cashier.
  */
 
-import type {
-  ArosSkill,
-  SkillContext,
-  SkillOutput,
-  InvoiceRow,
-  Alert,
-  Action,
-} from '../types.js';
+import type { ArosSkill, SkillContext, SkillOutput, InvoiceRow, Alert, Action } from '../types.js';
 
 interface SuspiciousEvent {
   invoiceNo: string;
   cashierName: string;
-  type: 'high-void-rate' | 'sweetheart-suspect' | 'late-night-void' | 'round-refund' | 'orphan-refund';
+  type:
+    | 'high-void-rate'
+    | 'sweetheart-suspect'
+    | 'late-night-void'
+    | 'round-refund'
+    | 'orphan-refund';
   description: string;
   riskPoints: number;
   timestamp: string;
@@ -85,9 +83,9 @@ export class VoidRefundAuditorSkill implements ArosSkill {
       let riskScore = 0;
       const cashierEvents: SuspiciousEvent[] = [];
 
-      const voids = invs.filter(i => i.is_void);
-      const refunds = invs.filter(i => i.is_refund && !i.is_void);
-      const valid = invs.filter(i => !i.is_void);
+      const voids = invs.filter((i) => i.is_void);
+      const refunds = invs.filter((i) => i.is_refund && !i.is_void);
+      const valid = invs.filter((i) => !i.is_void);
 
       const voidRate = invs.length > 0 ? (voids.length / invs.length) * 100 : 0;
       const refundRate = invs.length > 0 ? (refunds.length / invs.length) * 100 : 0;
@@ -109,7 +107,7 @@ export class VoidRefundAuditorSkill implements ArosSkill {
       // Look for voids followed by a valid sale of similar amount
       for (const voidInv of voids) {
         const voidTime = new Date(voidInv.invoice_date).getTime();
-        const similarSale = valid.find(v => {
+        const similarSale = valid.find((v) => {
           const saleTime = new Date(v.invoice_date).getTime();
           const timeDiff = saleTime - voidTime;
           // Within 5 minutes and similar amount (±10%)
@@ -179,11 +177,11 @@ export class VoidRefundAuditorSkill implements ArosSkill {
 
     profiles.sort((a, b) => b.riskScore - a.riskScore);
     const highRiskCashiers = profiles
-      .filter(p => p.riskScore >= HIGH_RISK_THRESHOLD)
-      .map(p => p.cashierName);
+      .filter((p) => p.riskScore >= HIGH_RISK_THRESHOLD)
+      .map((p) => p.cashierName);
 
-    const totalVoids = invoices.filter(i => i.is_void).length;
-    const totalRefunds = invoices.filter(i => i.is_refund && !i.is_void).length;
+    const totalVoids = invoices.filter((i) => i.is_void).length;
+    const totalRefunds = invoices.filter((i) => i.is_refund && !i.is_void).length;
 
     const data: VoidRefundAuditorData = {
       cashierProfiles: profiles,
@@ -197,7 +195,7 @@ export class VoidRefundAuditorSkill implements ArosSkill {
     const actions: Action[] = [];
 
     for (const cashier of highRiskCashiers) {
-      const profile = profiles.find(p => p.cashierName === cashier);
+      const profile = profiles.find((p) => p.cashierName === cashier);
       if (!profile) continue;
       alerts.push({
         severity: 'critical',
@@ -208,7 +206,7 @@ export class VoidRefundAuditorSkill implements ArosSkill {
         threshold: HIGH_RISK_THRESHOLD,
       });
       actions.push({
-        description: `Review transaction logs and camera footage for ${cashier} — ${profile.events.map(e => e.type).join(', ')}`,
+        description: `Review transaction logs and camera footage for ${cashier} — ${profile.events.map((e) => e.type).join(', ')}`,
         priority: 1,
         automatable: false,
         payload: { cashier, events: profile.events },
