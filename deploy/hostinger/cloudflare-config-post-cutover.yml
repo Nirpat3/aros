@@ -1,64 +1,102 @@
-# Cloudflare Tunnel Config — POST VPS CUTOVER
+# Cloudflare Tunnel Config — MULTI-DOMAIN (2026-04-16)
 # ═══════════════════════════════════════════════════════════════════════════
-# This config replaces ~/.cloudflared/config.yml AFTER DNS has been
-# cut over to the VPS (187.124.85.107) for public-facing routes.
+# Supports 8 domains: shre.ai, aros.live, nirlab.net, agenticretailos.com,
+# nirtek.net (legacy), + 3 redirect domains.
 #
-# What changed:
-#   - spillquest.com       → REMOVED (now DNS A record → VPS)
-#   - *.nirtek.net gated   → REMOVED (now DNS A record → VPS via nginx-nirtek.conf)
-#   - aros.nirtek.net      → already removed (was cut over earlier)
-#
-# What remains:
-#   - investor.nirtek.net  → stays on Mac (own auth, port 5414)
-#   - shadow-ollama/ssh    → stays on Mac (Tailscale private routes)
-#   - disabled routes      → kept for completeness
-#   - catch-all 404        → required by cloudflared
+# Routing principle:
+#   - Landing/marketing pages → VPS (DNS A records, not tunnel)
+#   - Mac-dependent services (CortexDB, Ollama, agents) → tunnel
+#   - Redirect domains → VPS nginx (301 redirects)
 #
 # To apply:
 #   cp cloudflare-config-post-cutover.yml ~/.cloudflared/config.yml
 #   launchctl unload ~/Library/LaunchAgents/ai.shre.cloudflare-tunnel.plist
 #   launchctl load ~/Library/LaunchAgents/ai.shre.cloudflare-tunnel.plist
-# ════════════════════════════════════════════════════════════════════════���══
+# ═══════════════════════════════════════════════════════════════════════════
 
 tunnel: a789b275-63b4-49bd-bb7c-6697135b7b70
 credentials-file: /Users/aibot/.cloudflared/a789b275-63b4-49bd-bb7c-6697135b7b70.json
 
 ingress:
-  # ── Mac-only services (not on VPS, stay on tunnel) ─────────────────────
-  # Shre Chat — stays on Mac (depends on CortexDB, Ollama)
+  # ══════════════════════════════════════════════════════════════════════
+  # shre.ai — Mac-dependent services (CortexDB, Ollama, agents)
+  # Landing page (shre.ai / www.shre.ai) → VPS via DNS A record
+  # ══════════════════════════════════════════════════════════════════════
+
+  # Platform app (MIB007 UI + API) — depends on full agent stack
+  - hostname: app.shre.ai
+    service: http://127.0.0.1:5431
+
+  # Shre Chat — depends on CortexDB, Ollama, shre-router
+  - hostname: chat.shre.ai
+    service: http://127.0.0.1:5431
+
+  # API gateway — shre-router, depends on all backend services
+  - hostname: api.shre.ai
+    service: http://127.0.0.1:5497
+
+  # Developer docs — served from shre-site
+  - hostname: docs.shre.ai
+    service: http://127.0.0.1:5414
+
+  # Status dashboard — shre-health
+  - hostname: status.shre.ai
+    service: http://127.0.0.1:5485
+
+  # Voice — depends on local Ollama
+  - hostname: voice.shre.ai
+    service: http://127.0.0.1:5431
+
+  # ══════════════════════════════════════════════════════════════════════
+  # aros.live — Mac-dependent services
+  # Landing page (aros.live / www.aros.live) → VPS via DNS A record
+  # ══════════════════════════════════════════════════════════════════════
+
+  # Customer dashboard — depends on CortexDB, agent stack
+  - hostname: app.aros.live
+    service: http://127.0.0.1:5431
+
+  # ══════════════════════════════════════════════════════════════════════
+  # nirlab.net — Investor portal on Mac (own auth)
+  # Landing page (nirlab.net / www.nirlab.net) → VPS via DNS A record
+  # ══════════════════════════════════════════════════════════════════════
+
+  - hostname: investor.nirlab.net
+    service: http://127.0.0.1:5414
+
+  # ══════════════════════════════════════════════════════════════════════
+  # nirtek.net legacy — Mac-dependent services (keep during migration)
+  # ══════════════════════════════════════════════════════════════════════
+
   - hostname: shre.nirtek.net
     service: http://127.0.0.1:5431
 
   - hostname: chat.nirtek.net
     service: http://127.0.0.1:5431
 
-  # MIB007 — stays on Mac (depends on CortexDB, full agent stack)
   - hostname: mib007.nirtek.net
     service: http://127.0.0.1:5431
 
   - hostname: mib.nirtek.net
     service: http://127.0.0.1:5431
 
-  # Command Center — mesh topology dashboard, stays on Mac
   - hostname: commandcenter.nirtek.net
     service: http://127.0.0.1:5431
 
-  # Shre City — SimCity visualization, stays on Mac
   - hostname: shrecity.nirtek.net
     service: http://127.0.0.1:5431
 
-  # Voice — depends on local Ollama, stays on Mac
   - hostname: voice.nirtek.net
     service: http://127.0.0.1:5431
 
-  # ── Investor Portal — stays on Mac (own auth, not behind auth-gate) ────
+  # Legacy investor portal — keep until nirlab.net migration complete
   - hostname: investor.nirtek.net
     service: http://127.0.0.1:5414
 
   - hostname: investors.nirtek.net
     service: http://127.0.0.1:5414
 
-  # ── Disabled routes ────────────────────────────────────────────────────
+  # ── Disabled routes ────────────────────────────────────────────────
   - hostname: app.nirtek.net
     service: http_status:410
 
@@ -68,30 +106,42 @@ ingress:
   - hostname: blocks.nirlab.io
     service: http_status:403
 
-  # ── Private routes (Tailscale machine-to-machine) ──────────────────────
-  # Shadow PC GPU server — Ollama + fine-tuning
+  # ── Private routes (Tailscale machine-to-machine) ──────────────────
   - hostname: shadow-ollama.nirtek.net
     service: http://100.86.194.36:11434
     originRequest:
       noTLSVerify: true
       connectTimeout: 30s
 
-  # Shadow PC SSH
   - hostname: shadow-ssh.nirtek.net
     service: ssh://100.86.194.36:22
 
-  # ── Catch-all (required by cloudflared) ────────────────────────────────
+  # ── Catch-all (required by cloudflared) ────────────────────────────
   - service: http_status:404
 
-# ══════════════════════════════════════════════════════════════════════════��
-# ROUTE DISTRIBUTION:
+# ═══════════════════════════════════════════════════════════════════════════
+# ROUTE DISTRIBUTION (8 domains):
 #
-# VPS (DNS A record → 187.124.85.107):
-#   spillquest.com, api/pos/billing/support/marketplace.nirtek.net, etc.
+# VPS (DNS A record → 187.124.85.107, nginx TLS termination):
+#   shre.ai, www.shre.ai             — platform landing page
+#   aros.live, www.aros.live          — product landing page
+#   nirlab.net, www.nirlab.net        — corporate landing page
+#   agenticretailos.com, www          — SEO concept page
+#   arosapp.com, arosapp.online       — 301 → aros.live
+#   agenticretailos.online             — 301 → agenticretailos.com
+#   spillquest.com                     — SpillQuest app
+#   nirtek.net, www.nirtek.net         — legacy AROS SPA
 #
-# Mac tunnel (above — depends on CortexDB/Ollama):
-#   shre/chat/mib007/mib/commandcenter/shrecity/voice.nirtek.net
-#   investor.nirtek.net (own auth)
+# Mac tunnel (above — depends on CortexDB/Ollama/agents):
+#   app.shre.ai      — MIB007 platform UI
+#   chat.shre.ai     — Shre Chat
+#   api.shre.ai      — shre-router gateway
+#   docs.shre.ai     — developer docs
+#   status.shre.ai   — health dashboard
+#   voice.shre.ai    — voice platform
+#   app.aros.live    — customer dashboard
+#   investor.nirlab.net — investor portal
+#   *.nirtek.net legacy (shre/chat/mib007/mib/commandcenter/shrecity/voice)
 #
 # Private (Tailscale): shadow-ollama/ssh.nirtek.net
 # ═══════════════════════════════════════════════════════════════════════════
