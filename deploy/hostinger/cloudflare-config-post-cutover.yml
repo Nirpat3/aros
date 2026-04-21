@@ -35,9 +35,9 @@ ingress:
   - hostname: api.shre.ai
     service: http://127.0.0.1:5497
 
-  # Developer docs — served from shre-site
+  # Developer docs — aros-developer-portal
   - hostname: docs.shre.ai
-    service: http://127.0.0.1:5414
+    service: http://127.0.0.1:5442
 
   # Status dashboard — shre-health
   - hostname: status.shre.ai
@@ -136,7 +136,7 @@ ingress:
 #   app.shre.ai      — MIB007 platform UI
 #   chat.shre.ai     — Shre Chat
 #   api.shre.ai      — shre-router gateway
-#   docs.shre.ai     — developer docs
+#   docs.shre.ai     — developer docs (aros-developer-portal:5442)
 #   status.shre.ai   — health dashboard
 #   voice.shre.ai    — voice platform
 #   app.aros.live    — customer dashboard
