@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useWhitelabel } from '../whitelabel/WhitelabelProvider';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 const API_BASE = (window as any).__AROS_API_URL__
   || (window.location.hostname === 'localhost' ? 'http://localhost:5457' : '');
@@ -93,14 +94,53 @@ function MetricCard({
 /* ─── Dashboard ──────────────────────────────────────────── */
 export function Dashboard() {
   const { config } = useWhitelabel();
-  const { session } = useAuth();
+  const { session, tenant } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
 
+    // Returns today + yesterday rows for the active tenant from Supabase,
+    // so the dashboard reflects the store selected in the TenantPicker.
+    async function fetchFromSupabase(): Promise<DashboardData | null> {
+      if (!tenant?.id) return null;
+      const today = new Date();
+      const yday = new Date(today);
+      yday.setDate(today.getDate() - 1);
+      const toISO = (d: Date) => d.toISOString().slice(0, 10);
+      const { data: rows, error } = await supabase
+        .from('pos_sales_daily')
+        .select('business_date, total_sales, total_transactions')
+        .eq('tenant_id', tenant.id)
+        .is('department', null)
+        .gte('business_date', toISO(yday))
+        .lte('business_date', toISO(today))
+        .order('business_date', { ascending: false });
+      if (error || !rows) return null;
+      const todayRow = rows.find((r) => r.business_date === toISO(today));
+      const ydayRow = rows.find((r) => r.business_date === toISO(yday));
+      const todayRev = Number(todayRow?.total_sales ?? 0);
+      const ydayRev = Number(ydayRow?.total_sales ?? 0);
+      const changePercent = ydayRev > 0 ? ((todayRev - ydayRev) / ydayRev) * 100 : 0;
+      return {
+        todaySales: { revenue: todayRev, changePercent },
+        activeAlerts: { count: 0, critical: 0 },
+        aiAgents: { active: 0, total: 0, statuses: {} },
+        lowStock: { count: 0, items: [] },
+        recentActivity: [],
+      };
+    }
+
     async function fetchDashboard() {
+      // Primary: Supabase pos_sales_daily for the active tenant
+      const sb = await fetchFromSupabase();
+      if (!cancelled && sb) {
+        setData(sb);
+        setLoading(false);
+        return;
+      }
+      // Secondary: aros-platform API (legacy)
       try {
         const headers: Record<string, string> = {};
         if (session?.access_token) {
@@ -117,7 +157,7 @@ export function Dashboard() {
           setLoading(false);
         }
       } catch {
-        // API not available — fall back to mock data
+        // Neither source available — fall back to mock data
         if (!cancelled) {
           setData(MOCK_DATA);
           setLoading(false);
@@ -127,7 +167,7 @@ export function Dashboard() {
 
     fetchDashboard();
     return () => { cancelled = true; };
-  }, [session]);
+  }, [session, tenant?.id]);
 
   const d = data;
   const changeSign = d && d.todaySales.changePercent >= 0 ? '+' : '';
