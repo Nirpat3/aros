@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useWhitelabel } from '../whitelabel/WhitelabelProvider';
 import { UpdateBadge } from './updates';
 import { useAuth } from '../admin/useAuth';
+import { TenantPicker } from './TenantPicker';
 
 export function Sidebar() {
   const { config } = useWhitelabel();
@@ -45,6 +46,9 @@ export function Sidebar() {
         <div className="aros-sidebar-header">
           <img src={config.logo?.primary} alt={config.brand.name} className="aros-logo" />
           <span className="aros-brand-name">{config.brand.name}</span>
+        </div>
+        <div style={{ padding: '12px 16px', borderBottom: '1px solid #e5e7eb' }}>
+          <TenantPicker />
         </div>
         <nav className="aros-nav">
           <a href="/dashboard" className="aros-nav-item active" onClick={close}>Dashboard</a>

@@ -6,10 +6,9 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { session, tenant, loading } = useAuth();
+  const { session, memberships, loading } = useAuth();
   const path = window.location.pathname;
 
-  // Loading state — show centered spinner
   if (loading) {
     return (
       <div style={styles.wrapper}>
@@ -19,14 +18,13 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  // No session — redirect to login
   if (!session) {
     window.location.href = '/login';
     return null;
   }
 
-  // Session exists but no tenant, and not already on onboarding
-  if (!tenant && !path.startsWith('/onboarding')) {
+  // New user with no tenant memberships — funnel through onboarding
+  if (memberships.length === 0 && !path.startsWith('/onboarding')) {
     window.location.href = '/onboarding';
     return null;
   }
@@ -59,7 +57,6 @@ const styles: Record<string, React.CSSProperties> = {
   },
 };
 
-// Inject keyframes for spinner animation
 if (typeof document !== 'undefined' && !document.getElementById('protected-route-styles')) {
   const styleEl = document.createElement('style');
   styleEl.id = 'protected-route-styles';
